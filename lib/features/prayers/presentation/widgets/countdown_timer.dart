@@ -8,7 +8,6 @@ class CountdownTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
-    TextStyle? currentPrayer = Theme.of(context).textTheme.bodyMedium;
     TextStyle? nextPrayer = Theme.of(context).textTheme.bodyMedium;
     TextStyle? timer = Theme.of(context).textTheme.displaySmall;
 
@@ -27,20 +26,24 @@ class CountdownTimer extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        SizedBox(height: 20),
-                        Text(
-                          'Current prayer: ${model.currentPrayer.name}',
-                          style: currentPrayer,
+                        Padding(
+                          padding: EdgeInsetsGeometry.only(
+                            top: 20,
+                            left: 15,
+                            right: 15,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Current: ${model.currentPrayer.name}", style: textStyle),
+                              Text("Next: ${model.nextPrayer.name}", style: textStyle),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 40),
                         Text('Time to next prayer:', style: nextPrayer),
                         SizedBox(height: 10),
                         Text(model.countdown, style: timer),
-                        SizedBox(height: 10),
-                        Text(
-                          'Next Prayer: ${model.nextPrayer.name}',
-                          style: textStyle,
-                        ),
                         SizedBox(height: 20),
                       ],
                     ),

@@ -17,7 +17,7 @@ class PrayerList extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20),
+                SizedBox(height: 60),
                 Text('Prayer Times', style: Theme.of(context).textTheme.bodyMedium),
                 for (var prayer in model.prayers) ...[
                   const SizedBox(height: 20),

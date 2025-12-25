@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      home: Scaffold(body: PrayerView(), backgroundColor: Colors.black),
+      home: Scaffold(body: SafeArea(child: PrayerView()), backgroundColor: Colors.black),
     );
   }
 }
