@@ -1,0 +1,81 @@
+import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
+import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
+
+class PrayerTimesRepository {
+  final _prayerTimesService = PrayerTimesService();
+
+  Future<List<PrayerModel>> getPrayerTimesForToday() async {
+    var timestamp = DateTime.now().millisecondsSinceEpoch;
+    var data = await _prayerTimesService.getPrayerTimesForTimestamp(timestamp);
+
+    if (data == null) return [];
+
+    return data.prayers;
+  }
+
+  Future<List<PrayerModel>> getPrayerTimesForTomorrow() async {
+    var timestamp = DateTime.now()
+        .add(const Duration(days: 1))
+        .millisecondsSinceEpoch;
+
+    var data = await _prayerTimesService.getPrayerTimesForTimestamp(timestamp);
+
+    if (data == null) return [];
+
+    return data.prayers;
+  }
+
+  Future<PrayerModel?> getCurrentPrayer() async {
+    var prayerTimesToday = await getPrayerTimesForToday();
+    var prayerTimesTomorrow = await getPrayerTimesForTomorrow();
+
+    if (prayerTimesToday.isEmpty) return null;
+
+    List<PrayerModel> allPrayers = [
+      ...prayerTimesToday,
+      ...prayerTimesTomorrow,
+    ];
+
+    allPrayers.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    var currentTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    PrayerModel? closestPrayer;
+
+    for (var prayer in allPrayers) {
+      if (prayer.timestamp < currentTimestamp) {
+        closestPrayer = prayer;
+        break;
+      }
+    }
+
+    return closestPrayer;
+  }
+
+  Future<PrayerModel?> getNextPrayer() async {
+    var prayerTimesToday = await getPrayerTimesForToday();
+    var prayerTimesTomorrow = await getPrayerTimesForTomorrow();
+
+    if (prayerTimesToday.isEmpty) return null;
+
+    List<PrayerModel> allPrayers = [
+      ...prayerTimesToday,
+      ...prayerTimesTomorrow,
+    ];
+
+    allPrayers.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    var currentTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    PrayerModel? closestPrayer;
+
+    for (var prayer in allPrayers) {
+      if (prayer.timestamp > currentTimestamp) {
+        closestPrayer = prayer;
+        break;
+      }
+    }
+
+    return closestPrayer;
+  }
+}
