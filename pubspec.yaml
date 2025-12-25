@@ -40,6 +40,8 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
   workmanager: ^0.8.0
+  flutter_native_splash: ^2.4.7
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +68,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/prayer-times/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -92,3 +95,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#000000" # Background color (True Black)
+  image: assets/icons/icon.png # Your mosque icon
+  
+  android_12:
+    image: assets/icons/icon.png
+    color: "#000000"
+    icon_background_color: "#000000"
+
+  fullscreen: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/icon.png"
+  # For Android Adaptive Icons (Recommended)
+  adaptive_icon_background: "#000000" # Matches your True Black theme
+  adaptive_icon_foreground: "assets/icons/icon.png"

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
@@ -7,7 +8,8 @@ import 'package:workmanager/workmanager.dart';
 import 'package:prayer_times/core/background_executor.dart' as bg;
 
 Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   tz.initializeTimeZones();
   NotificationService.initialize();
@@ -19,6 +21,8 @@ Future main() async {
     frequency: const Duration(minutes: 15),
     existingWorkPolicy: ExistingWorkPolicy.keep,
   );
+
+  FlutterNativeSplash.remove();
 
   runApp(MyApp());
 }

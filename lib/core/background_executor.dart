@@ -3,7 +3,7 @@ import 'package:prayer_times/features/prayers/data/respositories/prayer_times_re
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
-@pragma('vem:entry-point')
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     tz.initializeTimeZones();

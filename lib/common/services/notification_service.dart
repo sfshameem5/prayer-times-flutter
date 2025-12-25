@@ -22,7 +22,7 @@ class NotificationService {
 
   static Future initialize() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('ic_notification');
 
     final InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
@@ -50,7 +50,6 @@ class NotificationService {
     );
 
     final location = tz.getLocation("Asia/Colombo");
-
     final scheduledDate = tz.TZDateTime.fromMillisecondsSinceEpoch(
       location,
       data.timestamp,
