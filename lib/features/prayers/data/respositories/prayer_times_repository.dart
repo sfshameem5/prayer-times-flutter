@@ -1,3 +1,6 @@
+import 'package:intl/intl.dart';
+import 'package:prayer_times/common/data/models/notification_model.dart';
+import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 
@@ -77,5 +80,37 @@ class PrayerTimesRepository {
     }
 
     return closestPrayer;
+  }
+
+  int _generateUniquePrayerId(PrayerModel prayer) {
+    var date = DateTime.fromMillisecondsSinceEpoch(prayer.timestamp);
+    return (date.day * 100) + (date.month * 10) + prayer.name.index;
+  }
+
+  Future scheduleNotificationsForToday() async {
+    // For each prayer use timestamp as ID and schedule notifications
+    var prayers = await getPrayerTimesForToday();
+
+    if (prayers.isEmpty) return;
+
+    var currentTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    for (var prayer in prayers) {
+      if (currentTimestamp > prayer.timestamp) {
+        continue;
+      }
+
+      var date = DateTime.fromMillisecondsSinceEpoch(prayer.timestamp);
+      var displayTime = DateFormat.jm().format(date);
+
+      final notification = NotificationModel(
+        id: _generateUniquePrayerId(prayer),
+        heading: "Time for ${prayer.name.name}",
+        body: "${prayer.name.name} at $displayTime",
+        timestamp: prayer.timestamp,
+      );
+
+      await NotificationService.scheduleNotification(notification);
+    }
   }
 }

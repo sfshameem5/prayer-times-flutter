@@ -15,10 +15,16 @@ class PrayerViewModel extends ChangeNotifier {
   List<PrayerModel> _prayersList = [];
 
   Timer? _timer;
-  CountdownModel _countdown = CountdownModel(hours: "0", minutes: "0", seconds: "0");
+  CountdownModel _countdown = CountdownModel(
+    hours: "0",
+    minutes: "0",
+    seconds: "0",
+  );
 
   PrayerViewModel() {
     _init();
+    _prayerTimesRepository.scheduleNotificationsForToday();
+    // _prayerTimesRepository.sendPrayerNotification();
   }
 
   Future<void> _init() async {
@@ -58,7 +64,11 @@ class PrayerViewModel extends ChangeNotifier {
     final minutes = (difference.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (difference.inSeconds % 60).toString().padLeft(2, '0');
 
-    _countdown = CountdownModel(hours: hours, minutes: minutes, seconds: seconds);
+    _countdown = CountdownModel(
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds,
+    );
 
     notifyListeners();
   }

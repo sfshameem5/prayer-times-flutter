@@ -37,6 +37,9 @@ dependencies:
   intl: ^0.20.2
   provider: ^6.1.5+1
   google_fonts: ^6.3.3
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
+  workmanager: ^0.8.0
 
 dev_dependencies:
   flutter_test:
