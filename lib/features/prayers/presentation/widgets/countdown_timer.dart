@@ -21,7 +21,7 @@ class CountdownTimer extends StatelessWidget {
                 child: FractionallySizedBox(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).cardTheme.color,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Column(
@@ -35,8 +35,14 @@ class CountdownTimer extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Current: ${model.currentPrayer.name}", style: textStyle),
-                              Text("Next: ${model.nextPrayer.name}", style: textStyle),
+                              Text(
+                                "Current: ${model.currentPrayer.name}",
+                                style: textStyle,
+                              ),
+                              Text(
+                                "Next: ${model.nextPrayer.name}",
+                                style: textStyle,
+                              ),
                             ],
                           ),
                         ),

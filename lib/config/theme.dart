@@ -2,57 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  // Hex Colors from your React Native project
+  static const Color appOrange = Color(0xFFFB8500);
+  static const Color appBlue = Color(0xFF0288D1);
+  static const Color darkText = Color(0xFF1A202C);
+  static const Color navySurface = Color(0xFF14213D);
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-
-      // Defining the core color palette
-      colorScheme: const ColorScheme(
-        brightness: Brightness.light,
-        primary: Color(0xFF14213D),
-        // Prussian Blue
+      colorScheme: const ColorScheme.light(
+        primary: appOrange,
         onPrimary: Colors.white,
-
-        secondary: Color(0xFFFCA311),
-        // Orange / Gold
-        onSecondary: Colors.black,
-
-        // Black text for contrast on gold
+        secondary: appBlue,
+        onSecondary: Colors.white,
         surface: Colors.white,
-        // Cards and Dialogs
-        onSurface: Color(0xFF000000),
-
-        // Black text
-        error: Colors.redAccent,
-        onError: Colors.white,
+        onSurface: darkText, // Matches your RN light mode text
       ),
-
-      // Customizing specific components for a "Premium" feel
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF14213D), // Prussian Blue
-        foregroundColor: Colors.white, // White text/icons
-        elevation: 0,
-      ),
-
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFFFCA311), // Gold Accent
-        foregroundColor: Colors.black,
-      ),
-
+      scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       cardTheme: CardThemeData(
         color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade200),
+        ),
       ),
-
       textTheme: GoogleFonts.interTextTheme(
         const TextTheme(
-          displayLarge: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-          // bodyLarge: TextStyle(color: Colors.black),
+          bodyLarge: TextStyle(color: darkText),
+          bodyMedium: TextStyle(color: darkText),
         ),
       ),
     );
@@ -62,47 +42,29 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        primary: Color(0xFF14213D),
-        // Prussian Blue
+      scaffoldBackgroundColor: Colors.black, // True black background
+      colorScheme: const ColorScheme.dark(
+        primary: appOrange,
         onPrimary: Colors.white,
-
-        secondary: Color(0xFFFCA311),
-        // Gold Accent
-        onSecondary: Colors.black,
-
-        // In Dark Mode, surfaces are slightly lighter than the background
-        surface: Color(0xFF14213D),
-        // Dark Navy surfaces
-        onSurface: Color(0xFFE5E5E5),
-
-        // Alabaster text
-        error: Colors.redAccent,
-        onError: Colors.white,
+        secondary:
+            appOrange, // In your RN dark mode, everything uses orange accents
+        surface: navySurface, // Navy cards on black background
+        onSurface: Colors.white,
       ),
-
+      cardTheme: CardThemeData(
+        color: navySurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.black,
-        foregroundColor: Color(
-          0xFFFCA311,
-        ), // Gold titles in dark mode look great
+        foregroundColor: appOrange,
         elevation: 0,
       ),
-
-      cardTheme: CardThemeData(
-        color: const Color(0xFF14213D), // Navy cards on black background
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-
       textTheme: GoogleFonts.interTextTheme(
         const TextTheme(
-          displayLarge: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
           bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
         ),
       ),
     );

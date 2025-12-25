@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PrayerCard extends StatelessWidget {
-  const PrayerCard({super.key, required this.name, required this.time });
+  const PrayerCard({super.key, required this.name, required this.time});
 
   final String name;
   final String time;
@@ -10,10 +10,7 @@ class PrayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 3,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        border: Border.all(width: 3, color: Theme.of(context).cardColor),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Row(
@@ -36,7 +33,7 @@ class PrayerCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                         time,
+                          time,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
