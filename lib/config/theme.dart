@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -9,15 +10,20 @@ class AppTheme {
       // Defining the core color palette
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
-        primary: Color(0xFF14213D), // Prussian Blue
+        primary: Color(0xFF14213D),
+        // Prussian Blue
         onPrimary: Colors.white,
 
-        secondary: Color(0xFFFCA311), // Orange / Gold
-        onSecondary: Colors.black, // Black text for contrast on gold
+        secondary: Color(0xFFFCA311),
+        // Orange / Gold
+        onSecondary: Colors.black,
 
-        surface: Colors.white, // Cards and Dialogs
-        onSurface: Color(0xFF000000), // Black text
+        // Black text for contrast on gold
+        surface: Colors.white,
+        // Cards and Dialogs
+        onSurface: Color(0xFF000000),
 
+        // Black text
         error: Colors.redAccent,
         onError: Colors.white,
       ),
@@ -40,12 +46,14 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+      textTheme: GoogleFonts.interTextTheme(
+        const TextTheme(
+          displayLarge: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+          // bodyLarge: TextStyle(color: Colors.black),
         ),
-        bodyLarge: TextStyle(color: Colors.black),
       ),
     );
   }
@@ -57,16 +65,20 @@ class AppTheme {
 
       colorScheme: const ColorScheme(
         brightness: Brightness.dark,
-        primary: Color(0xFF14213D), // Prussian Blue
+        primary: Color(0xFF14213D),
+        // Prussian Blue
         onPrimary: Colors.white,
 
-        secondary: Color(0xFFFCA311), // Gold Accent
+        secondary: Color(0xFFFCA311),
+        // Gold Accent
         onSecondary: Colors.black,
 
         // In Dark Mode, surfaces are slightly lighter than the background
-        surface: Color(0xFF14213D), // Dark Navy surfaces
-        onSurface: Color(0xFFE5E5E5), // Alabaster text
+        surface: Color(0xFF14213D),
+        // Dark Navy surfaces
+        onSurface: Color(0xFFE5E5E5),
 
+        // Alabaster text
         error: Colors.redAccent,
         onError: Colors.white,
       ),
@@ -82,6 +94,16 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: const Color(0xFF14213D), // Navy cards on black background
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+
+      textTheme: GoogleFonts.interTextTheme(
+        const TextTheme(
+          displayLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          bodyLarge: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

@@ -8,7 +8,7 @@ class CountdownTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
-    TextStyle? currentPrayer = Theme.of(context).textTheme.bodyLarge;
+    TextStyle? currentPrayer = Theme.of(context).textTheme.bodyMedium;
     TextStyle? nextPrayer = Theme.of(context).textTheme.bodyMedium;
     TextStyle? timer = Theme.of(context).textTheme.displaySmall;
 
@@ -20,15 +20,10 @@ class CountdownTimer extends StatelessWidget {
             children: [
               Expanded(
                 child: FractionallySizedBox(
-                  // widthFactor: 0.8,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(5),
-                      // border: Border.all(
-                      //   color: Theme.of(context).colorScheme.secondary,
-                      //   width: 2,
-                      // ),
                     ),
                     child: Column(
                       children: [
