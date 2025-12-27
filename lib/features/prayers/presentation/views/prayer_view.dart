@@ -12,20 +12,15 @@ class PrayerView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => PrayerViewModel(),
-      child: SingleChildScrollView(
-        child: Row(
-          children: [
-            Expanded(
-              child: FractionallySizedBox(
-                widthFactor: 0.80,
-                child: Center(
-                  child: Column(
-                    children: [HeaderWidget(), CountdownTimer(), PrayerList()],
-                  ),
-                ),
-              ),
+      child: const SafeArea(
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [HeaderWidget(), CountdownTimer(), PrayerList()],
             ),
-          ],
+          ),
         ),
       ),
     );

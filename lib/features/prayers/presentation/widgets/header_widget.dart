@@ -7,33 +7,56 @@ class HeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Consumer<PrayerViewModel>(
-      builder: (context, prayerModel, child) {
-        return Row(
-          children: [
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(top: 20),
+    return Selector<PrayerViewModel, String>(
+      selector: (_, model) => model.currentDate,
+      builder: (context, currentDate, child) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(prayerModel.currentDate, style: textStyle),
-                    SizedBox(height: 5),
-                    Text("Jumada II 24, 1447 AH", style: textStyle),
+                    Text(
+                      currentDate,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Jumada II 24, 1447 AH",
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [Text("Colombo", style: textStyle)],
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Colombo",
+                    style: textTheme.titleSmall?.copyWith(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

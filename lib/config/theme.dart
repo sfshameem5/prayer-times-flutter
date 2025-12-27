@@ -7,6 +7,25 @@ class AppTheme {
   static const Color appBlue = Color(0xFF0288D1);
   static const Color darkText = Color(0xFF1A202C);
   static const Color navySurface = Color(0xFF14213D);
+  static const Color navyDark = Color(0xFF0D1527);
+  static const Color navyLight = Color(0xFF1A2744);
+
+  // Gradients
+  static const LinearGradient darkCardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [navyLight, navySurface],
+  );
+
+  static const LinearGradient lightCardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Colors.white, Color(0xFFF8F9FA)],
+  );
+
+  // Border radius
+  static const double cardRadius = 16.0;
+  static const double smallRadius = 12.0;
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -23,16 +42,38 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       cardTheme: CardThemeData(
         color: Colors.white,
-        elevation: 0,
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.08),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(cardRadius),
         ),
       ),
       textTheme: GoogleFonts.interTextTheme(
         const TextTheme(
+          displayLarge: TextStyle(color: darkText, fontWeight: FontWeight.w700),
+          displayMedium: TextStyle(
+            color: darkText,
+            fontWeight: FontWeight.w700,
+          ),
+          displaySmall: TextStyle(color: darkText, fontWeight: FontWeight.w700),
+          headlineLarge: TextStyle(
+            color: darkText,
+            fontWeight: FontWeight.w600,
+          ),
+          headlineMedium: TextStyle(
+            color: darkText,
+            fontWeight: FontWeight.w600,
+          ),
+          headlineSmall: TextStyle(
+            color: darkText,
+            fontWeight: FontWeight.w600,
+          ),
+          titleLarge: TextStyle(color: darkText, fontWeight: FontWeight.w600),
+          titleMedium: TextStyle(color: darkText, fontWeight: FontWeight.w500),
+          titleSmall: TextStyle(color: darkText, fontWeight: FontWeight.w500),
           bodyLarge: TextStyle(color: darkText),
           bodyMedium: TextStyle(color: darkText),
+          labelLarge: TextStyle(color: darkText, fontWeight: FontWeight.w500),
         ),
       ),
     );
@@ -53,8 +94,11 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: navySurface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardRadius),
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.black,
@@ -63,8 +107,48 @@ class AppTheme {
       ),
       textTheme: GoogleFonts.interTextTheme(
         const TextTheme(
+          displayLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+          displayMedium: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+          displaySmall: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+          headlineLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+          headlineMedium: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+          headlineSmall: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+          titleLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+          titleMedium: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+          titleSmall: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
           bodyLarge: TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.white),
+          labelLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );

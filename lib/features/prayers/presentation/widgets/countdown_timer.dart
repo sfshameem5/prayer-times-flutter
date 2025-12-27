@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
+import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
+import 'package:prayer_times/features/prayers/presentation/widgets/countdown_label.dart';
 import 'package:provider/provider.dart';
 
 class CountdownTimer extends StatelessWidget {
@@ -7,56 +10,84 @@ class CountdownTimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
-    TextStyle? nextPrayer = Theme.of(context).textTheme.bodyMedium;
-    TextStyle? timer = Theme.of(context).textTheme.displaySmall;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textTheme = Theme.of(context).textTheme;
 
-    return Consumer<PrayerViewModel>(
-      builder: (context, model, widget) {
+    return Selector<
+      PrayerViewModel,
+      ({String currentPrayer, String nextPrayer})
+    >(
+      selector: (_, model) => (
+        currentPrayer: model.currentPrayer.name,
+        nextPrayer: model.nextPrayer.name,
+      ),
+      builder: (context, data, child) {
         return Container(
-          margin: EdgeInsets.only(top: 30),
-          child: Row(
-            children: [
-              Expanded(
-                child: FractionallySizedBox(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardTheme.color,
-                      borderRadius: BorderRadius.circular(5),
+          margin: const EdgeInsets.only(top: 24),
+          decoration: BoxDecoration(
+            gradient: isDark
+                ? AppTheme.darkCardGradient
+                : AppTheme.lightCardGradient,
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withOpacity(0.3)
+                    : Colors.black.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CountdownLabel(
+                      label: "Current",
+                      prayer: data.currentPrayer,
+                      isHighlighted: false,
                     ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsetsGeometry.only(
-                            top: 20,
-                            left: 15,
-                            right: 15,
+                    CountdownLabel(
+                      label: "Next",
+                      prayer: data.nextPrayer,
+                      isHighlighted: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'Time to next prayer:',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 60,
+                  width: double.infinity,
+                  child: RepaintBoundary(
+                    child: Selector<PrayerViewModel, String>(
+                      selector: (_, model) => model.countdown,
+                      builder: (context, countdownString, _) {
+                        return Text(
+                          countdownString,
+                          textAlign: TextAlign.center,
+                          style: textTheme.displayMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Current: ${model.currentPrayer.name}",
-                                style: textStyle,
-                              ),
-                              Text(
-                                "Next: ${model.nextPrayer.name}",
-                                style: textStyle,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 40),
-                        Text('Time to next prayer:', style: nextPrayer),
-                        SizedBox(height: 10),
-                        Text(model.countdown, style: timer),
-                        SizedBox(height: 20),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

@@ -8,7 +8,7 @@ void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     tz.initializeTimeZones();
 
-    await NotificationService.initialize();
+    await NotificationService.initialize(isBackground: true);
 
     if (taskName == "prayer-notifications") {
       final repository = PrayerTimesRepository();

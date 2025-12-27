@@ -16,14 +16,14 @@ class PrayerViewModel extends ChangeNotifier {
 
   Timer? _timer;
   CountdownModel _countdown = CountdownModel(
-    hours: "0",
-    minutes: "0",
-    seconds: "0",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
   );
 
   PrayerViewModel() {
     _init();
-    _prayerTimesRepository.scheduleNotificationsForToday();
+    // _prayerTimesRepository.scheduleNotificationsForToday();
     // _prayerTimesRepository.sendPrayerNotification();
   }
 

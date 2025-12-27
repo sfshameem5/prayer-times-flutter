@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static var _notificationsInitialized = false;
 
   static Future<void> _requestNotificationPermissions() async {
     // Only handle it for android
@@ -20,9 +21,11 @@ class NotificationService {
     await androidImplementation?.requestExactAlarmsPermission();
   }
 
-  static Future initialize() async {
+  static Future initialize({bool isBackground = false}) async {
+    if (_notificationsInitialized) return;
+
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_notification');
+        AndroidInitializationSettings('@drawable/background');
 
     final InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
@@ -33,8 +36,24 @@ class NotificationService {
 
     if (initialized == false) return;
 
-    await Future.delayed(const Duration(milliseconds: 500));
-    await NotificationService._requestNotificationPermissions();
+    _notificationsInitialized = true;
+
+    if (!isBackground) {
+      await NotificationService._requestNotificationPermissions();
+    }
+
+    // Send a test notification saying that notification has been initialized
+    var data = NotificationModel(
+      id: 11223,
+      heading:
+          'Initializiing notification ${isBackground ? 'Background' : 'Foreground'}',
+      body: 'Notification has been initialized',
+      timestamp: DateTime.now()
+          .add(Duration(seconds: 30))
+          .millisecondsSinceEpoch,
+    );
+
+    await scheduleNotification(data);
   }
 
   static Future scheduleNotification(NotificationModel data) async {
