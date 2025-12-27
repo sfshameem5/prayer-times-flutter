@@ -38,11 +38,13 @@ class NotificationService {
 
     _notificationsInitialized = true;
 
+    // Only request permissions in the foreground
     if (!isBackground) {
       await NotificationService._requestNotificationPermissions();
+      return;
     }
 
-    // Send a test notification saying that notification has been initialized
+    // test notifiation in the background
     var data = NotificationModel(
       id: 11223,
       heading:

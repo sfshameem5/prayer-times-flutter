@@ -7,6 +7,10 @@ import 'package:prayer_times/features/prayers/services/prayer_times_service.dart
 class PrayerTimesRepository {
   final _prayerTimesService = PrayerTimesService();
 
+  String getTodayHijriDateFormatted() {
+    return _prayerTimesService.getTodayHijriDateFormatted();
+  }
+
   Future<List<PrayerModel>> getPrayerTimesForToday() async {
     var timestamp = DateTime.now().millisecondsSinceEpoch;
     var data = await _prayerTimesService.getPrayerTimesForTimestamp(timestamp);

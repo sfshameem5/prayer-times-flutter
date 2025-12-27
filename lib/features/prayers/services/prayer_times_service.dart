@@ -2,9 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:hijri/hijri_calendar.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 
 class PrayerTimesService {
+  String getTodayHijriDateFormatted() {
+    final hijriDate = HijriCalendar.fromDate(DateTime.now());
+    final monthName = hijriDate.getLongMonthName();
+    return "$monthName ${hijriDate.hDay}, ${hijriDate.hYear} AH";
+  }
+
   Future<PrayerDayModel?> getPrayerTimesForTimestamp(int timestamp) async {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
 

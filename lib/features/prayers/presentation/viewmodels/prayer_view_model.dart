@@ -101,6 +101,10 @@ class PrayerViewModel extends ChangeNotifier {
     return DateFormat("d MMMM yyyy").format(DateTime.now());
   }
 
+  String get currentHijriDate {
+    return _prayerTimesRepository.getTodayHijriDateFormatted();
+  }
+
   String get countdown {
     return "${_countdown.hours}H ${_countdown.minutes}M ${_countdown.seconds}S";
   }
