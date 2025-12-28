@@ -43,19 +43,6 @@ class NotificationService {
       await NotificationService._requestNotificationPermissions();
       return;
     }
-
-    // test notifiation in the background
-    var data = NotificationModel(
-      id: 11223,
-      heading:
-          'Initializiing notification ${isBackground ? 'Background' : 'Foreground'}',
-      body: 'Notification has been initialized',
-      timestamp: DateTime.now()
-          .add(Duration(seconds: 30))
-          .millisecondsSinceEpoch,
-    );
-
-    await scheduleNotification(data);
   }
 
   static Future scheduleNotification(NotificationModel data) async {
