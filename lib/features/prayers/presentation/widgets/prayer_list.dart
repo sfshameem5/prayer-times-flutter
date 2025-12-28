@@ -43,7 +43,7 @@ class PrayerList extends StatelessWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final prayer = data.prayers[index];
-                final isActive = prayer.name == data.currentPrayer.name;
+                final isActive = prayer.name == data.nextPrayer.name;
 
                 return PrayerCard(
                   name: prayer.name,

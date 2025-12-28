@@ -46,6 +46,8 @@ class NotificationService {
   }
 
   static Future scheduleNotification(NotificationModel data) async {
+    if (!_notificationsInitialized) return;
+
     const androidNotificationDetails = AndroidNotificationDetails(
       "sound",
       "Notifications",

@@ -22,9 +22,8 @@ Future main() async {
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
-  NotificationService.initialize();
-
   if (Platform.isAndroid) {
+    await NotificationService.initialize();
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       "prayer",
