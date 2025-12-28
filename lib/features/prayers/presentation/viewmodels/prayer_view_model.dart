@@ -109,6 +109,8 @@ class PrayerViewModel extends ChangeNotifier {
     return "${_countdown.hours}H ${_countdown.minutes}M ${_countdown.seconds}S";
   }
 
+  CountdownModel get countdownModel => _countdown;
+
   @override
   void dispose() {
     _timer?.cancel();

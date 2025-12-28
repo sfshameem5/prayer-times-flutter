@@ -24,44 +24,38 @@ class PrayerCard extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: isDark
-            ? (isActive ? AppTheme.navyLight : AppTheme.navySurface)
+            ? (isActive
+                  ? AppTheme.appOrange.withOpacity(0.12)
+                  : AppTheme.navySurface)
             : (isActive ? AppTheme.appOrange.withOpacity(0.08) : Colors.white),
-        borderRadius: BorderRadius.circular(AppTheme.smallRadius),
+        borderRadius: BorderRadius.circular(50),
         border: isActive
-            ? Border.all(color: AppTheme.appOrange, width: 1.5)
-            : Border.all(
-                color: isDark ? Colors.white12 : Colors.grey.shade200,
-                width: 1,
-              ),
+            ? Border.all(color: AppTheme.appOrange, width: 2)
+            : null,
         boxShadow: [
-          if (isActive)
-            BoxShadow(
-              color: AppTheme.appOrange.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            )
-          else
+          if (!isActive)
             BoxShadow(
               color: isDark
                   ? Colors.black.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
+                  : Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             if (icon != null) ...[
               Container(
-                padding: const EdgeInsets.all(8),
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppTheme.appOrange.withOpacity(0.15)
+                      ? AppTheme.appOrange.withOpacity(0.2)
                       : (isDark ? Colors.white10 : Colors.grey.shade100),
-                  borderRadius: BorderRadius.circular(8),
+                  shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
@@ -71,13 +65,13 @@ class PrayerCard extends StatelessWidget {
                       : (isDark ? Colors.white70 : Colors.grey.shade600),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
             ],
             Expanded(
               child: Text(
                 name,
                 style: textTheme.titleMedium?.copyWith(
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: FontWeight.w500,
                   color: isActive
                       ? AppTheme.appOrange
                       : Theme.of(context).colorScheme.onSurface,

@@ -28,6 +28,7 @@ trigger: always_on
   - `core/` for application logic
   - `features/<feature_name>/` for feature implementation
 - Maintain **separation of concerns** within each feature
+- There can only be one widget per file. If there are more per feature, you can move them to the widgets folder
 
 ## Feature Organization
 

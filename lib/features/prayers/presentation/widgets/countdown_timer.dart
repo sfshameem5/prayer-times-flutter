@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
+import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
-import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/prayers/presentation/widgets/countdown_label.dart';
 import 'package:provider/provider.dart';
 
@@ -43,47 +43,82 @@ class CountdownTimer extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CountdownLabel(
-                      label: "Current",
-                      prayer: data.currentPrayer,
-                      isHighlighted: false,
-                    ),
-                    CountdownLabel(
-                      label: "Next",
-                      prayer: data.nextPrayer,
-                      isHighlighted: true,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Time to next prayer:',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: isDark ? Colors.white70 : Colors.black54,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 60,
-                  width: double.infinity,
-                  child: RepaintBoundary(
-                    child: Selector<PrayerViewModel, String>(
-                      selector: (_, model) => model.countdown,
-                      builder: (context, countdownString, _) {
-                        return Text(
-                          countdownString,
-                          textAlign: TextAlign.center,
-                          style: textTheme.displayMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                            fontFeatures: const [FontFeature.tabularFigures()],
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withOpacity(0.2)
+                        : Colors.grey.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(AppTheme.smallRadius),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CountdownLabel(
+                            label: "CURRENT",
+                            prayer: data.currentPrayer,
+                            isHighlighted: false,
                           ),
-                        );
-                      },
-                    ),
+                          CountdownLabel(
+                            label: "NEXT",
+                            prayer: data.nextPrayer,
+                            isHighlighted: true,
+                            alignEnd: true,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Time to next prayer:',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.white54 : Colors.black45,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      RepaintBoundary(
+                        child: SizedBox(
+                          height: 50,
+                          width: double.infinity,
+                          child: Selector<PrayerViewModel, CountdownModel>(
+                            selector: (_, model) => model.countdownModel,
+                            builder: (context, countdown, _) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  _buildTimeUnit(
+                                    countdown.hours,
+                                    'H',
+                                    textTheme,
+                                    isDark,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  _buildTimeUnit(
+                                    countdown.minutes,
+                                    'M',
+                                    textTheme,
+                                    isDark,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  _buildTimeUnit(
+                                    countdown.seconds,
+                                    'S',
+                                    textTheme,
+                                    isDark,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -91,6 +126,34 @@ class CountdownTimer extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTimeUnit(
+    String value,
+    String label,
+    TextTheme textTheme,
+    bool isDark,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          value,
+          style: textTheme.displayMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        Text(
+          label,
+          style: textTheme.bodySmall?.copyWith(
+            color: isDark ? Colors.white54 : Colors.black45,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
