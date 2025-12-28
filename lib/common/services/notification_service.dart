@@ -57,9 +57,8 @@ class NotificationService {
       android: androidNotificationDetails,
     );
 
-    final location = tz.getLocation("Asia/Colombo");
     final scheduledDate = tz.TZDateTime.fromMillisecondsSinceEpoch(
-      location,
+      tz.local,
       data.timestamp,
     );
 
@@ -70,6 +69,11 @@ class NotificationService {
       scheduledDate,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.alarmClock,
+      matchDateTimeComponents: data.matchDateTimeComponents,
     );
+  }
+
+  static Future cancelNotification(int id) async {
+    await _localNotificationsPlugin.cancel(id);
   }
 }

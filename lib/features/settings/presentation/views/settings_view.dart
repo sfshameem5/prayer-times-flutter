@@ -69,26 +69,27 @@ class SettingsView extends StatelessWidget {
                             activeColor: AppTheme.appOrange,
                           ),
                         ),
-                        if (viewModel.notificationsEnabled) ...[
-                          const SizedBox(height: 12),
-                          SettingsTile(
-                            icon: Icons.music_note_outlined,
-                            title: 'Prayer Notification Mode',
-                            subtitle:
-                                viewModel.notificationMode ==
-                                    PrayerNotificationMode.azaan
-                                ? 'Azaan'
-                                : 'Default Sound',
-                            trailing: NotificationModeDropdown(
-                              value: viewModel.notificationMode,
-                              onChanged: (mode) {
-                                if (mode != null) {
-                                  viewModel.setNotificationMode(mode);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                        // Enable after azaan foreground implementation
+                        // if (viewModel.notificationsEnabled) ...[
+                        //   const SizedBox(height: 12),
+                        //   SettingsTile(
+                        //     icon: Icons.music_note_outlined,
+                        //     title: 'Prayer Notification Mode',
+                        //     subtitle:
+                        //         viewModel.notificationMode ==
+                        //             PrayerNotificationMode.azaan
+                        //         ? 'Azaan'
+                        //         : 'Default Sound',
+                        //     trailing: NotificationModeDropdown(
+                        //       value: viewModel.notificationMode,
+                        //       onChanged: (mode) {
+                        //         if (mode != null) {
+                        //           viewModel.setNotificationMode(mode);
+                        //         }
+                        //       },
+                        //     ),
+                        //   ),
+                        // ],
                       ],
                     );
                   },

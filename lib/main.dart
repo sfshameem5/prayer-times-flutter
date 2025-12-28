@@ -11,6 +11,7 @@ import 'package:prayer_times/features/reminders/presentation/views/reminders_vie
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 import 'package:prayer_times/core/background_executor.dart' as bg;
 
@@ -19,6 +20,8 @@ Future main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
+
   NotificationService.initialize();
 
   if (Platform.isAndroid) {
