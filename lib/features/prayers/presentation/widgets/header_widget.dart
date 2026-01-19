@@ -30,12 +30,12 @@ class HeaderWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      dates.hijriDate,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: isDark ? Colors.white60 : Colors.black54,
-                      ),
-                    ),
+                    // Text(
+                    //   dates.hijriDate,
+                    //   style: textTheme.bodyMedium?.copyWith(
+                    //     color: isDark ? Colors.white60 : Colors.black54,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

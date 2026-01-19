@@ -6,8 +6,6 @@ import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
-import 'package:prayer_times/features/qibla/presentation/views/qibla_view.dart';
-import 'package:prayer_times/features/reminders/presentation/views/reminders_view.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -70,8 +68,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     PrayerView(),
-    QiblaView(),
-    RemindersView(),
+    // QiblaView(),
+    // RemindersView(),
     SettingsView(),
   ];
 
@@ -106,25 +104,11 @@ class _MainScreenState extends State<MainScreen> {
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavItem(
-                  icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore,
-                  label: 'Qibla',
-                  isSelected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
-                ),
-                _NavItem(
-                  icon: Icons.notifications_outlined,
-                  activeIcon: Icons.notifications,
-                  label: 'Reminders',
-                  isSelected: _currentIndex == 2,
-                  onTap: () => setState(() => _currentIndex = 2),
-                ),
-                _NavItem(
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
                   label: 'Settings',
-                  isSelected: _currentIndex == 3,
-                  onTap: () => setState(() => _currentIndex = 3),
+                  isSelected: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
                 ),
               ],
             ),

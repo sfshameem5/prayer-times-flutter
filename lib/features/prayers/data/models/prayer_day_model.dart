@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:intl/intl.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
@@ -8,28 +10,49 @@ class PrayerDayModel {
 
   PrayerDayModel({required this.timestamp, required this.prayers});
 
-  static PrayerDayModel fromJson(Map<String, dynamic> item, String year) {
-    // Extract timestamp using item['date'], month and year
-    var format = DateFormat("d-MMM y");
-    var timestamp = format
-        .parse("${item["date"]} $year")
+  static PrayerDayModel? fromAPI(Map<String, dynamic> item, String year) {
+    var dayMonth = item['dayMonth'];
+    List<dynamic> prayers = item['prayers'];
+
+    var dayFormatter = DateFormat("d-MMM y");
+    var dayTimestamp = dayFormatter
+        .parse("$dayMonth $year")
         .millisecondsSinceEpoch;
-    List<PrayerModel> prayers = [];
 
-    var itemFormat = DateFormat("h:mm a d-MMM y");
+    List<PrayerModel> prayersWithTimestamp = [];
 
-    for (var element in item.entries) {
-      if (element.key.contains('date')) continue;
+    for (var prayer in prayers) {
+      var prayerFormatter = DateFormat("H:m d-MMM y");
+      var displayTime = prayer['displayTime'];
 
-      var timestamp = itemFormat
-          .parse("${element.value} ${item["date"]} $year")
+      var timestamp = prayerFormatter
+          .parse("$displayTime $dayMonth $year")
           .millisecondsSinceEpoch;
 
-      prayers.add(
-        PrayerModel(PrayerNameEnum.values.byName(element.key), timestamp),
+      prayersWithTimestamp.add(
+        PrayerModel(PrayerNameEnum.values.byName(prayer["name"]), timestamp),
       );
     }
 
-    return PrayerDayModel(timestamp: timestamp, prayers: prayers);
+    return PrayerDayModel(
+      timestamp: dayTimestamp,
+      prayers: prayersWithTimestamp,
+    );
+  }
+
+  static PrayerDayModel fromJson(Map<String, dynamic> item) {
+    return PrayerDayModel(
+      timestamp: item['timestamp'],
+      prayers: (item['prayers'] as List<dynamic>)
+          .map((x) => PrayerModel.fromJSON(x))
+          .toList(),
+    );
+  }
+
+  static Map<String, dynamic> toJson(PrayerDayModel item) {
+    return {
+      "timestamp": item.timestamp,
+      "prayers": item.prayers.map((x) => PrayerModel.toJSON(x)).toList(),
+    };
   }
 }

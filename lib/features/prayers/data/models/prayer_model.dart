@@ -12,4 +12,15 @@ class PrayerModel {
 
     return prayers;
   }
+
+  static Map<String, dynamic> toJSON(PrayerModel item) {
+    return {"name": item.name.name.toString(), "timestamp": item.timestamp};
+  }
+
+  static PrayerModel fromJSON(Map<String, dynamic> item) {
+    return PrayerModel(
+      PrayerNameEnum.values.byName(item["name"]),
+      item["timestamp"],
+    );
+  }
 }

@@ -41,19 +41,22 @@ class SettingsViewModel extends ChangeNotifier {
 
   Future<void> setNotificationsEnabled(bool enabled) async {
     _settings = _settings.copyWith(notificationsEnabled: enabled);
-    notifyListeners();
     await _repository.saveSettings(_settings);
+
+    notifyListeners();
   }
 
   Future<void> setNotificationMode(PrayerNotificationMode mode) async {
     _settings = _settings.copyWith(notificationMode: mode);
-    notifyListeners();
     await _repository.saveSettings(_settings);
+
+    notifyListeners();
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {
     _settings = _settings.copyWith(themeMode: mode);
-    notifyListeners();
     await _repository.saveSettings(_settings);
+
+    notifyListeners();
   }
 }

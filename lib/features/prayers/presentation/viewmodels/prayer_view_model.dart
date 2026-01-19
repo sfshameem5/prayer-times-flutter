@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,8 +24,6 @@ class PrayerViewModel extends ChangeNotifier {
 
   PrayerViewModel() {
     _init();
-    // _prayerTimesRepository.scheduleNotificationsForToday();
-    // _prayerTimesRepository.sendPrayerNotification();
   }
 
   Future<void> _init() async {
