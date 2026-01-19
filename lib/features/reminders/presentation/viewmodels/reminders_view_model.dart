@@ -84,7 +84,6 @@ class RemindersViewModel extends ChangeNotifier {
           : DateTimeComponents.dayOfWeekAndTime,
     );
 
-    print("Rescheduling reminder ${notification.timestamp}");
     await NotificationService.scheduleNotification(notification);
   }
 

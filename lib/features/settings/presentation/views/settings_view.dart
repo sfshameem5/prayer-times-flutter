@@ -66,30 +66,30 @@ class SettingsView extends StatelessWidget {
                           trailing: Switch.adaptive(
                             value: viewModel.notificationsEnabled,
                             onChanged: viewModel.setNotificationsEnabled,
-                            activeColor: AppTheme.appOrange,
+                            activeThumbColor: AppTheme.appOrange,
                           ),
                         ),
                         // Enable after azaan foreground implementation
-                        // if (viewModel.notificationsEnabled) ...[
-                        //   const SizedBox(height: 12),
-                        //   SettingsTile(
-                        //     icon: Icons.music_note_outlined,
-                        //     title: 'Prayer Notification Mode',
-                        //     subtitle:
-                        //         viewModel.notificationMode ==
-                        //             PrayerNotificationMode.azaan
-                        //         ? 'Azaan'
-                        //         : 'Default Sound',
-                        //     trailing: NotificationModeDropdown(
-                        //       value: viewModel.notificationMode,
-                        //       onChanged: (mode) {
-                        //         if (mode != null) {
-                        //           viewModel.setNotificationMode(mode);
-                        //         }
-                        //       },
-                        //     ),
-                        //   ),
-                        // ],
+                        if (viewModel.notificationsEnabled) ...[
+                          const SizedBox(height: 12),
+                          SettingsTile(
+                            icon: Icons.music_note_outlined,
+                            title: 'Prayer Notification Mode',
+                            subtitle:
+                                viewModel.notificationMode ==
+                                    PrayerNotificationMode.azaan
+                                ? 'Azaan'
+                                : 'Default Sound',
+                            trailing: NotificationModeDropdown(
+                              value: viewModel.notificationMode,
+                              onChanged: (mode) {
+                                if (mode != null) {
+                                  viewModel.setNotificationMode(mode);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       ],
                     );
                   },

@@ -32,8 +32,8 @@ class CountdownTimer extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.black.withOpacity(0.3)
-                    : Colors.black.withOpacity(0.08),
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -50,8 +50,8 @@ class CountdownTimer extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? Colors.black.withOpacity(0.2)
-                        : Colors.grey.withOpacity(0.08),
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.grey.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppTheme.smallRadius),
                   ),
                   child: Column(

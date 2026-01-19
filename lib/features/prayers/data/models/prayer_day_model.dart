@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:intl/intl.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';

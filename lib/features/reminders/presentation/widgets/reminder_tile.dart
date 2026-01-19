@@ -47,7 +47,7 @@ class ReminderTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -62,10 +62,10 @@ class ReminderTile extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: reminder.isEnabled
-                      ? AppTheme.appOrange.withOpacity(0.15)
+                      ? AppTheme.appOrange.withValues(alpha: 0.15)
                       : (isDark
                             ? Colors.white10
-                            : Colors.black.withOpacity(0.05)),
+                            : Colors.black.withValues(alpha: 0.05)),
                   borderRadius: BorderRadius.circular(AppTheme.smallRadius),
                 ),
                 child: Icon(
@@ -95,8 +95,8 @@ class ReminderTile extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? Colors.white.withOpacity(0.1)
-                                : Colors.black.withOpacity(0.05),
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -120,7 +120,7 @@ class ReminderTile extends StatelessWidget {
               Switch.adaptive(
                 value: reminder.isEnabled,
                 onChanged: onToggle,
-                activeColor: AppTheme.appOrange,
+                activeThumbColor: AppTheme.appOrange,
               ),
             ],
           ),
@@ -131,8 +131,8 @@ class ReminderTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.black.withOpacity(0.03),
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(

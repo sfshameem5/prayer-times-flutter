@@ -28,7 +28,7 @@ class SettingsTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -40,7 +40,7 @@ class SettingsTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppTheme.appOrange.withOpacity(0.15),
+              color: AppTheme.appOrange.withValues(alpha: isDark ? 0.3 : 0.08),
               borderRadius: BorderRadius.circular(AppTheme.smallRadius),
             ),
             child: Icon(icon, color: AppTheme.appOrange, size: 22),

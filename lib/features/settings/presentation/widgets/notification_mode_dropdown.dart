@@ -19,7 +19,7 @@ class NotificationModeDropdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+        color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButton<PrayerNotificationMode>(

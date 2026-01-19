@@ -30,7 +30,7 @@ class CompassWidget extends StatelessWidget {
             : AppTheme.lightCardGradient,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.4 : 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -51,7 +51,7 @@ class CompassWidget extends StatelessWidget {
               color: isDark ? AppTheme.navyDark : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),

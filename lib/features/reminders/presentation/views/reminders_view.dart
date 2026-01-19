@@ -41,7 +41,7 @@ class RemindersView extends StatelessWidget {
                     return ListView.separated(
                       physics: const BouncingScrollPhysics(),
                       itemCount: viewModel.reminders.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final reminder = viewModel.reminders[index];
                         return ReminderTile(

@@ -25,9 +25,11 @@ class PrayerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark
             ? (isActive
-                  ? AppTheme.appOrange.withOpacity(0.12)
+                  ? AppTheme.appOrange.withValues(alpha: .12)
                   : AppTheme.navySurface)
-            : (isActive ? AppTheme.appOrange.withOpacity(0.08) : Colors.white),
+            : (isActive
+                  ? AppTheme.appOrange.withValues(alpha: .08)
+                  : Colors.white),
         borderRadius: BorderRadius.circular(50),
         border: isActive
             ? Border.all(color: AppTheme.appOrange, width: 2)
@@ -36,8 +38,8 @@ class PrayerCard extends StatelessWidget {
           if (!isActive)
             BoxShadow(
               color: isDark
-                  ? Colors.black.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.06),
+                  ? Colors.black.withValues(alpha: .2)
+                  : Colors.black.withValues(alpha: .06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -53,7 +55,7 @@ class PrayerCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppTheme.appOrange.withOpacity(0.2)
+                      ? AppTheme.appOrange.withValues(alpha: .2)
                       : (isDark ? Colors.white10 : Colors.grey.shade100),
                   shape: BoxShape.circle,
                 ),
