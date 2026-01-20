@@ -17,6 +17,8 @@ Future main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  FlutterNativeSplash.remove();
+
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
@@ -30,8 +32,6 @@ Future main() async {
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
   }
-
-  FlutterNativeSplash.remove();
 
   runApp(
     ChangeNotifierProvider(create: (_) => ThemeService(), child: const MyApp()),
