@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
@@ -141,10 +142,14 @@ class CountdownTimer extends StatelessWidget {
       children: [
         Text(
           value,
-          style: textTheme.displayMedium?.copyWith(
-            fontWeight: FontWeight.w700,
+          style: GoogleFonts.inter(
+            textStyle: textTheme.displayMedium,
+            fontWeight: FontWeight.w500,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
+          // style: textTheme.displayMedium?.copyWith(
+          //   fontFeatures: const [FontFeature.tabularFigures()],
+          // ),
         ),
         Text(
           label,
