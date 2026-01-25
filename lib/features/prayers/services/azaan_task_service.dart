@@ -8,9 +8,7 @@ void startCallback() {
 class MyTaskHandler extends TaskHandler {
   // Called when the task is started.
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    print('onStart(starter: ${starter.name})');
-  }
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
 
   // Called based on the eventAction set in ForegroundTaskOptions.
   @override
@@ -24,31 +22,21 @@ class MyTaskHandler extends TaskHandler {
 
   // Called when the task is destroyed.
   @override
-  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
-    print('onDestroy(isTimeout: $isTimeout)');
-  }
+  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {}
 
   // Called when data is sent using `FlutterForegroundTask.sendDataToTask`.
   @override
-  void onReceiveData(Object data) {
-    print('onReceiveData: $data');
-  }
+  void onReceiveData(Object data) {}
 
   // Called when the notification button is pressed.
   @override
-  void onNotificationButtonPressed(String id) {
-    print('onNotificationButtonPressed: $id');
-  }
+  void onNotificationButtonPressed(String id) {}
 
   // Called when the notification itself is pressed.
   @override
-  void onNotificationPressed() {
-    print('onNotificationPressed');
-  }
+  void onNotificationPressed() {}
 
   // Called when the notification itself is dismissed.
   @override
-  void onNotificationDismissed() {
-    print('onNotificationDismissed');
-  }
+  void onNotificationDismissed() {}
 }

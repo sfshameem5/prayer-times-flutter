@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,7 +8,9 @@ import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
+import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
+import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
 import 'package:provider/provider.dart';
@@ -92,40 +93,46 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.navySurface : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Prayers',
-                  isSelected: _currentIndex == 0,
-                  onTap: () => setState(() => _currentIndex = 0),
-                ),
-                _NavItem(
-                  icon: Icons.settings_outlined,
-                  activeIcon: Icons.settings,
-                  label: 'Settings',
-                  isSelected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
-                ),
-              ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+      ],
+      child: Scaffold(
+        body: _screens[_currentIndex],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppTheme.navySurface : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                    icon: Icons.home_outlined,
+                    activeIcon: Icons.home,
+                    label: 'Prayers',
+                    isSelected: _currentIndex == 0,
+                    onTap: () => setState(() => _currentIndex = 0),
+                  ),
+                  _NavItem(
+                    icon: Icons.settings_outlined,
+                    activeIcon: Icons.settings,
+                    label: 'Settings',
+                    isSelected: _currentIndex == 1,
+                    onTap: () => setState(() => _currentIndex = 1),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

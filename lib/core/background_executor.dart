@@ -1,5 +1,4 @@
 import 'package:prayer_times/common/services/notification_service.dart';
-import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/timezone.dart' as tz;

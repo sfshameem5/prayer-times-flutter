@@ -41,7 +41,6 @@ class PrayerViewModel extends ChangeNotifier {
   void updateCountdown() {
     _timer?.cancel();
 
-    calculateTimeRemaining();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       calculateTimeRemaining();
     });
