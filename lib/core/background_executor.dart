@@ -1,5 +1,6 @@
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
+import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -13,8 +14,7 @@ void callbackDispatcher() {
     await NotificationService.initialize(isBackground: true);
 
     if (taskName == "prayer-notifications") {
-      final repository = PrayerTimesRepository();
-      repository.scheduleNotificationsForToday();
+      await PrayerTimesService().prefetchPrayerTimes();
     }
 
     return Future.value(true);

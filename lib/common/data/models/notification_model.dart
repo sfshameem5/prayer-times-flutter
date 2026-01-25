@@ -4,14 +4,16 @@ class NotificationModel {
   int id;
   String heading;
   String body;
-  int timestamp;
+  int? timestamp;
+  bool? playSound;
   DateTimeComponents? matchDateTimeComponents;
 
   NotificationModel({
     required this.id,
     required this.heading,
     required this.body,
-    required this.timestamp,
+    this.timestamp,
+    this.playSound,
     this.matchDateTimeComponents,
   });
 }

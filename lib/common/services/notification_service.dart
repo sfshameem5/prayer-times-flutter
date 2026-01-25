@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -18,8 +19,11 @@ class NotificationService {
       NotificationModel(
         id: 005,
         heading: "Running work manager",
-        body: "Work manager is being run",
-        timestamp: DateTime.now().millisecondsSinceEpoch,
+
+        body: "Prefetching prayer times",
+        timestamp: DateTime.now()
+            .add(Duration(seconds: 5))
+            .millisecondsSinceEpoch,
       ),
     );
   }
@@ -88,9 +92,11 @@ class NotificationService {
       android: androidNotificationDetails,
     );
 
+    if (data.timestamp == null) return;
+
     final scheduledDate = tz.TZDateTime.fromMillisecondsSinceEpoch(
       tz.local,
-      data.timestamp,
+      data.timestamp!,
     );
 
     await _localNotificationsPlugin.zonedSchedule(
@@ -101,6 +107,35 @@ class NotificationService {
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.alarmClock,
       matchDateTimeComponents: data.matchDateTimeComponents,
+    );
+  }
+
+  static Future showNotification(NotificationModel data) async {
+    if (!_notificationsInitialized) return;
+
+    // always check if notifications are enabled before scheduling one
+    var settings = await SettingsService().getSettings();
+
+    if (!settings.notificationsEnabled) {
+      return;
+    }
+
+    const androidNotificationDetails = AndroidNotificationDetails(
+      "sound",
+      "Notifications",
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+    const notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
+
+    await _localNotificationsPlugin.show(
+      data.id,
+      data.heading,
+      data.body,
+      notificationDetails,
     );
   }
 

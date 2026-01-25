@@ -1,4 +1,7 @@
 {
-	"editor.formatOnSave": true,
-	"editor.defaultFormatter": "Dart-Code.flutter",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "Dart-Code.flutter",
+    "[xml]": {
+        "editor.defaultFormatter": "csharpier.csharpier-vscode"
+    }
 }

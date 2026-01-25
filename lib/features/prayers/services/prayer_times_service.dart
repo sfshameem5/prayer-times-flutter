@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PrayerTimesService {
   static const _baseUrl = "prayer-times-api-nhqkb.ondigitalocean.app";
@@ -25,13 +25,11 @@ class PrayerTimesService {
     var formatter = DateFormat("d-MMM y");
     var formattedKey = formatter.format(date);
 
-    var preferences = await SharedPreferences.getInstance();
-
-    // await preferences.clear();
+    var mkkv = MMKV.defaultMMKV();
 
     var currentKey = "$_prayerTodayKey $formattedKey";
 
-    var alreadyAvailable = preferences.getString(currentKey);
+    var alreadyAvailable = mkkv.decodeString(currentKey);
 
     if (alreadyAvailable != null) {
       var parsedItem = PrayerDayModel.fromJson(json.decode(alreadyAvailable));
@@ -50,8 +48,22 @@ class PrayerTimesService {
 
     if (responseToSend != null) {
       var toSave = PrayerDayModel.toJson(responseToSend);
-      await preferences.setString(currentKey, json.encode(toSave));
+      mkkv.encodeString(currentKey, json.encode(toSave));
     }
     return responseToSend;
+  }
+
+  Future prefetchPrayerTimes() async {
+    var today = DateTime.now();
+    List<int> dayTimestamps = [today.millisecondsSinceEpoch];
+
+    for (int i = 0; i < 5; i += 1) {
+      dayTimestamps.add(today.add(Duration(days: 1)).millisecondsSinceEpoch);
+    }
+
+    // For each day let's prefetch prayers
+    for (var timestamp in dayTimestamps) {
+      await getPrayerTimesForTimestamp(timestamp);
+    }
   }
 }
