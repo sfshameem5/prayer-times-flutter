@@ -1,4 +1,5 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:prayer_times/common/services/audio_service.dart';
 
 @pragma("vm:entry-point")
 void startCallback() {
@@ -26,7 +27,9 @@ class MyTaskHandler extends TaskHandler {
 
   // Called when data is sent using `FlutterForegroundTask.sendDataToTask`.
   @override
-  void onReceiveData(Object data) {}
+  void onReceiveData(Object data) async {
+    await AudioService.playAudio("assets/sounds/azaan_full.mp3");
+  }
 
   // Called when the notification button is pressed.
   @override

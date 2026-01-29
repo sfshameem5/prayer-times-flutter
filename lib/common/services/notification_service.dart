@@ -42,12 +42,13 @@ class NotificationService {
 
   static Future initialize({bool isBackground = false}) async {
     if (_notificationsInitialized && isBackground) {
-      await _notifyBackgroundUsage();
+      // await _notifyBackgroundUsage();
       return;
     }
 
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@drawable/background');
+        // AndroidInitializationSettings('@drawable/background');
+        AndroidInitializationSettings('ic_new');
 
     final InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
@@ -67,7 +68,7 @@ class NotificationService {
     }
 
     // Inform the user that background task is being run
-    if (isBackground) await _notifyBackgroundUsage();
+    // if (isBackground) await _notifyBackgroundUsage();
   }
 
   static Future scheduleNotification(NotificationModel data) async {

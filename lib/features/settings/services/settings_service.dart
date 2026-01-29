@@ -24,11 +24,11 @@ class SettingsService {
   Future<void> saveSettings(SettingsModel settings) async {
     final mmkv = MMKV.defaultMMKV();
 
-    if (settings.notificationsEnabled) {
-      await _prayerRepository.initiateAzaanService();
-    } else {
-      _prayerRepository.stopAzaanService();
-    }
+    // if (settings.notificationsEnabled) {
+    //   await _prayerRepository.initiateAzaanService();
+    // } else {
+    //   _prayerRepository.stopAzaanService();
+    // }
 
     final encoded = jsonEncode(settings.toJson());
     mmkv.encodeString(_settingsKey, encoded);

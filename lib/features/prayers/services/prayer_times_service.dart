@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 
 class PrayerTimesService {
   static const _baseUrl = "prayer-times-api-nhqkb.ondigitalocean.app";
@@ -14,6 +16,30 @@ class PrayerTimesService {
     final hijriDate = HijriCalendar.fromDate(DateTime.now());
     final monthName = hijriDate.getLongMonthName();
     return "$monthName ${hijriDate.hDay}, ${hijriDate.hYear} AH";
+  }
+
+  Future<PrayerDayModel?> getTestPrayersForTimestamp(int timestamp) async {
+    // Five prayers each with 1 minute gap
+    var date = DateTime.now();
+    List<PrayerModel> prayers = [];
+    var names = [
+      PrayerNameEnum.fajr,
+      PrayerNameEnum.sunrise,
+      PrayerNameEnum.asr,
+      PrayerNameEnum.magrib,
+      PrayerNameEnum.isha,
+    ];
+
+    for (var i = 0; i < names.length; i += 1) {
+      var name = names[i];
+      var prayer = PrayerModel(
+        name,
+        date.add(Duration(minutes: 1 + i)).millisecondsSinceEpoch,
+      );
+      prayers.add(prayer);
+    }
+
+    return PrayerDayModel(timestamp: timestamp, prayers: prayers);
   }
 
   Future<PrayerDayModel?> getPrayerTimesForTimestamp(int timestamp) async {

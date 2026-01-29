@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -34,17 +35,16 @@ Future main() async {
     FlutterForegroundTask.initCommunicationPort();
 
     await NotificationService.initialize();
+    // await PrayerTimesRepository().initiateAzaanService();
+    await PrayerTimesRepository().scheduleNotificationsForToday();
 
-    final settings = await SettingsService().getSettings();
-    if (settings.notificationsEnabled) {
-      await PrayerTimesRepository().initiateAzaanService();
-    }
+    await AndroidAlarmManager.initialize();
 
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       "prayer",
       "prayer-notifications",
-      frequency: const Duration(hours: 6),
+      frequency: const Duration(minutes: 15),
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
   }
