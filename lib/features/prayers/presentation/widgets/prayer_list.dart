@@ -25,6 +25,13 @@ class PrayerList extends StatelessWidget {
         currentPrayer: model.currentPrayer,
       ),
       builder: (context, data, child) {
+        if (data.prayers.isEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [const SizedBox(height: 32), Text("Loading prayers...")],
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

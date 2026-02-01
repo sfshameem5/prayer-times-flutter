@@ -51,6 +51,7 @@ dependencies:
   mmkv: ^2.3.0
   android_alarm_manager_plus: ^5.0.0
   alarm: ^5.2.1
+  battery_optimization_helper: ^0.1.3
 
 dev_dependencies:
   flutter_test:

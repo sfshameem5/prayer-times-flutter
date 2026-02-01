@@ -5,8 +5,8 @@ class AlarmService {
   static Future scheduleAlarm(AlarmModel data) async {
     final alarmSettings = AlarmSettings(
       id: data.id,
-      dateTime: DateTime.fromMillisecondsSinceEpoch(data.timestamp!),
-      assetAudioPath: 'assets/sounds/azaan_short.mp3',
+      dateTime: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
+      assetAudioPath: 'assets/sounds/azaan_full.mp3',
       loopAudio: false,
       vibrate: true,
       warningNotificationOnKill: false,
@@ -20,10 +20,14 @@ class AlarmService {
         title: data.heading,
         body: data.body,
         stopButton: 'Stop the azaan',
-        icon: 'notification_icon',
+        icon: 'ic_new',
       ),
     );
 
     await Alarm.set(alarmSettings: alarmSettings);
+  }
+
+  static Future cancelAllAlarms() async {
+    await Alarm.stopAll();
   }
 }

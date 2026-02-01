@@ -1,13 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 
 class SettingsService {
   static const String _settingsKey = 'app_settings';
-
-  final _prayerRepository = PrayerTimesRepository();
 
   Future<SettingsModel> getSettings() async {
     var mkkv = MMKV.defaultMMKV();
@@ -23,14 +23,18 @@ class SettingsService {
 
   Future<void> saveSettings(SettingsModel settings) async {
     final mmkv = MMKV.defaultMMKV();
-
-    // if (settings.notificationsEnabled) {
-    //   await _prayerRepository.initiateAzaanService();
-    // } else {
-    //   _prayerRepository.stopAzaanService();
-    // }
+    var data = await getSettings();
 
     final encoded = jsonEncode(settings.toJson());
     mmkv.encodeString(_settingsKey, encoded);
+
+    if (!settings.notificationsEnabled) {
+      await NotificationService.cancelAllNotifications();
+    }
+
+    if (data.notificationMode != settings.notificationMode) {
+      await NotificationService.cancelAllNotifications();
+      await PrayerTimesRepository.scheduleNotificationsForToday();
+    }
   }
 }

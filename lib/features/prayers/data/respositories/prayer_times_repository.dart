@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:developer';
 
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:intl/intl.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
@@ -12,34 +12,32 @@ import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
 
 class PrayerTimesRepository {
-  final _prayerTimesService = PrayerTimesService();
-
-  String getTodayHijriDateFormatted() {
-    return _prayerTimesService.getTodayHijriDateFormatted();
+  static String getTodayHijriDateFormatted() {
+    return PrayerTimesService.getTodayHijriDateFormatted();
   }
 
-  Future<List<PrayerModel>> getPrayerTimesForToday() async {
+  static Future<List<PrayerModel>> getPrayerTimesForToday() async {
     var timestamp = DateTime.now().millisecondsSinceEpoch;
-    var data = await _prayerTimesService.getPrayerTimesForTimestamp(timestamp);
+    var data = await PrayerTimesService.getPrayerTimesForTimestamp(timestamp);
 
     if (data == null) return [];
 
     return data.prayers;
   }
 
-  Future<List<PrayerModel>> getPrayerTimesForTomorrow() async {
+  static Future<List<PrayerModel>> getPrayerTimesForTomorrow() async {
     var timestamp = DateTime.now()
         .add(const Duration(days: 1))
         .millisecondsSinceEpoch;
 
-    var data = await _prayerTimesService.getPrayerTimesForTimestamp(timestamp);
+    var data = await PrayerTimesService.getPrayerTimesForTimestamp(timestamp);
 
     if (data == null) return [];
 
     return data.prayers;
   }
 
-  Future<PrayerModel?> getCurrentPrayer() async {
+  static Future<PrayerModel?> getCurrentPrayer() async {
     var prayerTimesToday = await getPrayerTimesForToday();
     var prayerTimesTomorrow = await getPrayerTimesForTomorrow();
 
@@ -66,7 +64,7 @@ class PrayerTimesRepository {
     return closestPrayer;
   }
 
-  Future<PrayerModel?> getNextPrayer() async {
+  static Future<PrayerModel?> getNextPrayer() async {
     var prayerTimesToday = await getPrayerTimesForToday();
     var prayerTimesTomorrow = await getPrayerTimesForTomorrow();
 
@@ -93,20 +91,22 @@ class PrayerTimesRepository {
     return closestPrayer;
   }
 
-  int _generateUniquePrayerId(PrayerModel prayer) {
+  static int _generateUniquePrayerId(PrayerModel prayer) {
     var date = DateTime.fromMillisecondsSinceEpoch(prayer.timestamp);
     return (date.day * 100) + (date.month * 10) + prayer.name.index;
   }
 
-  Future scheduleNotificationsForToday() async {
+  static Future scheduleNotificationsForToday() async {
+    var settings = await SettingsService().getSettings();
+
+    if (!settings.notificationsEnabled) return;
+
     // For each prayer use timestamp as ID and schedule notifications
     var prayers = await getPrayerTimesForToday();
 
     if (prayers.isEmpty) return;
 
     var currentTimestamp = DateTime.now().millisecondsSinceEpoch;
-
-    var settings = await SettingsService().getSettings();
 
     for (var prayer in prayers) {
       if (currentTimestamp > prayer.timestamp) {
@@ -133,25 +133,13 @@ class PrayerTimesRepository {
 
       if (settings.notificationMode == PrayerNotificationMode.azaan) {
         await AlarmService.scheduleAlarm(alarmData);
+        print("Scheduilng alarm");
       } else {
+        print("Scheduilng default notification");
         await NotificationService.scheduleNotification(notification);
       }
-    }
-  }
 
-  Future initateForegroundTask() async {
-    FlutterForegroundTask.init(
-      iosNotificationOptions: IOSNotificationOptions(),
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'sound',
-        channelName: "sound",
-        channelImportance: NotificationChannelImportance.HIGH,
-        priority: NotificationPriority.HIGH,
-      ),
-      foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: .once(),
-        allowWakeLock: true,
-      ),
-    );
+      return;
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
+import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -27,17 +28,20 @@ class NotificationService {
     );
   }
 
-  static Future<void> _requestNotificationPermissions() async {
+  static Future<bool> requestNotificationPermissions() async {
     // Only handle it for android
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid) return false;
 
     final androidImplementation = FlutterLocalNotificationsPlugin()
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
 
-    await androidImplementation?.requestNotificationsPermission();
-    await androidImplementation?.requestExactAlarmsPermission();
+    var notifications = await androidImplementation
+        ?.requestNotificationsPermission();
+    var alarm = await androidImplementation?.requestExactAlarmsPermission();
+
+    return notifications! && alarm!;
   }
 
   static Future initialize({bool isBackground = false}) async {
@@ -63,7 +67,7 @@ class NotificationService {
 
     // Only request permissions in the foreground
     if (!isBackground) {
-      await NotificationService._requestNotificationPermissions();
+      // await NotificationService.requestNotificationPermissions();
       return;
     }
 
@@ -141,5 +145,27 @@ class NotificationService {
 
   static Future cancelNotification(int id) async {
     await _localNotificationsPlugin.cancel(id);
+  }
+
+  static Future cancelAllNotifications() async {
+    await _localNotificationsPlugin.cancelAll();
+    await AlarmService.cancelAllAlarms();
+  }
+
+  static Future<bool> checkPermissionStatus() async {
+    // Only handle it for android
+    if (!Platform.isAndroid) return false;
+
+    final androidImplementation = FlutterLocalNotificationsPlugin()
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    var notificationResponse = await androidImplementation
+        ?.areNotificationsEnabled();
+    var alarmResponse = await androidImplementation
+        ?.canScheduleExactNotifications();
+
+    return notificationResponse! && alarmResponse!;
   }
 }

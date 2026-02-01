@@ -1,3 +1,4 @@
+import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
@@ -11,11 +12,16 @@ void callbackDispatcher() {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
-    await NotificationService.initialize(isBackground: true);
+    await NotificationService.showNotification(
+      NotificationModel(
+        id: 332,
+        heading: "Fetching prayer times data",
+        body: "body",
+      ),
+    );
 
     if (taskName == "prayer-notifications") {
-      // await PrayerTimesService().prefetchPrayerTimes();
-      await PrayerTimesRepository().scheduleNotificationsForToday();
+      await PrayerTimesService.prefetchPrayerTimes();
     }
 
     return Future.value(true);

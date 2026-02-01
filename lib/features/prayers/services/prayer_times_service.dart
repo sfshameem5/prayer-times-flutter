@@ -12,13 +12,15 @@ class PrayerTimesService {
   static const _baseUrl = "prayer-times-api-nhqkb.ondigitalocean.app";
   static const _prayerTodayKey = "PRAYER_TIMES_TODAY";
 
-  String getTodayHijriDateFormatted() {
+  static String getTodayHijriDateFormatted() {
     final hijriDate = HijriCalendar.fromDate(DateTime.now());
     final monthName = hijriDate.getLongMonthName();
     return "$monthName ${hijriDate.hDay}, ${hijriDate.hYear} AH";
   }
 
-  Future<PrayerDayModel?> getTestPrayersForTimestamp(int timestamp) async {
+  static Future<PrayerDayModel?> getTestPrayersForTimestamp(
+    int timestamp,
+  ) async {
     // Five prayers each with 1 minute gap
     var date = DateTime.now();
     List<PrayerModel> prayers = [];
@@ -42,7 +44,9 @@ class PrayerTimesService {
     return PrayerDayModel(timestamp: timestamp, prayers: prayers);
   }
 
-  Future<PrayerDayModel?> getPrayerTimesForTimestamp(int timestamp) async {
+  static Future<PrayerDayModel?> getPrayerTimesForTimestamp(
+    int timestamp,
+  ) async {
     var url = Uri.https(_baseUrl, "/prayer", {
       "timestamp": timestamp.toString(),
     });
@@ -79,7 +83,7 @@ class PrayerTimesService {
     return responseToSend;
   }
 
-  Future prefetchPrayerTimes() async {
+  static Future prefetchPrayerTimes() async {
     var today = DateTime.now();
     List<int> dayTimestamps = [today.millisecondsSinceEpoch];
 

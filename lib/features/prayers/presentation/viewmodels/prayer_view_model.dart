@@ -8,8 +8,6 @@ import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 
 class PrayerViewModel extends ChangeNotifier {
-  final _prayerTimesRepository = PrayerTimesRepository();
-
   PrayerModel? _currentPrayer;
   PrayerModel? _nextPrayer;
   List<PrayerModel> _prayersList = [];
@@ -31,9 +29,9 @@ class PrayerViewModel extends ChangeNotifier {
   }
 
   Future updatePrayers() async {
-    _currentPrayer = await _prayerTimesRepository.getCurrentPrayer();
-    _nextPrayer = await _prayerTimesRepository.getNextPrayer();
-    _prayersList = await _prayerTimesRepository.getPrayerTimesForToday();
+    _currentPrayer = await PrayerTimesRepository.getCurrentPrayer();
+    _nextPrayer = await PrayerTimesRepository.getNextPrayer();
+    _prayersList = await PrayerTimesRepository.getPrayerTimesForToday();
 
     notifyListeners();
   }
@@ -100,7 +98,7 @@ class PrayerViewModel extends ChangeNotifier {
   }
 
   String get currentHijriDate {
-    return _prayerTimesRepository.getTodayHijriDateFormatted();
+    return PrayerTimesRepository.getTodayHijriDateFormatted();
   }
 
   String get countdown {

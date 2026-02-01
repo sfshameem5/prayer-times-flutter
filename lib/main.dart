@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:alarm/alarm.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -14,7 +13,6 @@ import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_vie
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
-import 'package:prayer_times/features/settings/services/settings_service.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -25,20 +23,17 @@ Future main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  FlutterNativeSplash.remove();
-
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
   await MMKV.initialize();
 
+  FlutterNativeSplash.remove();
+
   if (Platform.isAndroid) {
-    // await AndroidAlarmManager.initialize();
     await Alarm.init();
 
     FlutterForegroundTask.initCommunicationPort();
-
-    // await PrayerTimesRepository().initiateAzaanService();
 
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
@@ -49,13 +44,18 @@ Future main() async {
     );
 
     await NotificationService.initialize();
-    await PrayerTimesRepository().initateForegroundTask();
 
-    await PrayerTimesRepository().scheduleNotificationsForToday();
+    await PrayerTimesRepository.scheduleNotificationsForToday();
   }
 
   runApp(
-    ChangeNotifierProvider(create: (_) => ThemeService(), child: const MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -98,46 +98,40 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
-        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
-      ],
-      child: Scaffold(
-        body: _screens[_currentIndex],
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppTheme.navySurface : Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _NavItem(
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home,
-                    label: 'Prayers',
-                    isSelected: _currentIndex == 0,
-                    onTap: () => setState(() => _currentIndex = 0),
-                  ),
-                  _NavItem(
-                    icon: Icons.settings_outlined,
-                    activeIcon: Icons.settings,
-                    label: 'Settings',
-                    isSelected: _currentIndex == 1,
-                    onTap: () => setState(() => _currentIndex = 1),
-                  ),
-                ],
-              ),
+    return Scaffold(
+      body: _screens[_currentIndex],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppTheme.navySurface : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Prayers',
+                  isSelected: _currentIndex == 0,
+                  onTap: () => setState(() => _currentIndex = 0),
+                ),
+                _NavItem(
+                  icon: Icons.settings_outlined,
+                  activeIcon: Icons.settings,
+                  label: 'Settings',
+                  isSelected: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
+                ),
+              ],
             ),
           ),
         ),
