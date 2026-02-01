@@ -14,7 +14,7 @@ void callbackDispatcher() {
     await NotificationService.initialize(isBackground: true);
 
     if (taskName == "prayer-notifications") {
-      await PrayerTimesService().prefetchPrayerTimes();
+      // await PrayerTimesService().prefetchPrayerTimes();
       await PrayerTimesRepository().scheduleNotificationsForToday();
     }
 

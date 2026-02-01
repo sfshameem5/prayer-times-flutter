@@ -1,0 +1,29 @@
+import 'package:alarm/alarm.dart';
+import 'package:prayer_times/common/data/models/alarm_model.dart';
+
+class AlarmService {
+  static Future scheduleAlarm(AlarmModel data) async {
+    final alarmSettings = AlarmSettings(
+      id: data.id,
+      dateTime: DateTime.fromMillisecondsSinceEpoch(data.timestamp!),
+      assetAudioPath: 'assets/sounds/azaan_short.mp3',
+      loopAudio: false,
+      vibrate: true,
+      warningNotificationOnKill: false,
+      androidFullScreenIntent: true,
+      volumeSettings: VolumeSettings.fade(
+        volume: 0.8,
+        fadeDuration: Duration(seconds: 5),
+        volumeEnforced: true,
+      ),
+      notificationSettings: NotificationSettings(
+        title: data.heading,
+        body: data.body,
+        stopButton: 'Stop the azaan',
+        icon: 'notification_icon',
+      ),
+    );
+
+    await Alarm.set(alarmSettings: alarmSettings);
+  }
+}

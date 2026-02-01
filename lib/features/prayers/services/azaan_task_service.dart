@@ -9,7 +9,9 @@ void startCallback() {
 class MyTaskHandler extends TaskHandler {
   // Called when the task is started.
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    await AudioService.playAudio("assets/sounds/azaan_short.mp3");
+  }
 
   // Called based on the eventAction set in ForegroundTaskOptions.
   @override
@@ -28,7 +30,7 @@ class MyTaskHandler extends TaskHandler {
   // Called when data is sent using `FlutterForegroundTask.sendDataToTask`.
   @override
   void onReceiveData(Object data) async {
-    await AudioService.playAudio("assets/sounds/azaan_full.mp3");
+    // await AudioService.playAudio("assets/sounds/azaan_full.mp3");
   }
 
   // Called when the notification button is pressed.

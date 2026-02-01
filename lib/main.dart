@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:alarm/alarm.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -32,13 +33,12 @@ Future main() async {
   await MMKV.initialize();
 
   if (Platform.isAndroid) {
+    // await AndroidAlarmManager.initialize();
+    await Alarm.init();
+
     FlutterForegroundTask.initCommunicationPort();
 
-    await NotificationService.initialize();
     // await PrayerTimesRepository().initiateAzaanService();
-    await PrayerTimesRepository().scheduleNotificationsForToday();
-
-    await AndroidAlarmManager.initialize();
 
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
@@ -47,6 +47,11 @@ Future main() async {
       frequency: const Duration(minutes: 15),
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
+
+    await NotificationService.initialize();
+    await PrayerTimesRepository().initateForegroundTask();
+
+    await PrayerTimesRepository().scheduleNotificationsForToday();
   }
 
   runApp(
