@@ -20,9 +20,9 @@ class PrayerModel {
   static PrayerModel fromJSON(Map<String, dynamic> item) {
     return PrayerModel(
       PrayerNameEnum.values.byName(item["name"]),
-      item["timestamp"],
+      // item["timestamp"],
       // DateTime.now().add(Duration(seconds: 20)).millisecondsSinceEpoch,
-      // 1769946380000,
+      1770003450000,
     );
   }
 }

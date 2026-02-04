@@ -46,7 +46,7 @@ class NotificationService {
 
   static Future initialize({bool isBackground = false}) async {
     if (_notificationsInitialized && isBackground) {
-      // await _notifyBackgroundUsage();
+      await _notifyBackgroundUsage();
       return;
     }
 
@@ -72,7 +72,7 @@ class NotificationService {
     }
 
     // Inform the user that background task is being run
-    // if (isBackground) await _notifyBackgroundUsage();
+    if (isBackground) await _notifyBackgroundUsage();
   }
 
   static Future scheduleNotification(NotificationModel data) async {

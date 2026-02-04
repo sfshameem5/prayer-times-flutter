@@ -53,4 +53,8 @@ class PrayerDayModel {
       "prayers": item.prayers.map((x) => PrayerModel.toJSON(x)).toList(),
     };
   }
+
+  // static Map<String, dynamic> toJsonMonth(List<PrayerDayModel> prayers) {
+  //   var prayers = [];
+  // }
 }
