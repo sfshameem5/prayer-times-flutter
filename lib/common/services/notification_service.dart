@@ -19,7 +19,7 @@ class NotificationService {
     await scheduleNotification(
       NotificationModel(
         id: 005,
-        heading: "Running work manager",
+        heading: "Fetching background data",
 
         body: "Prefetching prayer times",
         timestamp: DateTime.now()

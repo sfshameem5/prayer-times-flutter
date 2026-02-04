@@ -33,7 +33,7 @@ class SettingsService {
 
     if (data.notificationMode != settings.notificationMode) {
       await NotificationService.cancelAllNotifications();
-      await PrayerTimesRepository.scheduleNotificationsForToday();
+      await PrayerTimesRepository.scheduleNotifications();
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
+import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
@@ -96,7 +97,7 @@ class PrayerTimesRepository {
     return (date.day * 100) + (date.month * 10) + prayer.name.index;
   }
 
-  static Future scheduleNotificationsForToday() async {
+  static Future scheduleNotifications() async {
     var settings = await SettingsService().getSettings();
 
     SentryService.logString("Scheduling prayer notifications");
@@ -107,9 +108,24 @@ class PrayerTimesRepository {
     if (!settings.notificationsEnabled) return;
 
     // For each prayer use timestamp as ID and schedule notifications
-    var prayers = await getPrayerTimesForToday();
+    var todayDate = DateTime.now();
+    List<PrayerDayModel> prayerDays = [];
 
-    if (prayers.isEmpty) return;
+    for (var i = 0; i < 3; i += 1) {
+      var prayerDay = await PrayerTimesService.getPrayerTimesForTimestamp(
+        todayDate.millisecondsSinceEpoch,
+      );
+      if (prayerDay != null) prayerDays.add(prayerDay);
+
+      todayDate = todayDate.add(Duration(days: 1));
+    }
+
+    if (prayerDays.isEmpty) return;
+
+    List<PrayerModel> prayers = [];
+    for (var day in prayerDays) {
+      prayers.addAll(day.prayers);
+    }
 
     var currentTimestamp = DateTime.now().millisecondsSinceEpoch;
 

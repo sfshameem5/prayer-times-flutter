@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:mmkv/mmkv.dart';
-import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
+import 'package:prayer_times/features/prayers/data/models/prayer_month_model.dart';
 
 class PrayerTimesService {
   static const _baseUrl = "prayer-times-api-nhqkb.ondigitalocean.app";
@@ -46,9 +46,7 @@ class PrayerTimesService {
     return PrayerDayModel(timestamp: timestamp, prayers: prayers);
   }
 
-  static Future<List<PrayerDayModel>> _getPrayerTimesForMonth(
-    int timestamp,
-  ) async {
+  static Future<PrayerMonthModel?> getPrayerTimesForMonth(int timestamp) async {
     // Check how the response is coming back.
     // Create a fromJSON and toJSON type for month
     // Maybe create a new model called PrayerDayMonth
@@ -68,15 +66,10 @@ class PrayerTimesService {
 
     if (alreadyAvailable != null) {
       // Here it is a list of prayer models
-      var items = json.decode(alreadyAvailable) as List<dynamic>;
-      List<PrayerDayModel> prayers = [];
+      var jsonData = json.decode(alreadyAvailable) as Map<String, dynamic>;
+      var monthData = PrayerMonthModel.fromJSON(jsonData);
 
-      for (var item in items) {
-        prayers.add(PrayerDayModel.fromJson(item));
-      }
-      // var parsedItem = PrayerDayModel.fromJson(json.decode(alreadyAvailable));
-
-      if (prayers.isNotEmpty) return prayers;
+      return monthData;
     }
 
     var year = DateFormat('y').format(date).toString();
@@ -84,83 +77,40 @@ class PrayerTimesService {
     final response = await http.get(url);
 
     if (response.body.isNotEmpty) {
-      var receivedResponse = json.decode(response.body) as List<dynamic>;
-      var prayers = [];
+      var receivedResponse = json.decode(response.body) as Map<String, dynamic>;
 
-      for (var item in receivedResponse) {
-        prayers.add(PrayerDayModel.fromAPI(item, year));
-      }
+      var monthData = PrayerMonthModel.fromAPI(receivedResponse, year);
+      var toEncode = PrayerMonthModel.toJSON(monthData);
+
+      mkkv.encodeString(currentKey, json.encode(toEncode));
+
+      return monthData;
     }
 
-    // if (responseToSend != null) {
-    //   var toSave = PrayerDayModel.toJson(responseToSend);
-    //   mkkv.encodeString(currentKey, json.encode(toSave));
-    // }
-    // return responseToSend;
-
-    return [];
+    return null;
   }
 
   static Future<PrayerDayModel?> getPrayerTimesForTimestamp(
     int timestamp,
   ) async {
-    var url = Uri.https(_baseUrl, "/prayer", {
-      "timestamp": timestamp.toString(),
-    });
+    // Get today as d-MMM
+    // Find the date which matches d-MMM and return
+    var formatter = DateFormat("d-MMM");
+    var todayDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    var formatter = DateFormat("d-MMM y");
-    var formattedKey = formatter.format(date);
+    var todayString = formatter.format(todayDate);
 
-    var mkkv = MMKV.defaultMMKV();
+    // The date should be part of a month
+    var monthData = await getPrayerTimesForMonth(timestamp);
+    if (monthData == null) return null;
 
-    var currentKey = "$_prayerTodayKey $formattedKey";
+    for (var date in monthData.dates) {
+      var itemDate = DateTime.fromMillisecondsSinceEpoch(date.timestamp);
+      var itemString = formatter.format(itemDate);
 
-    var alreadyAvailable = mkkv.decodeString(currentKey);
-
-    if (alreadyAvailable != null) {
-      var parsedItem = PrayerDayModel.fromJson(json.decode(alreadyAvailable));
-
-      return parsedItem;
+      if (todayString == itemString) return date;
     }
 
-    var year = DateFormat('y').format(date).toString();
-
-    final response = await http.get(url);
-
-    var responseToSend = PrayerDayModel.fromAPI(
-      json.decode(response.body),
-      year,
-    );
-
-    if (responseToSend != null) {
-      var toSave = PrayerDayModel.toJson(responseToSend);
-      mkkv.encodeString(currentKey, json.encode(toSave));
-    }
-    return responseToSend;
-  }
-
-  static Future prefetchPrayerTimes() async {
-    await SentryService.logString("Prefetching prayer times");
-
-    List<int> dayTimestamps = [];
-    var updatedDate = DateTime.now();
-
-    for (int i = 0; i < 5; i += 1) {
-      updatedDate = updatedDate.add(Duration(days: 1));
-      dayTimestamps.add(updatedDate.millisecondsSinceEpoch);
-    }
-
-    var timestampString = '';
-
-    // For each day let's prefetch prayers
-    for (var timestamp in dayTimestamps) {
-      timestampString += "$timestamp ";
-      await getPrayerTimesForTimestamp(timestamp);
-    }
-
-    await SentryService.logString(
-      "Processing prefetch timestamps $timestampString",
-    );
+    return null;
   }
 }

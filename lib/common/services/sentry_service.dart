@@ -35,8 +35,8 @@ class SentryService {
 
     if (kDebugMode) {
       print(finalLog);
+    } else {
+      await Sentry.logger.info(finalLog);
     }
-
-    return await Sentry.logger.info(finalLog);
   }
 }

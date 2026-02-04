@@ -48,13 +48,12 @@ Future main() async {
     await Workmanager().registerPeriodicTask(
       "prayer",
       "prayer-notifications",
-      frequency: const Duration(minutes: 15),
+      frequency: const Duration(hours: 6),
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
 
     await NotificationService.initialize();
-
-    await PrayerTimesRepository.scheduleNotificationsForToday();
+    await PrayerTimesRepository.scheduleNotifications();
   }
 }
 

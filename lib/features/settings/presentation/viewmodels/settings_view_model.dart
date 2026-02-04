@@ -103,7 +103,7 @@ class SettingsViewModel extends ChangeNotifier {
     await _updateSettings();
 
     if (enabled) {
-      await PrayerTimesRepository.scheduleNotificationsForToday();
+      await PrayerTimesRepository.scheduleNotifications();
     }
 
     notifyListeners();
@@ -120,7 +120,7 @@ class SettingsViewModel extends ChangeNotifier {
     );
 
     await NotificationService.cancelAllNotifications();
-    await PrayerTimesRepository.scheduleNotificationsForToday();
+    await PrayerTimesRepository.scheduleNotifications();
 
     notifyListeners();
   }
