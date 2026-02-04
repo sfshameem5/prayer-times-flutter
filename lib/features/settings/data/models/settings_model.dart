@@ -8,7 +8,7 @@ class SettingsModel {
   final AppThemeMode themeMode;
 
   const SettingsModel({
-    this.notificationsEnabled = true,
+    this.notificationsEnabled = false,
     this.notificationMode = PrayerNotificationMode.defaultSound,
     this.themeMode = AppThemeMode.system,
   });

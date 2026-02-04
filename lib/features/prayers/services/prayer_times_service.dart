@@ -143,18 +143,19 @@ class PrayerTimesService {
   static Future prefetchPrayerTimes() async {
     await SentryService.logString("Prefetching prayer times");
 
-    var today = DateTime.now();
     List<int> dayTimestamps = [];
+    var updatedDate = DateTime.now();
 
     for (int i = 0; i < 5; i += 1) {
-      dayTimestamps.add(today.add(Duration(days: 1)).millisecondsSinceEpoch);
+      updatedDate = updatedDate.add(Duration(days: 1));
+      dayTimestamps.add(updatedDate.millisecondsSinceEpoch);
     }
 
     var timestampString = '';
 
     // For each day let's prefetch prayers
     for (var timestamp in dayTimestamps) {
-      timestampString += timestamp.toString();
+      timestampString += "$timestamp ";
       await getPrayerTimesForTimestamp(timestamp);
     }
 

@@ -5,6 +5,7 @@ import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
@@ -97,6 +98,11 @@ class PrayerTimesRepository {
 
   static Future scheduleNotificationsForToday() async {
     var settings = await SettingsService().getSettings();
+
+    SentryService.logString("Scheduling prayer notifications");
+    SentryService.logString(
+      "Notifications are ${settings.notificationsEnabled ? 'enabled ' : 'disabled'} ${settings.notificationMode}",
+    );
 
     if (!settings.notificationsEnabled) return;
 

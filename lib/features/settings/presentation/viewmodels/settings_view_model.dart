@@ -119,6 +119,9 @@ class SettingsViewModel extends ChangeNotifier {
       "UI: change prayer notification mode to $mode",
     );
 
+    await NotificationService.cancelAllNotifications();
+    await PrayerTimesRepository.scheduleNotificationsForToday();
+
     notifyListeners();
   }
 

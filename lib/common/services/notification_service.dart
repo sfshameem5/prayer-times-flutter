@@ -50,7 +50,9 @@ class NotificationService {
       await _notifyBackgroundUsage();
       return;
     }
-    await SentryService.logString("Initializing notification service");
+    await SentryService.logString(
+      "Initializing ${isBackground ? "background" : ""} notification service",
+    );
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         // AndroidInitializationSettings('@drawable/background');
@@ -154,6 +156,7 @@ class NotificationService {
   }
 
   static Future cancelAllNotifications() async {
+    await SentryService.logString("Cancelling all notifications");
     await _localNotificationsPlugin.cancelAll();
     await AlarmService.cancelAllAlarms();
   }

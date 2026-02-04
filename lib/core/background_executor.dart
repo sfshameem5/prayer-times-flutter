@@ -15,7 +15,7 @@ void callbackDispatcher() {
     if (taskName == "prayer-notifications") {
       await SentryService.logString("Initializing work manager");
 
-      await NotificationService.initialize();
+      await NotificationService.initialize(isBackground: true);
       await PrayerTimesService.prefetchPrayerTimes();
       await PrayerTimesRepository.scheduleNotificationsForToday();
     }
