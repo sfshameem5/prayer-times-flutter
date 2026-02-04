@@ -23,12 +23,17 @@ class SentryService {
   static Future<void> logString(String log) async {
     if (!_isInitialized) await initialize();
 
-    var androidName = await _deviceInfo.androidInfo;
-
     var finalLog = "";
 
     if (Platform.isAndroid) {
+      var androidName = await _deviceInfo.androidInfo;
       finalLog += "Log: ${androidName.model} $log";
+    } else if (Platform.isMacOS) {
+      var mac = await _deviceInfo.macOsInfo;
+      finalLog += "Log: ${mac.computerName} $log";
+    } else if (Platform.isWindows) {
+      var windows = await _deviceInfo.windowsInfo;
+      finalLog += "Log: ${windows.computerName}";
     } else {
       finalLog += "Log: $log";
     }
