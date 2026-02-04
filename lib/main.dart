@@ -11,6 +11,7 @@ import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
+import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -34,6 +35,7 @@ Future main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -48,7 +50,7 @@ Future main() async {
     await Workmanager().registerPeriodicTask(
       "prayer",
       "prayer-notifications",
-      frequency: const Duration(hours: 6),
+      frequency: const Duration(days: 1),
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
 

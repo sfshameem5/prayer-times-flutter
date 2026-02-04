@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
@@ -112,5 +114,20 @@ class PrayerTimesService {
     }
 
     return null;
+  }
+
+  static Future prefetchPrayerTimes() async {
+    var now = DateTime.now();
+    var nextMonth = DateTime(now.year, now.month + 1, 1);
+
+    var monthString = DateFormat("MMM y").format(nextMonth);
+
+    await SentryService.logString("Prefetching prayer times for $monthString");
+
+    await getPrayerTimesForMonth(nextMonth.millisecondsSinceEpoch);
+
+    await SentryService.logString(
+      "Prefetched timestamp ${nextMonth.millisecondsSinceEpoch}",
+    );
   }
 }
