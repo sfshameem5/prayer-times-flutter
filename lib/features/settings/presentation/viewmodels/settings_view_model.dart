@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/data/repositories/settings_repository.dart';
@@ -39,8 +38,6 @@ class SettingsViewModel extends ChangeNotifier {
 
   Future<void> _loadSettings() async {
     _isLoading = true;
-    notifyListeners();
-
     _settings = await _repository.getSettings();
 
     await _checkNotificationsEnabled();
@@ -49,8 +46,11 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _updateSettings() async {
+    _settings = await _repository.getSettings();
+  }
+
   Future<void> setNotificationsEnabled(bool enabled) async {
-    print("Set notifications enabled");
     if (enabled && _notificationsEnabled) return;
 
     var notificationsSection = false;
@@ -100,6 +100,8 @@ class SettingsViewModel extends ChangeNotifier {
     _settings = _settings.copyWith(notificationsEnabled: _notificationsEnabled);
     await _repository.saveSettings(_settings);
 
+    await _updateSettings();
+
     if (enabled) {
       await PrayerTimesRepository.scheduleNotificationsForToday();
     }
@@ -111,12 +113,20 @@ class SettingsViewModel extends ChangeNotifier {
     _settings = _settings.copyWith(notificationMode: mode);
     await _repository.saveSettings(_settings);
 
+    _updateSettings();
+
+    await SentryService.logString(
+      "UI: change prayer notification mode to $mode",
+    );
+
     notifyListeners();
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {
     _settings = _settings.copyWith(themeMode: mode);
     await _repository.saveSettings(_settings);
+
+    _updateSettings();
 
     notifyListeners();
   }
@@ -139,5 +149,7 @@ class SettingsViewModel extends ChangeNotifier {
 
     _settings = _settings.copyWith(notificationsEnabled: _notificationsEnabled);
     await _repository.saveSettings(settings);
+
+    _updateSettings();
   }
 }

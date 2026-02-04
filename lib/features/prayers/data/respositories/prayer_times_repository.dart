@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:intl/intl.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
@@ -133,13 +132,9 @@ class PrayerTimesRepository {
 
       if (settings.notificationMode == PrayerNotificationMode.azaan) {
         await AlarmService.scheduleAlarm(alarmData);
-        print("Scheduilng alarm");
       } else {
-        print("Scheduilng default notification");
         await NotificationService.scheduleNotification(notification);
       }
-
-      return;
     }
   }
 }

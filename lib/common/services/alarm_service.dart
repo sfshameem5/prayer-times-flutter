@@ -1,5 +1,6 @@
 import 'package:alarm/alarm.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 
 class AlarmService {
   static Future scheduleAlarm(AlarmModel data) async {
@@ -24,10 +25,15 @@ class AlarmService {
       ),
     );
 
+    SentryService.logString(
+      "Scheduling alarm for prayer ${data.heading} with timestamp ${data.timestamp}",
+    );
+
     await Alarm.set(alarmSettings: alarmSettings);
   }
 
   static Future cancelAllAlarms() async {
+    await SentryService.logString("Cancelling all alarms");
     await Alarm.stopAll();
   }
 }

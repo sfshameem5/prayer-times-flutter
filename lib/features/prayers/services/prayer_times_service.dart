@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
@@ -49,8 +49,6 @@ class PrayerTimesService {
   static Future<List<PrayerDayModel>> _getPrayerTimesForMonth(
     int timestamp,
   ) async {
-    debugger();
-
     // Check how the response is coming back.
     // Create a fromJSON and toJSON type for month
     // Maybe create a new model called PrayerDayMonth
@@ -143,6 +141,8 @@ class PrayerTimesService {
   }
 
   static Future prefetchPrayerTimes() async {
+    await SentryService.logString("Prefetching prayer times");
+
     var today = DateTime.now();
     List<int> dayTimestamps = [];
 
@@ -150,9 +150,16 @@ class PrayerTimesService {
       dayTimestamps.add(today.add(Duration(days: 1)).millisecondsSinceEpoch);
     }
 
+    var timestampString = '';
+
     // For each day let's prefetch prayers
     for (var timestamp in dayTimestamps) {
+      timestampString += timestamp.toString();
       await getPrayerTimesForTimestamp(timestamp);
     }
+
+    await SentryService.logString(
+      "Processing prefetch timestamps $timestampString",
+    );
   }
 }

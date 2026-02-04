@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
 import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
@@ -32,6 +33,13 @@ class PrayerViewModel extends ChangeNotifier {
     _currentPrayer = await PrayerTimesRepository.getCurrentPrayer();
     _nextPrayer = await PrayerTimesRepository.getNextPrayer();
     _prayersList = await PrayerTimesRepository.getPrayerTimesForToday();
+
+    await SentryService.logString(
+      "UI: current prayer ${_currentPrayer?.name} ${_currentPrayer?.timestamp}",
+    );
+    await SentryService.logString(
+      "UI: next prayer ${_nextPrayer?.name} ${_nextPrayer?.timestamp}",
+    );
 
     notifyListeners();
   }

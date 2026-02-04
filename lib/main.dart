@@ -13,7 +13,6 @@ import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_vie
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
@@ -29,6 +28,16 @@ Future main() async {
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
   FlutterNativeSplash.remove();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 
   if (Platform.isAndroid) {
     await Alarm.init();
@@ -47,16 +56,6 @@ Future main() async {
 
     await PrayerTimesRepository.scheduleNotificationsForToday();
   }
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeService()),
-        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
-      ],
-      child: const MyApp(),
-    ),
-  );
 }
 
 class MyApp extends StatelessWidget {

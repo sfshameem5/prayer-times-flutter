@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
+import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -49,6 +50,7 @@ class NotificationService {
       await _notifyBackgroundUsage();
       return;
     }
+    await SentryService.logString("Initializing notification service");
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         // AndroidInitializationSettings('@drawable/background');
@@ -101,6 +103,10 @@ class NotificationService {
     final scheduledDate = tz.TZDateTime.fromMillisecondsSinceEpoch(
       tz.local,
       data.timestamp!,
+    );
+
+    await SentryService.logString(
+      "Scheduling notification for ${data.heading} with timestamp ${data.timestamp}",
     );
 
     await _localNotificationsPlugin.zonedSchedule(

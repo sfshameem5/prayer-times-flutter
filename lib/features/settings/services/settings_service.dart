@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
