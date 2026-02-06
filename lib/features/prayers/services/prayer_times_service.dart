@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/common/data/enums/cache_ttl.dart';
+import 'package:prayer_times/common/services/cache_manager.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
@@ -61,10 +61,9 @@ class PrayerTimesService {
     var formatter = DateFormat("MMM y");
     var formattedKey = formatter.format(date);
 
-    var mkkv = MMKV.defaultMMKV();
-
     var currentKey = "$_prayerMonthKey $formattedKey";
-    var alreadyAvailable = mkkv.decodeString(currentKey);
+    // var alreadyAvailable = mkkv.decodeString(currentKey);
+    var alreadyAvailable = CacheManager.getStringItem(currentKey);
 
     if (alreadyAvailable != null) {
       // Here it is a list of prayer models
@@ -84,7 +83,11 @@ class PrayerTimesService {
       var monthData = PrayerMonthModel.fromAPI(receivedResponse, year);
       var toEncode = PrayerMonthModel.toJSON(monthData);
 
-      mkkv.encodeString(currentKey, json.encode(toEncode));
+      CacheManager.saveStringItem(
+        currentKey,
+        json.encode(toEncode),
+        CacheTTL.ONE_WEEK,
+      );
 
       return monthData;
     }
