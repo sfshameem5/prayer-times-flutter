@@ -1,15 +1,19 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
+import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
+import 'package:prayer_times/features/prayers/presentation/views/alarm_screen.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
@@ -18,6 +22,8 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 import 'package:prayer_times/core/background_executor.dart' as bg;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future main() async {
   await CacheManager.initialize();
@@ -28,21 +34,9 @@ Future main() async {
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
-  FlutterNativeSplash.remove();
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeService()),
-        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
-        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
-      ],
-      child: const MyApp(),
-    ),
-  );
-
   if (Platform.isAndroid) {
     await Alarm.init();
+    await AlarmService.initWarningNotification();
 
     FlutterForegroundTask.initCommunicationPort();
 
@@ -57,6 +51,19 @@ Future main() async {
     await NotificationService.initialize();
     await PrayerTimesRepository.scheduleNotifications();
   }
+
+  FlutterNativeSplash.remove();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -66,6 +73,7 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeService>(
       builder: (context, themeService, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'Prayer Times',
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
@@ -86,6 +94,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
+  StreamSubscription? _ringingSubscription;
 
   final List<Widget> _screens = const [
     PrayerView(),
@@ -98,10 +107,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PermissionService.requestAllPermissions(context);
+    });
+    _setupAlarmListener();
+  }
+
+  void _setupAlarmListener() {
+    if (!Platform.isAndroid) return;
+    _ringingSubscription = Alarm.ringing.listen((alarmSet) {
+      for (final alarm in alarmSet.alarms) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => AlarmScreen(alarmSettings: alarm)),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _ringingSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

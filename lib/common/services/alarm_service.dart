@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:alarm/alarm.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
@@ -10,7 +12,7 @@ class AlarmService {
       assetAudioPath: 'assets/sounds/azaan_full.mp3',
       loopAudio: false,
       vibrate: true,
-      warningNotificationOnKill: false,
+      warningNotificationOnKill: Platform.isAndroid,
       androidFullScreenIntent: true,
       volumeSettings: VolumeSettings.fade(
         volume: 0.8,
@@ -35,5 +37,14 @@ class AlarmService {
   static Future cancelAllAlarms() async {
     await SentryService.logString("Cancelling all alarms");
     await Alarm.stopAll();
+  }
+
+  static Future<void> initWarningNotification() async {
+    if (Platform.isAndroid) {
+      await Alarm.setWarningNotificationOnKill(
+        'Prayer Times',
+        'Prayer alarms may not ring if the app is closed.',
+      );
+    }
   }
 }

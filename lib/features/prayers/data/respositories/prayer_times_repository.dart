@@ -5,6 +5,7 @@ import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
+import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
@@ -107,6 +108,8 @@ class PrayerTimesRepository {
     );
 
     if (!settings.notificationsEnabled) return;
+
+    await PermissionService.ensureAlarmPermissions();
 
     // For each prayer use timestamp as ID and schedule notifications
     var todayDate = DateTime.now();
