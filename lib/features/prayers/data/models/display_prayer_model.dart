@@ -3,15 +3,30 @@ import 'package:intl/intl.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 
 class DisplayPrayerModel {
-  String name;
-  String time;
-  IconData icon;
+  final String name;
+  final String time;
+  final IconData icon;
+  final bool isPassed;
 
-  DisplayPrayerModel({
+  const DisplayPrayerModel({
     required this.name,
     required this.time,
     this.icon = Icons.access_time,
+    this.isPassed = false,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DisplayPrayerModel &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          time == other.time &&
+          icon == other.icon &&
+          isPassed == other.isPassed;
+
+  @override
+  int get hashCode => Object.hash(name, time, icon, isPassed);
 
   static const Map<String, IconData> _prayerIcons = {
     'fajr': Icons.nightlight_round,
@@ -32,11 +47,13 @@ class DisplayPrayerModel {
     var date = DateTime.fromMillisecondsSinceEpoch(item.timestamp);
     var name = item.name.name;
     var capitalizedName = name[0].toUpperCase() + name.substring(1);
+    var isPassed = DateTime.now().millisecondsSinceEpoch > item.timestamp;
 
     return DisplayPrayerModel(
       name: capitalizedName,
       time: DateFormat.jm().format(date).toString(),
       icon: _getIconForPrayer(name),
+      isPassed: isPassed,
     );
   }
 }

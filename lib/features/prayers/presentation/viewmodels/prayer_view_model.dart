@@ -9,9 +9,10 @@ import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 
 class PrayerViewModel extends ChangeNotifier {
-  PrayerModel? _currentPrayer;
   PrayerModel? _nextPrayer;
   List<PrayerModel> _prayersList = [];
+  bool _isLoading = true;
+  bool _isUpdating = false;
 
   Timer? _timer;
   CountdownModel _countdown = CountdownModel(
@@ -30,13 +31,18 @@ class PrayerViewModel extends ChangeNotifier {
   }
 
   Future updatePrayers() async {
-    _currentPrayer = await PrayerTimesRepository.getCurrentPrayer();
+    if (_isUpdating) return;
+    _isUpdating = true;
+
+    _isLoading = _prayersList.isEmpty;
+    if (_isLoading) notifyListeners();
+
     _nextPrayer = await PrayerTimesRepository.getNextPrayer();
     _prayersList = await PrayerTimesRepository.getPrayerTimesForToday();
 
-    await SentryService.logString(
-      "UI: current prayer ${_currentPrayer?.name} ${_currentPrayer?.timestamp}",
-    );
+    _isLoading = false;
+    _isUpdating = false;
+
     await SentryService.logString(
       "UI: next prayer ${_nextPrayer?.name} ${_nextPrayer?.timestamp}",
     );
@@ -77,14 +83,7 @@ class PrayerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  DisplayPrayerModel get currentPrayer {
-    final prayer = _currentPrayer;
-    if (prayer == null) {
-      return DisplayPrayerModel(name: "Loading", time: "Loading");
-    }
-
-    return DisplayPrayerModel.fromPrayerModel(prayer);
-  }
+  bool get isLoading => _isLoading;
 
   DisplayPrayerModel get nextPrayer {
     final prayer = _nextPrayer;

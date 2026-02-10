@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
+import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
-import 'package:prayer_times/features/prayers/presentation/widgets/countdown_label.dart';
 import 'package:provider/provider.dart';
 
 class CountdownTimer extends StatelessWidget {
@@ -16,13 +16,15 @@ class CountdownTimer extends StatelessWidget {
 
     return Selector<
       PrayerViewModel,
-      ({String currentPrayer, String nextPrayer})
+      ({DisplayPrayerModel nextPrayer, bool isLoading})
     >(
-      selector: (_, model) => (
-        currentPrayer: model.currentPrayer.name,
-        nextPrayer: model.nextPrayer.name,
-      ),
+      selector: (_, model) =>
+          (nextPrayer: model.nextPrayer, isLoading: model.isLoading),
       builder: (context, data, child) {
+        if (data.isLoading) {
+          return const _CountdownSkeleton();
+        }
+
         return Container(
           margin: const EdgeInsets.only(top: 24),
           decoration: BoxDecoration(
@@ -41,12 +43,36 @@ class CountdownTimer extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
             child: Column(
               children: [
+                Text(
+                  'NEXT PRAYER',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: isDark ? Colors.white54 : Colors.black45,
+                    fontSize: 11,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  data.nextPrayer.name,
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: AppTheme.appOrange,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  data.nextPrayer.time,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
+                    horizontal: 24,
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
@@ -57,25 +83,8 @@ class CountdownTimer extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CountdownLabel(
-                            label: "CURRENT",
-                            prayer: data.currentPrayer,
-                            isHighlighted: false,
-                          ),
-                          CountdownLabel(
-                            label: "NEXT",
-                            prayer: data.nextPrayer,
-                            isHighlighted: true,
-                            alignEnd: true,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
                       Text(
-                        'Time to next prayer:',
+                        'Time remaining',
                         style: textTheme.bodySmall?.copyWith(
                           color: isDark ? Colors.white54 : Colors.black45,
                         ),
@@ -147,9 +156,6 @@ class CountdownTimer extends StatelessWidget {
             fontWeight: FontWeight.w500,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
-          // style: textTheme.displayMedium?.copyWith(
-          //   fontFeatures: const [FontFeature.tabularFigures()],
-          // ),
         ),
         Text(
           label,
@@ -159,6 +165,98 @@ class CountdownTimer extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CountdownSkeleton extends StatefulWidget {
+  const _CountdownSkeleton();
+
+  @override
+  State<_CountdownSkeleton> createState() => _CountdownSkeletonState();
+}
+
+class _CountdownSkeletonState extends State<_CountdownSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final shimmerColor = isDark
+            ? Colors.white.withValues(alpha: 0.04 + 0.04 * _controller.value)
+            : Colors.grey.withValues(alpha: 0.08 + 0.08 * _controller.value);
+
+        return Container(
+          margin: const EdgeInsets.only(top: 24),
+          decoration: BoxDecoration(
+            gradient: isDark
+                ? AppTheme.darkCardGradient
+                : AppTheme.lightCardGradient,
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+            child: Column(
+              children: [
+                Container(
+                  width: 100,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: shimmerColor,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: 120,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: shimmerColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 80,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: shimmerColor,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: shimmerColor,
+                    borderRadius: BorderRadius.circular(AppTheme.smallRadius),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
