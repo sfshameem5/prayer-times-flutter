@@ -6,6 +6,7 @@ import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
+import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
@@ -102,7 +103,7 @@ class PrayerTimesRepository {
 
     SentryService.logString("Scheduling prayer notifications");
     SentryService.logString(
-      "Notifications are ${settings.notificationsEnabled ? 'enabled ' : 'disabled'} ${settings.notificationMode}",
+      "Notifications are ${settings.notificationsEnabled ? 'enabled ' : 'disabled'}",
     );
 
     if (!settings.notificationsEnabled) return;
@@ -152,7 +153,18 @@ class PrayerTimesRepository {
         audioPath: "assets/sounds/azaan_full.mp3",
       );
 
-      if (settings.notificationMode == PrayerNotificationMode.azaan) {
+      final mode = settings.getModeForPrayer(prayer.name);
+
+      // Sunrise should never get azaan
+      final effectiveMode =
+          prayer.name == PrayerNameEnum.sunrise &&
+              mode == PrayerNotificationMode.azaan
+          ? PrayerNotificationMode.defaultSound
+          : mode;
+
+      if (effectiveMode == PrayerNotificationMode.silent) {
+        continue;
+      } else if (effectiveMode == PrayerNotificationMode.azaan) {
         await AlarmService.scheduleAlarm(alarmData);
       } else {
         await NotificationService.scheduleNotification(notification);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
+import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/data/repositories/settings_repository.dart';
@@ -22,7 +23,12 @@ class SettingsViewModel extends ChangeNotifier {
   bool _notificationsEnabled = false;
   bool get notificationsEnabled => _notificationsEnabled;
 
-  PrayerNotificationMode get notificationMode => _settings.notificationMode;
+  Map<PrayerNameEnum, PrayerNotificationMode> get prayerNotificationModes =>
+      _settings.prayerNotificationModes;
+
+  PrayerNotificationMode getModeForPrayer(PrayerNameEnum prayer) =>
+      _settings.getModeForPrayer(prayer);
+
   AppThemeMode get themeMode => _settings.themeMode;
 
   ThemeMode get flutterThemeMode {
@@ -109,18 +115,29 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setNotificationMode(PrayerNotificationMode mode) async {
-    _settings = _settings.copyWith(notificationMode: mode);
+  Future<void> setPrayerNotificationMode(
+    PrayerNameEnum prayer,
+    PrayerNotificationMode mode,
+  ) async {
+    // Sunrise can never be set to azaan
+    if (prayer == PrayerNameEnum.sunrise &&
+        mode == PrayerNotificationMode.azaan) {
+      return;
+    }
+
+    final updatedModes = Map<PrayerNameEnum, PrayerNotificationMode>.from(
+      _settings.prayerNotificationModes,
+    );
+    updatedModes[prayer] = mode;
+
+    _settings = _settings.copyWith(prayerNotificationModes: updatedModes);
     await _repository.saveSettings(_settings);
 
-    _updateSettings();
+    await _updateSettings();
 
     await SentryService.logString(
-      "UI: change prayer notification mode to $mode",
+      "UI: change ${prayer.name} notification mode to $mode",
     );
-
-    await NotificationService.cancelAllNotifications();
-    await PrayerTimesRepository.scheduleNotifications();
 
     notifyListeners();
   }
@@ -129,7 +146,7 @@ class SettingsViewModel extends ChangeNotifier {
     _settings = _settings.copyWith(themeMode: mode);
     await _repository.saveSettings(_settings);
 
-    _updateSettings();
+    await _updateSettings();
 
     notifyListeners();
   }

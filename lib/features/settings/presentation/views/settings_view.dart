@@ -3,7 +3,7 @@ import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
-import 'package:prayer_times/features/settings/presentation/widgets/notification_mode_dropdown.dart';
+import 'package:prayer_times/features/settings/presentation/widgets/prayer_notification_settings.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/theme_mode_selector.dart';
 import 'package:provider/provider.dart';
@@ -67,26 +67,9 @@ class SettingsView extends StatelessWidget {
                           activeThumbColor: AppTheme.appOrange,
                         ),
                       ),
-                      // Enable after azaan foreground implementation
                       if (viewModel.notificationsEnabled) ...[
                         const SizedBox(height: 12),
-                        SettingsTile(
-                          icon: Icons.music_note_outlined,
-                          title: 'Prayer Notification Mode',
-                          subtitle:
-                              viewModel.notificationMode ==
-                                  PrayerNotificationMode.azaan
-                              ? 'Azaan'
-                              : 'Default Sound',
-                          trailing: NotificationModeDropdown(
-                            value: viewModel.notificationMode,
-                            onChanged: (mode) {
-                              if (mode != null) {
-                                viewModel.setNotificationMode(mode);
-                              }
-                            },
-                          ),
-                        ),
+                        const PrayerNotificationSettings(),
                       ],
                       const SizedBox(height: 12),
                     ],

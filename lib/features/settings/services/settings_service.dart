@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
@@ -31,7 +32,12 @@ class SettingsService {
       await NotificationService.cancelAllNotifications();
     }
 
-    if (data.notificationMode != settings.notificationMode) {
+    final modesChanged = !const MapEquality<dynamic, dynamic>().equals(
+      data.prayerNotificationModes,
+      settings.prayerNotificationModes,
+    );
+
+    if (modesChanged) {
       await NotificationService.cancelAllNotifications();
       await PrayerTimesRepository.scheduleNotifications();
     }
