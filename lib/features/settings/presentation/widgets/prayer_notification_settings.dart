@@ -8,15 +8,6 @@ import 'package:provider/provider.dart';
 class PrayerNotificationSettings extends StatelessWidget {
   const PrayerNotificationSettings({super.key});
 
-  static const Map<PrayerNameEnum, IconData> _prayerIcons = {
-    PrayerNameEnum.fajr: Icons.nightlight_round,
-    PrayerNameEnum.sunrise: Icons.wb_twilight,
-    PrayerNameEnum.luhr: Icons.wb_sunny,
-    PrayerNameEnum.asr: Icons.wb_sunny_outlined,
-    PrayerNameEnum.magrib: Icons.nights_stay_outlined,
-    PrayerNameEnum.isha: Icons.dark_mode,
-  };
-
   static String _prayerDisplayName(PrayerNameEnum prayer) {
     switch (prayer) {
       case PrayerNameEnum.fajr:
@@ -34,7 +25,7 @@ class PrayerNotificationSettings extends StatelessWidget {
     }
   }
 
-  static String _modeLabel(PrayerNotificationMode mode) {
+  static String modeLabel(PrayerNotificationMode mode) {
     switch (mode) {
       case PrayerNotificationMode.azaan:
         return 'Azaan';
@@ -47,70 +38,13 @@ class PrayerNotificationSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Consumer<SettingsViewModel>(
       builder: (context, viewModel, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient:
-                isDark ? AppTheme.darkCardGradient : AppTheme.lightCardGradient,
-            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppTheme.appOrange
-                            .withValues(alpha: isDark ? 0.3 : 0.08),
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.smallRadius),
-                      ),
-                      child: const Icon(Icons.tune,
-                          color: AppTheme.appOrange, size: 22),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Prayer Notification Modes',
-                              style:
-                                  Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Set notification mode for each prayer',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: isDark
-                                          ? Colors.white60
-                                          : Colors.black45,
-                                    ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              ...PrayerNameEnum.values.map(
+        return Column(
+          children: PrayerNameEnum.values
+              .map(
                 (prayer) => _PrayerModeRow(
                   prayer: prayer,
-                  icon: _prayerIcons[prayer] ?? Icons.access_time,
                   displayName: _prayerDisplayName(prayer),
                   currentMode: viewModel.getModeForPrayer(prayer),
                   isSunrise: prayer == PrayerNameEnum.sunrise,
@@ -120,9 +54,8 @@ class PrayerNotificationSettings extends StatelessWidget {
                     }
                   },
                 ),
-              ),
-            ],
-          ),
+              )
+              .toList(),
         );
       },
     );
@@ -131,7 +64,6 @@ class PrayerNotificationSettings extends StatelessWidget {
 
 class _PrayerModeRow extends StatelessWidget {
   final PrayerNameEnum prayer;
-  final IconData icon;
   final String displayName;
   final PrayerNotificationMode currentMode;
   final bool isSunrise;
@@ -139,7 +71,6 @@ class _PrayerModeRow extends StatelessWidget {
 
   const _PrayerModeRow({
     required this.prayer,
-    required this.icon,
     required this.displayName,
     required this.currentMode,
     required this.isSunrise,
@@ -156,11 +87,9 @@ class _PrayerModeRow extends StatelessWidget {
         : PrayerNotificationMode.values;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.appOrange, size: 20),
-          const SizedBox(width: 12),
           Expanded(
             child: Text(
               displayName,
@@ -168,24 +97,31 @@ class _PrayerModeRow extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white10
-                  : Colors.black.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.appOrange.withValues(alpha: isDark ? 0.15 : 0.1),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: DropdownButton<PrayerNotificationMode>(
               value: currentMode,
               underline: const SizedBox(),
               isDense: true,
-              dropdownColor: isDark ? AppTheme.navySurface : Colors.white,
-              style: Theme.of(context).textTheme.bodySmall,
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppTheme.appOrange,
+                size: 20,
+              ),
+              dropdownColor: isDark ? AppTheme.navyLight : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.appOrange,
+                fontWeight: FontWeight.w600,
+              ),
               items: availableModes
                   .map(
                     (mode) => DropdownMenuItem(
                       value: mode,
-                      child: Text(PrayerNotificationSettings._modeLabel(mode)),
+                      child: Text(PrayerNotificationSettings.modeLabel(mode)),
                     ),
                   )
                   .toList(),

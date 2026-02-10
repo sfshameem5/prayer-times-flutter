@@ -12,6 +12,17 @@ class ThemeModeSelector extends StatelessWidget {
     required this.onChanged,
   });
 
+  String _label(AppThemeMode mode) {
+    switch (mode) {
+      case AppThemeMode.system:
+        return 'System';
+      case AppThemeMode.light:
+        return 'Light';
+      case AppThemeMode.dark:
+        return 'Dark';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -19,19 +30,30 @@ class ThemeModeSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.appOrange.withValues(alpha: isDark ? 0.15 : 0.1),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: DropdownButton<AppThemeMode>(
         value: value,
         underline: const SizedBox(),
         isDense: true,
-        dropdownColor: isDark ? AppTheme.navySurface : Colors.white,
-        items: const [
-          DropdownMenuItem(value: AppThemeMode.system, child: Text('System')),
-          DropdownMenuItem(value: AppThemeMode.light, child: Text('Light')),
-          DropdownMenuItem(value: AppThemeMode.dark, child: Text('Dark')),
-        ],
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppTheme.appOrange,
+          size: 20,
+        ),
+        dropdownColor: isDark ? AppTheme.navyLight : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: AppTheme.appOrange,
+          fontWeight: FontWeight.w600,
+        ),
+        items: AppThemeMode.values
+            .map(
+              (mode) =>
+                  DropdownMenuItem(value: mode, child: Text(_label(mode))),
+            )
+            .toList(),
         onChanged: (mode) {
           if (mode != null) {
             onChanged(mode);
