@@ -77,6 +77,10 @@ class PrayerTimesService {
 
     final response = await http.get(url);
 
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch prayer times: ${response.statusCode}');
+    }
+
     if (response.body.isNotEmpty) {
       var receivedResponse = json.decode(response.body) as Map<String, dynamic>;
 

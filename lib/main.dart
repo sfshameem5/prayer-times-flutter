@@ -12,8 +12,10 @@ import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
+import 'package:prayer_times/features/prayers/presentation/viewmodels/calendar_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/views/alarm_screen.dart';
+import 'package:prayer_times/features/prayers/presentation/views/calendar_view.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
@@ -59,6 +61,7 @@ Future main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+        ChangeNotifierProvider(create: (_) => CalendarViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
       ],
       child: const MyApp(),
@@ -98,6 +101,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   final List<Widget> _screens = const [
     PrayerView(),
+    CalendarView(),
     // QiblaView(),
     // RemindersView(),
     SettingsView(),
@@ -172,11 +176,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavItem(
+                  icon: Icons.calendar_month_outlined,
+                  activeIcon: Icons.calendar_month,
+                  label: 'Calendar',
+                  isSelected: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
+                ),
+                _NavItem(
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
                   label: 'Settings',
-                  isSelected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
+                  isSelected: _currentIndex == 2,
+                  onTap: () => setState(() => _currentIndex = 2),
                 ),
               ],
             ),
