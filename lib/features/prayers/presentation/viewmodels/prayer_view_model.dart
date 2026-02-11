@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
+import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
 import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
@@ -10,6 +11,7 @@ import 'package:prayer_times/features/prayers/data/respositories/prayer_times_re
 
 class PrayerViewModel extends ChangeNotifier {
   PrayerModel? _nextPrayer;
+  PrayerModel? _nextEvent;
   List<PrayerModel> _prayersList = [];
   bool _isLoading = true;
   bool _isUpdating = false;
@@ -37,7 +39,8 @@ class PrayerViewModel extends ChangeNotifier {
     _isLoading = _prayersList.isEmpty;
     if (_isLoading) notifyListeners();
 
-    _nextPrayer = await PrayerTimesRepository.getNextPrayer();
+    _nextEvent = await PrayerTimesRepository.getNextPrayer();
+    _nextPrayer = await PrayerTimesRepository.getNextPrayer(skipSunrise: true);
     _prayersList = await PrayerTimesRepository.getPrayerTimesForToday();
 
     _isLoading = false;
@@ -61,8 +64,17 @@ class PrayerViewModel extends ChangeNotifier {
   void calculateTimeRemaining() {
     if (_nextPrayer == null) return;
 
-    final target = DateTime.fromMillisecondsSinceEpoch(_nextPrayer!.timestamp);
     final now = DateTime.now();
+
+    // Clear stale _nextEvent (e.g. sunrise that has already passed)
+    if (_nextEvent != null &&
+        DateTime.fromMillisecondsSinceEpoch(
+          _nextEvent!.timestamp,
+        ).isBefore(now)) {
+      _nextEvent = null;
+    }
+
+    final target = DateTime.fromMillisecondsSinceEpoch(_nextPrayer!.timestamp);
     final difference = target.difference(now);
 
     if (difference.isNegative) {
@@ -85,6 +97,9 @@ class PrayerViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  bool get isNextEventSunrise =>
+      _nextEvent != null && _nextEvent!.name == PrayerNameEnum.sunrise;
+
   DisplayPrayerModel get nextPrayer {
     final prayer = _nextPrayer;
     if (prayer == null) {
@@ -92,6 +107,12 @@ class PrayerViewModel extends ChangeNotifier {
     }
 
     return DisplayPrayerModel.fromPrayerModel(prayer);
+  }
+
+  DisplayPrayerModel? get nextEvent {
+    final event = _nextEvent;
+    if (event == null) return null;
+    return DisplayPrayerModel.fromPrayerModel(event);
   }
 
   List<DisplayPrayerModel> get prayers {

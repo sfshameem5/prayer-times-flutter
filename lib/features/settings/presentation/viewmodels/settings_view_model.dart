@@ -93,6 +93,7 @@ class SettingsViewModel extends ChangeNotifier {
 
       if (!batteryOptimization && notificationsSection) {
         _notificationsEnabled = true;
+        await _repository.requestAutoStartIfAvailable();
       } else {
         _notificationsEnabled = false;
       }

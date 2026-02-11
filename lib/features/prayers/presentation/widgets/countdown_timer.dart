@@ -16,10 +16,19 @@ class CountdownTimer extends StatelessWidget {
 
     return Selector<
       PrayerViewModel,
-      ({DisplayPrayerModel nextPrayer, bool isLoading})
+      ({
+        DisplayPrayerModel nextPrayer,
+        bool isLoading,
+        bool isNextEventSunrise,
+        DisplayPrayerModel? nextEvent,
+      })
     >(
-      selector: (_, model) =>
-          (nextPrayer: model.nextPrayer, isLoading: model.isLoading),
+      selector: (_, model) => (
+        nextPrayer: model.nextPrayer,
+        isLoading: model.isLoading,
+        isNextEventSunrise: model.isNextEventSunrise,
+        nextEvent: model.nextEvent,
+      ),
       builder: (context, data, child) {
         if (data.isLoading) {
           return const _CountdownSkeleton();
@@ -46,6 +55,24 @@ class CountdownTimer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
             child: Column(
               children: [
+                if (data.isNextEventSunrise && data.nextEvent != null) ...[
+                  Text(
+                    'SUNRISE',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: isDark ? Colors.white54 : Colors.black45,
+                      fontSize: 11,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    data.nextEvent!.time,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Text(
                   'NEXT PRAYER',
                   style: textTheme.labelSmall?.copyWith(

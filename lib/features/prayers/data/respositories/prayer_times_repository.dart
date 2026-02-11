@@ -67,7 +67,7 @@ class PrayerTimesRepository {
     return closestPrayer;
   }
 
-  static Future<PrayerModel?> getNextPrayer() async {
+  static Future<PrayerModel?> getNextPrayer({bool skipSunrise = false}) async {
     var prayerTimesToday = await getPrayerTimesForToday();
     var prayerTimesTomorrow = await getPrayerTimesForTomorrow();
 
@@ -86,6 +86,7 @@ class PrayerTimesRepository {
 
     for (var prayer in allPrayers) {
       if (prayer.timestamp > currentTimestamp) {
+        if (skipSunrise && prayer.name == PrayerNameEnum.sunrise) continue;
         closestPrayer = prayer;
         break;
       }
