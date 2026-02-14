@@ -32,19 +32,11 @@ class AlarmReceiver : BroadcastReceiver() {
             context.startService(serviceIntent)
         }
 
-        // Launch AlarmActivity directly from the BroadcastReceiver.
-        // This works because AlarmManager.setAlarmClock() grants the receiver
-        // a background activity start exemption for a few seconds.
-        val activityIntent = Intent(context, AlarmActivity::class.java).apply {
-            putExtra("alarm_id", alarmId)
-            putExtra("alarm_title", alarmData?.title ?: "Prayer Time")
-            putExtra("alarm_body", alarmData?.body ?: "")
-            putExtra("alarm_timestamp", alarmData?.timestamp ?: System.currentTimeMillis())
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        context.startActivity(activityIntent)
-        Log.d(TAG, "AlarmActivity launched directly from receiver")
+        // Do NOT call startActivity() here. Rely solely on the notification's
+        // fullScreenIntent to launch AlarmActivity (same pattern as Google Clock).
+        // Direct startActivity() from a BroadcastReceiver is silently blocked on
+        // Android 10+ when the screen is off, and it can interfere with the
+        // system's fullScreenIntent auto-launch mechanism.
+        Log.d(TAG, "AlarmFiringService started; relying on fullScreenIntent to launch AlarmActivity")
     }
 }

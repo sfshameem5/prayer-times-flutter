@@ -78,6 +78,12 @@ class AlarmFiringService : Service() {
         // Remove from storage since it's now firing
         storage.removeAlarm(alarmId)
 
+        // Cancel any stale notification with the same ID before re-posting.
+        // This ensures the system treats the new fullScreenIntent as fresh and
+        // auto-launches AlarmActivity when the screen is off/locked.
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.cancel(NOTIFICATION_ID + alarmId)
+
         // Start foreground with notification — use alarm-specific ID so
         // subsequent alarms don't reuse the same notification (which blocks fullScreenIntent)
         startForeground(NOTIFICATION_ID + alarmId, buildNotification(alarmData))
@@ -274,6 +280,13 @@ class AlarmFiringService : Service() {
             wakeLock = null
         } catch (e: Exception) {
             Log.e(TAG, "Error releasing wake lock: ${e.message}")
+        }
+
+        // Clear all currently shown notifications from the tray (does not affect future scheduled ones)
+        try {
+            getSystemService(NotificationManager::class.java).cancelAll()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cancelling notifications: ${e.message}")
         }
 
         stopForeground(STOP_FOREGROUND_REMOVE)

@@ -1,7 +1,11 @@
 package com.example.prayer_times.alarm
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -89,6 +93,37 @@ class AlarmMethodChannel(private val context: Context) : MethodChannel.MethodCal
                 } catch (e: Exception) {
                     Log.e(TAG, "Error snoozing firing alarm: ${e.message}")
                     result.error("SNOOZE_ERROR", e.message, null)
+                }
+            }
+
+            "canUseFullScreenIntent" -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        result.success(notificationManager.canUseFullScreenIntent())
+                    } else {
+                        // Before Android 14, full-screen intent is always allowed
+                        result.success(true)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error checking full screen intent permission: ${e.message}")
+                    result.error("CHECK_ERROR", e.message, null)
+                }
+            }
+
+            "requestFullScreenIntentPermission" -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    }
+                    result.success(true)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error requesting full screen intent permission: ${e.message}")
+                    result.error("REQUEST_ERROR", e.message, null)
                 }
             }
 

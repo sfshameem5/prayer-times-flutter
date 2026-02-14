@@ -9,6 +9,8 @@ import 'package:prayer_times/features/settings/presentation/widgets/prayer_notif
 import 'package:prayer_times/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/test_alarm_section.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/theme_mode_selector.dart';
+import 'package:prayer_times/features/onboarding/services/onboarding_service.dart';
+import 'package:prayer_times/features/onboarding/presentation/views/onboarding_view.dart';
 import 'package:provider/provider.dart';
 
 class SettingsView extends StatelessWidget {
@@ -206,6 +208,11 @@ class SettingsView extends StatelessWidget {
                                 color: isDark ? Colors.white12 : Colors.black12,
                               ),
                               const TestAlarmSection(),
+                              Divider(
+                                height: 1,
+                                color: isDark ? Colors.white12 : Colors.black12,
+                              ),
+                              _ResetAppTile(isDark: isDark),
                             ],
                           ],
                         ),
@@ -270,6 +277,82 @@ class SettingsView extends StatelessWidget {
         ],
       ),
       child: child,
+    );
+  }
+}
+
+class _ResetAppTile extends StatelessWidget {
+  final bool isDark;
+
+  const _ResetAppTile({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => _showResetDialog(context),
+      borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(Icons.restart_alt_rounded, color: Colors.redAccent, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Reset App',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(color: Colors.redAccent),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Clear all settings and restart onboarding',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark ? Colors.white54 : Colors.black45,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset App'),
+        content: const Text(
+          'This will clear all settings and restart the onboarding. Are you sure?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await OnboardingService.resetApp();
+              if (!context.mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const OnboardingView()),
+                (route) => false,
+              );
+            },
+            child: const Text(
+              'Reset',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -68,4 +68,30 @@ class AlarmService {
       await SentryService.logString("Error snoozing firing alarm: $e");
     }
   }
+
+  static Future<bool> canUseFullScreenIntent() async {
+    if (!Platform.isAndroid) return true;
+
+    try {
+      final result = await _channel.invokeMethod<bool>(
+        'canUseFullScreenIntent',
+      );
+      return result ?? true;
+    } catch (e) {
+      await SentryService.logString("Error checking full screen intent: $e");
+      return true;
+    }
+  }
+
+  static Future<void> requestFullScreenIntentPermission() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('requestFullScreenIntentPermission');
+    } catch (e) {
+      await SentryService.logString(
+        "Error requesting full screen intent permission: $e",
+      );
+    }
+  }
 }

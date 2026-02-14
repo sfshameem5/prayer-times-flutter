@@ -4,6 +4,7 @@ import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
+import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
@@ -48,6 +49,10 @@ class SettingsViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> reload() async {
+    await _loadSettings();
+  }
+
   Future<void> _loadSettings() async {
     _isLoading = true;
     _settings = await _repository.getSettings();
@@ -68,42 +73,13 @@ class SettingsViewModel extends ChangeNotifier {
   Future<void> setNotificationsEnabled(bool enabled) async {
     if (enabled && _notificationsEnabled) return;
 
-    var notificationsSection = false;
-    var batteryOptimization = true;
-
     if (enabled) {
-      // check if notification permissions are granted
-      // If is not and notifications are enabled
-      var notificationResponse =
-          await NotificationService.checkPermissionStatus();
+      final granted =
+          await PermissionService.requestFullNotificationPermissions();
 
-      if (!notificationResponse) {
-        var newResponse =
-            await NotificationService.requestNotificationPermissions();
-
-        notificationsSection = newResponse;
-      } else {
-        notificationsSection = true;
-      }
-
-      // check if battery optimization permissions are granted
-      // save value and notify users
-
-      var batteryOptimizationEnabled = await _repository
-          .isBackgroundOptimizationEnabled();
-
-      if (batteryOptimizationEnabled) {
-        var newResponse = await _repository.requestBackgroundDisabling();
-
-        batteryOptimization = !newResponse;
-      } else {
-        batteryOptimization = false;
-      }
-
-      if (!batteryOptimization && notificationsSection) {
+      if (granted) {
         _notificationsEnabled = true;
         await NotificationService.initialize();
-        await _repository.requestAutoStartIfAvailable();
       } else {
         _notificationsEnabled = false;
       }
@@ -203,14 +179,14 @@ class SettingsViewModel extends ChangeNotifier {
     }
 
     try {
-      await NotificationService.initialize();
+      // await NotificationService.initialize();
 
-      final notification = NotificationModel(
-        id: 99999,
-        heading: 'Test Alarm',
-        body: 'This is a test notification from Prayer Times',
-        timestamp: scheduledTime.millisecondsSinceEpoch,
-      );
+      // final notification = NotificationModel(
+      //   id: 99999,
+      //   heading: 'Test Alarm',
+      //   body: 'This is a test notification from Prayer Times',
+      //   timestamp: scheduledTime.millisecondsSinceEpoch,
+      // );
 
       final alarmData = AlarmModel(
         id: 99998,
@@ -220,7 +196,8 @@ class SettingsViewModel extends ChangeNotifier {
         audioPath: 'assets/sounds/azaan_short.mp3',
       );
 
-      await NotificationService.scheduleNotification(notification);
+      // Alarm screen will only be shown if all notificaitions are cleared
+      // await NotificationService.scheduleNotification(notification);
       await AlarmService.scheduleAlarm(alarmData);
 
       await SentryService.logString(

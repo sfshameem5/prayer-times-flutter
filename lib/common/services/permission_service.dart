@@ -2,14 +2,72 @@ import 'dart:io';
 
 import 'package:auto_start_flutter/auto_start_flutter.dart';
 import 'package:battery_optimization_helper/battery_optimization_helper.dart';
+import 'package:battery_optimization_helper/battery_optimization_helper_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mmkv/mmkv.dart';
+import 'package:prayer_times/common/services/alarm_service.dart';
+import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 
 class PermissionService {
   static const _batteryOptKey = 'battery_optimization_prompted';
   static const _autoStartKey = 'auto_start_prompted';
+
+  /// Runs the full permission flow matching the Settings notification toggle:
+  /// 1. Request notification + exact alarm permissions
+  /// 2. Check & request battery optimization disabling
+  /// 3. Request auto-start if available
+  /// Returns true only if notifications are granted AND battery optimization is disabled.
+  static Future<bool> requestFullNotificationPermissions() async {
+    if (!Platform.isAndroid) return false;
+
+    // Step 1: Notification + exact alarm permissions
+    var notificationsGranted = false;
+    var notificationStatus = await NotificationService.checkPermissionStatus();
+
+    if (!notificationStatus) {
+      var result = await NotificationService.requestNotificationPermissions();
+      notificationsGranted = result;
+    } else {
+      notificationsGranted = true;
+    }
+
+    // Step 2: Battery optimization
+    var batteryOptimizationDisabled = true;
+    var batteryOptEnabled =
+        await BatteryOptimizationHelper.isBatteryOptimizationEnabled();
+
+    if (batteryOptEnabled) {
+      var result = await BatteryOptimizationHelperPlatform.instance
+          .requestDisableBatteryOptimizationWithResult();
+      batteryOptimizationDisabled = result;
+    } else {
+      batteryOptimizationDisabled = true;
+    }
+
+    // Step 3: Full-screen intent permission (Android 14+)
+    // Required for the alarm to show as a full-screen activity on the lock screen
+    final canUseFullScreen = await AlarmService.canUseFullScreenIntent();
+    if (!canUseFullScreen) {
+      await SentryService.logString(
+        'Full-screen intent permission not granted, opening settings...',
+      );
+      await AlarmService.requestFullScreenIntentPermission();
+    }
+
+    // Step 4: Auto-start (best-effort, doesn't affect the result)
+    if (notificationsGranted && batteryOptimizationDisabled) {
+      try {
+        final available = await isAutoStartAvailable ?? false;
+        if (available) {
+          await getAutoStartPermission();
+        }
+      } catch (_) {}
+    }
+
+    return notificationsGranted && batteryOptimizationDisabled;
+  }
 
   static Future<void> ensureAlarmPermissions() async {
     if (!Platform.isAndroid) return;
@@ -35,6 +93,15 @@ class PermissionService {
         'Notification permission not granted, requesting...',
       );
       await androidImpl.requestNotificationsPermission();
+    }
+
+    // Full-screen intent permission (Android 14+)
+    final canUseFullScreen = await AlarmService.canUseFullScreenIntent();
+    if (!canUseFullScreen) {
+      await SentryService.logString(
+        'Full-screen intent permission not granted, opening settings...',
+      );
+      await AlarmService.requestFullScreenIntentPermission();
     }
   }
 

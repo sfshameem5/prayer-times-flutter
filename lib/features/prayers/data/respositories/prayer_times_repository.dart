@@ -116,7 +116,7 @@ class PrayerTimesRepository {
     var todayDate = DateTime.now();
     List<PrayerDayModel> prayerDays = [];
 
-    for (var i = 0; i < 3; i += 1) {
+    for (var i = 0; i < 5; i += 1) {
       var prayerDay = await PrayerTimesService.getPrayerTimesForTimestamp(
         todayDate.millisecondsSinceEpoch,
       );

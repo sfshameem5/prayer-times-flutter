@@ -18,8 +18,12 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 import 'package:prayer_times/core/background_executor.dart' as bg;
+import 'package:prayer_times/features/onboarding/services/onboarding_service.dart';
+import 'package:prayer_times/features/onboarding/presentation/views/onboarding_view.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+late final bool _onboardingCompleted;
 
 Future main() async {
   await CacheManager.initialize();
@@ -30,7 +34,9 @@ Future main() async {
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
-  if (Platform.isAndroid) {
+  _onboardingCompleted = OnboardingService.isOnboardingCompleted();
+
+  if (Platform.isAndroid && _onboardingCompleted) {
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       "prayer",
@@ -69,7 +75,9 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeService.themeMode,
-          home: const MainScreen(),
+          home: _onboardingCompleted
+              ? const MainScreen()
+              : const OnboardingView(),
         );
       },
     );
