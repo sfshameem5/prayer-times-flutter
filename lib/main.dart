@@ -11,6 +11,7 @@ import 'package:prayer_times/features/prayers/presentation/viewmodels/calendar_v
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/views/calendar_view.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
+import 'package:prayer_times/features/qibla/presentation/views/qibla_view.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/views/settings_view.dart';
 import 'package:provider/provider.dart';
@@ -147,18 +148,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavItem(
+                  icon: Icons.compass_calibration_outlined,
+                  activeIcon: Icons.compass_calibration,
+                  label: 'Qibla',
+                  isSelected: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
+                ),
+                _NavItem(
                   icon: Icons.calendar_month_outlined,
                   activeIcon: Icons.calendar_month,
                   label: 'Calendar',
-                  isSelected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
+                  isSelected: _currentIndex == 2,
+                  onTap: () => setState(() => _currentIndex = 2),
                 ),
                 _NavItem(
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
                   label: 'Settings',
-                  isSelected: _currentIndex == 2,
-                  onTap: () => setState(() => _currentIndex = 2),
+                  isSelected: _currentIndex == 3,
+                  onTap: () => setState(() => _currentIndex = 3),
                 ),
               ],
             ),
@@ -173,12 +181,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       case 0:
         return const PrayerView();
       case 1:
+        return const QiblaView();
+      case 2:
         return ChangeNotifierProvider(
           key: const ValueKey('calendar-provider'),
           create: (_) => CalendarViewModel(),
           child: const CalendarView(),
         );
-      case 2:
+      case 3:
       default:
         return const SettingsView();
     }

@@ -1,18 +1,19 @@
+import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/features/qibla/services/qibla_service.dart';
 
 class QiblaRepository {
   final QiblaService _service;
+  final String _citySlug;
 
-  static const double _colomboLatitude = 6.9271;
-  static const double _colomboLongitude = 79.8612;
-
-  QiblaRepository({QiblaService? service})
-    : _service = service ?? QiblaService();
+  QiblaRepository({QiblaService? service, String? citySlug})
+    : _service = service ?? QiblaService(),
+      _citySlug = citySlug ?? LocationService.getSelectedCity();
 
   double getQiblaDirection() {
+    final coords = LocationService.getCoordinates(_citySlug);
     return _service.calculateQiblaDirection(
-      userLat: _colomboLatitude,
-      userLng: _colomboLongitude,
+      userLat: coords.latitude,
+      userLng: coords.longitude,
     );
   }
 
@@ -20,5 +21,5 @@ class QiblaRepository {
     return _service.getQiblaDirectionString(bearing);
   }
 
-  String get locationName => 'Colombo, Sri Lanka';
+  String get locationName => LocationService.getShortDisplayName(_citySlug);
 }

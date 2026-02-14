@@ -5,15 +5,11 @@ class QiblaService {
   static const double kaabaLatitude = 21.4225;
   static const double kaabaLongitude = 39.8262;
 
-  // Hardcoded user location (Colombo, Sri Lanka - update this later with actual device location)
-  static const double userLatitude = 6.9271;
-  static const double userLongitude = 79.8612;
-
   /// Calculate Qibla direction from user's location to Kaaba
   /// Returns bearing in degrees (0-360, where 0 is North)
   double calculateQiblaDirection({
-    double userLat = userLatitude,
-    double userLng = userLongitude,
+    required double userLat,
+    required double userLng,
   }) {
     // Convert to radians
     final lat1 = userLat * pi / 180;

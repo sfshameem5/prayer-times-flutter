@@ -39,10 +39,15 @@ class QiblaView extends StatelessWidget {
                     qiblaDirection: viewModel.qiblaDirection,
                     deviceHeading: viewModel.deviceHeading,
                     hasCompassData: viewModel.hasCompassData,
+                    isAligned: viewModel.isAligned,
+                    angleDifference: viewModel.angleDifference,
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       gradient: isDark
                           ? AppTheme.darkCardGradient
@@ -58,36 +63,97 @@ class QiblaView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Column(
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'LOCATION',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: isDark
+                                            ? Colors.white38
+                                            : Colors.black38,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 1.2,
+                                      ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  viewModel.locationName,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                          VerticalDivider(
+                            width: 32,
+                            thickness: 1,
+                            color: isDark ? Colors.white12 : Colors.black12,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'QIBLA BEARING',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: isDark
+                                            ? Colors.white38
+                                            : Colors.black38,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 1.2,
+                                      ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '${viewModel.qiblaDirection.toStringAsFixed(1)}° ${viewModel.qiblaDirectionLabel(viewModel.qiblaDirection)}',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              color: AppTheme.appOrange,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              viewModel.locationName,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                          ],
+                        Icon(
+                          Icons.info_outline_rounded,
+                          size: 14,
+                          color: isDark ? Colors.white24 : Colors.black26,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Qibla: ${viewModel.qiblaDirection.toStringAsFixed(1)}° ${viewModel.qiblaDirectionLabel(viewModel.qiblaDirection)}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: isDark ? Colors.white60 : Colors.black45,
-                              ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: isDark
+                                      ? Colors.white24
+                                      : Colors.black26,
+                                  fontSize: 11,
+                                  height: 1.4,
+                                ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
                 ],
               );
             },
