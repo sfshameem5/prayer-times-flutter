@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/common/data/models/alarm_model.dart';
+import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
@@ -93,6 +95,7 @@ class SettingsViewModel extends ChangeNotifier {
 
       if (!batteryOptimization && notificationsSection) {
         _notificationsEnabled = true;
+        await NotificationService.initialize();
         await _repository.requestAutoStartIfAvailable();
       } else {
         _notificationsEnabled = false;
@@ -150,6 +153,55 @@ class SettingsViewModel extends ChangeNotifier {
     await _updateSettings();
 
     notifyListeners();
+  }
+
+  bool _advancedSettingsExpanded = false;
+  bool get advancedSettingsExpanded => _advancedSettingsExpanded;
+
+  void toggleAdvancedSettings() {
+    _advancedSettingsExpanded = !_advancedSettingsExpanded;
+    notifyListeners();
+  }
+
+  Future<String?> scheduleTestAlarm(DateTime scheduledTime) async {
+    if (!_notificationsEnabled) {
+      return 'Please enable notifications first';
+    }
+
+    if (scheduledTime.isBefore(DateTime.now())) {
+      return 'Please select a time in the future';
+    }
+
+    try {
+      await NotificationService.initialize();
+
+      final notification = NotificationModel(
+        id: 99999,
+        heading: 'Test Alarm',
+        body: 'This is a test notification from Prayer Times',
+        timestamp: scheduledTime.millisecondsSinceEpoch,
+      );
+
+      final alarmData = AlarmModel(
+        id: 99998,
+        heading: 'Test Alarm',
+        body: 'This is a test alarm from Prayer Times',
+        timestamp: scheduledTime.millisecondsSinceEpoch,
+        audioPath: 'assets/sounds/azaan_short.mp3',
+      );
+
+      await NotificationService.scheduleNotification(notification);
+      await AlarmService.scheduleAlarm(alarmData);
+
+      await SentryService.logString(
+        'Test alarm scheduled for ${scheduledTime.toIso8601String()}',
+      );
+
+      return null;
+    } catch (e) {
+      await SentryService.logString('Error scheduling test alarm: $e');
+      return 'Failed to schedule test alarm: $e';
+    }
   }
 
   Future _checkNotificationsEnabled() async {

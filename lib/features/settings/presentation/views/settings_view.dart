@@ -4,6 +4,7 @@ import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/prayer_notification_settings.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/settings_tile.dart';
+import 'package:prayer_times/features/settings/presentation/widgets/test_alarm_section.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/theme_mode_selector.dart';
 import 'package:provider/provider.dart';
 
@@ -89,6 +90,61 @@ class SettingsView extends StatelessWidget {
                           child: const PrayerNotificationSettings(),
                         ),
                       ],
+                      const SizedBox(height: 24),
+                      _sectionHeader(context, 'Advanced', isDark),
+                      const SizedBox(height: 8),
+                      _sectionCard(
+                        isDark: isDark,
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: viewModel.toggleAdvancedSettings,
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.cardRadius,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Developer Options',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
+                                      ),
+                                    ),
+                                    AnimatedRotation(
+                                      turns: viewModel.advancedSettingsExpanded
+                                          ? 0.5
+                                          : 0,
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      child: Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        color: isDark
+                                            ? Colors.white38
+                                            : Colors.black38,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (viewModel.advancedSettingsExpanded) ...[
+                              Divider(
+                                height: 1,
+                                color: isDark ? Colors.white12 : Colors.black12,
+                              ),
+                              const TestAlarmSection(),
+                            ],
+                          ],
+                        ),
+                      ),
                     ],
                   );
                 },

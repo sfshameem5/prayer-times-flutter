@@ -1,12 +1,19 @@
-import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/config/theme.dart';
 
 class AlarmScreen extends StatefulWidget {
-  final AlarmSettings alarmSettings;
+  final String title;
+  final String body;
+  final int timestamp;
 
-  const AlarmScreen({super.key, required this.alarmSettings});
+  const AlarmScreen({
+    super.key,
+    required this.title,
+    required this.body,
+    required this.timestamp,
+  });
 
   @override
   State<AlarmScreen> createState() => _AlarmScreenState();
@@ -37,12 +44,12 @@ class _AlarmScreenState extends State<AlarmScreen>
     super.dispose();
   }
 
-  String get _prayerName {
-    return widget.alarmSettings.notificationSettings.title;
-  }
+  String get _prayerName => widget.title;
 
   String get _prayerTime {
-    return DateFormat.jm().format(widget.alarmSettings.dateTime);
+    return DateFormat.jm().format(
+      DateTime.fromMillisecondsSinceEpoch(widget.timestamp),
+    );
   }
 
   IconData get _prayerIcon {
@@ -61,7 +68,7 @@ class _AlarmScreenState extends State<AlarmScreen>
   }
 
   Future<void> _dismiss() async {
-    await Alarm.stop(widget.alarmSettings.id);
+    await AlarmService.stopFiringAlarm();
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -70,14 +77,7 @@ class _AlarmScreenState extends State<AlarmScreen>
 
     setState(() => _hasSnoozed = true);
 
-    await Alarm.stop(widget.alarmSettings.id);
-
-    final snoozeTime = DateTime.now().add(const Duration(minutes: 10));
-    final snoozeSettings = widget.alarmSettings.copyWith(
-      dateTime: snoozeTime,
-    );
-
-    await Alarm.set(alarmSettings: snoozeSettings);
+    await AlarmService.snoozeFiringAlarm();
 
     if (mounted) Navigator.of(context).pop();
   }
@@ -97,14 +97,8 @@ class _AlarmScreenState extends State<AlarmScreen>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: isDark
-                  ? [
-                      AppTheme.navyDark,
-                      Colors.black,
-                    ]
-                  : [
-                      const Color(0xFFF8F9FA),
-                      Colors.white,
-                    ],
+                  ? [AppTheme.navyDark, Colors.black]
+                  : [const Color(0xFFF8F9FA), Colors.white],
             ),
           ),
           child: SafeArea(
@@ -146,7 +140,7 @@ class _AlarmScreenState extends State<AlarmScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.alarmSettings.notificationSettings.body,
+                  widget.body,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: isDark ? Colors.white60 : Colors.black54,
                   ),
@@ -162,7 +156,9 @@ class _AlarmScreenState extends State<AlarmScreen>
                           label: _hasSnoozed ? 'Snoozed' : 'Snooze',
                           sublabel: _hasSnoozed ? '' : '10 min',
                           icon: Icons.snooze,
-                          color: isDark ? AppTheme.navyLight : const Color(0xFFE8E8E8),
+                          color: isDark
+                              ? AppTheme.navyLight
+                              : const Color(0xFFE8E8E8),
                           textColor: isDark ? Colors.white : AppTheme.darkText,
                           onTap: _hasSnoozed ? null : _snooze,
                         ),

@@ -1,11 +1,7 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
@@ -13,7 +9,6 @@ import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/calendar_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
-import 'package:prayer_times/features/prayers/presentation/views/alarm_screen.dart';
 import 'package:prayer_times/features/prayers/presentation/views/calendar_view.dart';
 import 'package:prayer_times/features/prayers/presentation/views/prayer_view.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
@@ -36,11 +31,6 @@ Future main() async {
   tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
 
   if (Platform.isAndroid) {
-    await Alarm.init();
-    await AlarmService.initWarningNotification();
-
-    FlutterForegroundTask.initCommunicationPort();
-
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       "prayer",
@@ -96,7 +86,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
-  StreamSubscription? _ringingSubscription;
 
   final List<Widget> _screens = const [
     PrayerView(),
@@ -110,23 +99,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _setupAlarmListener();
-  }
-
-  void _setupAlarmListener() {
-    if (!Platform.isAndroid) return;
-    _ringingSubscription = Alarm.ringing.listen((alarmSet) {
-      for (final alarm in alarmSet.alarms) {
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (_) => AlarmScreen(alarmSettings: alarm)),
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
-    _ringingSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

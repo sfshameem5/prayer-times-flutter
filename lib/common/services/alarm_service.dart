@@ -1,50 +1,71 @@
 import 'dart:io';
 
-import 'package:alarm/alarm.dart';
+import 'package:flutter/services.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 
 class AlarmService {
+  static const _channel = MethodChannel('com.example.prayer_times/alarm');
+
   static Future scheduleAlarm(AlarmModel data) async {
-    final alarmSettings = AlarmSettings(
-      id: data.id,
-      dateTime: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
-      assetAudioPath: 'assets/sounds/azaan_full.mp3',
-      loopAudio: false,
-      vibrate: true,
-      warningNotificationOnKill: Platform.isAndroid,
-      androidFullScreenIntent: true,
-      volumeSettings: VolumeSettings.fade(
-        volume: 0.8,
-        fadeDuration: Duration(seconds: 5),
-        volumeEnforced: true,
-      ),
-      notificationSettings: NotificationSettings(
-        title: data.heading,
-        body: data.body,
-        stopButton: 'Stop the azaan',
-        icon: 'ic_new',
-      ),
-    );
+    if (!Platform.isAndroid) return;
 
     SentryService.logString(
       "Scheduling alarm for prayer ${data.heading} with timestamp ${data.timestamp}",
     );
 
-    await Alarm.set(alarmSettings: alarmSettings);
+    try {
+      await _channel.invokeMethod('scheduleAlarm', {
+        'id': data.id,
+        'timestamp': data.timestamp,
+        'title': data.heading,
+        'body': data.body,
+        'audioPath': data.audioPath,
+      });
+    } catch (e) {
+      await SentryService.logString("Error scheduling alarm: $e");
+    }
+  }
+
+  static Future cancelAlarm(int id) async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('cancelAlarm', {'id': id});
+    } catch (e) {
+      await SentryService.logString("Error cancelling alarm: $e");
+    }
   }
 
   static Future cancelAllAlarms() async {
+    if (!Platform.isAndroid) return;
+
     await SentryService.logString("Cancelling all alarms");
-    await Alarm.stopAll();
+
+    try {
+      await _channel.invokeMethod('cancelAllAlarms');
+    } catch (e) {
+      await SentryService.logString("Error cancelling all alarms: $e");
+    }
   }
 
-  static Future<void> initWarningNotification() async {
-    if (Platform.isAndroid) {
-      await Alarm.setWarningNotificationOnKill(
-        'Prayer Times',
-        'Prayer alarms may not ring if the app is closed.',
-      );
+  static Future stopFiringAlarm() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('stopFiringAlarm');
+    } catch (e) {
+      await SentryService.logString("Error stopping firing alarm: $e");
+    }
+  }
+
+  static Future snoozeFiringAlarm() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('snoozeFiringAlarm');
+    } catch (e) {
+      await SentryService.logString("Error snoozing firing alarm: $e");
     }
   }
 }
