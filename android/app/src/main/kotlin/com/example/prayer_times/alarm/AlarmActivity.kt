@@ -1,7 +1,6 @@
 package com.example.prayer_times.alarm
 
 import android.app.Activity
-import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -46,15 +45,11 @@ class AlarmActivity : Activity() {
             acquire(5L * 60 * 1000) // 5 minutes max
         }
 
-        // Show over lock screen and turn screen on
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            keyguardManager.requestDismissKeyguard(this, null)
-        } else {
+        // For pre-O_MR1 devices, use legacy window flags (setShowWhenLocked/setTurnScreenOn above handle O_MR1+)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
             )
         }
