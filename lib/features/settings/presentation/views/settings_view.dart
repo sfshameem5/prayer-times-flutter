@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
+import 'package:prayer_times/common/widgets/city_picker_bottom_sheet.dart';
 import 'package:prayer_times/config/theme.dart';
+import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/prayer_notification_settings.dart';
 import 'package:prayer_times/features/settings/presentation/widgets/settings_tile.dart';
@@ -45,6 +48,68 @@ class SettingsView extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _sectionHeader(context, 'Location', isDark),
+                      const SizedBox(height: 8),
+                      _sectionCard(
+                        isDark: isDark,
+                        child: InkWell(
+                          onTap: () => _showCityPicker(context, viewModel),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.cardRadius,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: AppTheme.appOrange,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Prayer Times Region',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        LocationService.getDisplayName(
+                                          viewModel.selectedCity,
+                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: isDark
+                                                  ? Colors.white54
+                                                  : Colors.black45,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: isDark
+                                      ? Colors.white38
+                                      : Colors.black38,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       _sectionHeader(context, 'General', isDark),
                       const SizedBox(height: 8),
                       _sectionCard(
@@ -155,6 +220,22 @@ class SettingsView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showCityPicker(
+    BuildContext context,
+    SettingsViewModel viewModel,
+  ) async {
+    final selectedCity = await CityPickerBottomSheet.show(
+      context,
+      viewModel.selectedCity,
+    );
+    if (selectedCity != null && selectedCity != viewModel.selectedCity) {
+      if (!context.mounted) return;
+      await viewModel.setSelectedCity(selectedCity);
+      if (!context.mounted) return;
+      await context.read<PrayerViewModel>().updatePrayers();
+    }
   }
 
   Widget _sectionHeader(BuildContext context, String title, bool isDark) {

@@ -8,6 +8,7 @@ class SettingsModel {
   final bool notificationsEnabled;
   final Map<PrayerNameEnum, PrayerNotificationMode> prayerNotificationModes;
   final AppThemeMode themeMode;
+  final String selectedCity;
 
   static const Map<PrayerNameEnum, PrayerNotificationMode> defaultPrayerModes =
       {
@@ -23,6 +24,7 @@ class SettingsModel {
     this.notificationsEnabled = false,
     this.prayerNotificationModes = const {},
     this.themeMode = AppThemeMode.system,
+    this.selectedCity = 'colombo',
   });
 
   PrayerNotificationMode getModeForPrayer(PrayerNameEnum prayer) {
@@ -35,12 +37,14 @@ class SettingsModel {
     bool? notificationsEnabled,
     Map<PrayerNameEnum, PrayerNotificationMode>? prayerNotificationModes,
     AppThemeMode? themeMode,
+    String? selectedCity,
   }) {
     return SettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       prayerNotificationModes:
           prayerNotificationModes ?? this.prayerNotificationModes,
       themeMode: themeMode ?? this.themeMode,
+      selectedCity: selectedCity ?? this.selectedCity,
     );
   }
 
@@ -51,6 +55,7 @@ class SettingsModel {
         (key, value) => MapEntry(key.name, value.name),
       ),
       'themeMode': themeMode.name,
+      'selectedCity': selectedCity,
     };
   }
 
@@ -95,6 +100,7 @@ class SettingsModel {
         (e) => e.name == json['themeMode'],
         orElse: () => AppThemeMode.system,
       ),
+      selectedCity: json['selectedCity'] as String? ?? 'colombo',
     );
   }
 }

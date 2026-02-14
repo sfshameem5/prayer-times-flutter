@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/common/data/enums/cache_ttl.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
+import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
@@ -48,21 +50,22 @@ class PrayerTimesService {
     return PrayerDayModel(timestamp: timestamp, prayers: prayers);
   }
 
-  static Future<PrayerMonthModel?> getPrayerTimesForMonth(int timestamp) async {
-    // Check how the response is coming back.
-    // Create a fromJSON and toJSON type for month
-    // Maybe create a new model called PrayerDayMonth
+  static Future<PrayerMonthModel?> getPrayerTimesForMonth(
+    int timestamp, {
+    String? city,
+  }) async {
+    final selectedCity = city ?? LocationService.getSelectedCity();
 
     var url = Uri.https(_baseUrl, "/prayer/month", {
       "timestamp": timestamp.toString(),
+      "city": selectedCity,
     });
 
     DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
     var formatter = DateFormat("MMM y");
     var formattedKey = formatter.format(date);
 
-    var currentKey = "$_prayerMonthKey $formattedKey";
-    // var alreadyAvailable = mkkv.decodeString(currentKey);
+    var currentKey = "$_prayerMonthKey $selectedCity $formattedKey";
     var alreadyAvailable = CacheManager.getStringItem(currentKey);
 
     if (alreadyAvailable != null) {
@@ -100,8 +103,9 @@ class PrayerTimesService {
   }
 
   static Future<PrayerDayModel?> getPrayerTimesForTimestamp(
-    int timestamp,
-  ) async {
+    int timestamp, {
+    String? city,
+  }) async {
     // Get today as d-MMM
     // Find the date which matches d-MMM and return
     var formatter = DateFormat("d-MMM");
@@ -110,7 +114,7 @@ class PrayerTimesService {
     var todayString = formatter.format(todayDate);
 
     // The date should be part of a month
-    var monthData = await getPrayerTimesForMonth(timestamp);
+    var monthData = await getPrayerTimesForMonth(timestamp, city: city);
     if (monthData == null) return null;
 
     for (var date in monthData.dates) {
@@ -124,17 +128,31 @@ class PrayerTimesService {
   }
 
   static Future prefetchPrayerTimes() async {
+    final city = LocationService.getSelectedCity();
     var now = DateTime.now();
     var nextMonth = DateTime(now.year, now.month + 1, 1);
 
     var monthString = DateFormat("MMM y").format(nextMonth);
 
-    await SentryService.logString("Prefetching prayer times for $monthString");
+    await SentryService.logString(
+      "Prefetching prayer times for $monthString ($city)",
+    );
 
-    await getPrayerTimesForMonth(nextMonth.millisecondsSinceEpoch);
+    await getPrayerTimesForMonth(nextMonth.millisecondsSinceEpoch, city: city);
 
     await SentryService.logString(
       "Prefetched timestamp ${nextMonth.millisecondsSinceEpoch}",
     );
+  }
+
+  static void clearPrayerCache() {
+    final mmkv = MMKV.defaultMMKV();
+    final allKeys = mmkv.allKeys;
+
+    for (final key in allKeys) {
+      if (key.contains(_prayerMonthKey) || key.contains(_prayerTodayKey)) {
+        mmkv.removeValue(key);
+      }
+    }
   }
 }

@@ -50,7 +50,6 @@ Future main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => PrayerViewModel()),
-        ChangeNotifierProvider(create: (_) => CalendarViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
       ],
       child: const MyApp(),
@@ -87,14 +86,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    PrayerView(),
-    CalendarView(),
-    // QiblaView(),
-    // RemindersView(),
-    SettingsView(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -122,7 +113,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _buildBody(),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: isDark ? AppTheme.navySurface : Colors.white,
@@ -167,6 +158,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return const PrayerView();
+      case 1:
+        return ChangeNotifierProvider(
+          key: const ValueKey('calendar-provider'),
+          create: (_) => CalendarViewModel(),
+          child: const CalendarView(),
+        );
+      case 2:
+      default:
+        return const SettingsView();
+    }
   }
 }
 

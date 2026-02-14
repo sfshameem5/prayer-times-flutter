@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
+import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
+import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/data/repositories/settings_repository.dart';
 
@@ -33,6 +35,8 @@ class SettingsViewModel extends ChangeNotifier {
 
   AppThemeMode get themeMode => _settings.themeMode;
 
+  String get selectedCity => _settings.selectedCity;
+
   ThemeMode get flutterThemeMode {
     switch (_settings.themeMode) {
       case AppThemeMode.light:
@@ -47,6 +51,9 @@ class SettingsViewModel extends ChangeNotifier {
   Future<void> _loadSettings() async {
     _isLoading = true;
     _settings = await _repository.getSettings();
+
+    // Sync LocationService with persisted city
+    LocationService.setSelectedCity(_settings.selectedCity);
 
     await _checkNotificationsEnabled();
 
@@ -151,6 +158,29 @@ class SettingsViewModel extends ChangeNotifier {
     await _repository.saveSettings(_settings);
 
     await _updateSettings();
+
+    notifyListeners();
+  }
+
+  Future<void> setSelectedCity(String city) async {
+    if (city == _settings.selectedCity) return;
+
+    _settings = _settings.copyWith(selectedCity: city);
+    LocationService.setSelectedCity(city);
+    await _repository.saveSettings(_settings);
+
+    await SentryService.logString("UI: changed city to $city");
+
+    // Clear prayer cache so new city data is fetched
+    PrayerTimesService.clearPrayerCache();
+
+    // Cancel all existing notifications/alarms and reschedule
+    await NotificationService.cancelAllNotifications();
+    await AlarmService.cancelAllAlarms();
+
+    if (_notificationsEnabled) {
+      await PrayerTimesRepository.scheduleNotifications();
+    }
 
     notifyListeners();
   }

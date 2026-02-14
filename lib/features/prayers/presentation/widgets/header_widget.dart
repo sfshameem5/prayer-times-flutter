@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/common/services/location_service.dart';
+import 'package:prayer_times/common/widgets/city_picker_bottom_sheet.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
+import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:provider/provider.dart';
 
 class HeaderWidget extends StatelessWidget {
@@ -39,27 +42,52 @@ class HeaderWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 18,
-                    color: isDark ? Colors.white60 : Colors.black54,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    "Colombo",
-                    style: textTheme.titleSmall?.copyWith(
-                      color: isDark ? Colors.white70 : Colors.black87,
+              Selector<SettingsViewModel, String>(
+                selector: (_, model) => model.selectedCity,
+                builder: (context, selectedCity, child) {
+                  return GestureDetector(
+                    onTap: () => _showCityPicker(context, selectedCity),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 18,
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          LocationService.getShortDisplayName(selectedCity),
+                          style: textTheme.titleSmall?.copyWith(
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 18,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  void _showCityPicker(BuildContext context, String currentCity) async {
+    final selectedCity = await CityPickerBottomSheet.show(context, currentCity);
+    if (selectedCity != null && selectedCity != currentCity) {
+      if (!context.mounted) return;
+      final settingsVm = context.read<SettingsViewModel>();
+      await settingsVm.setSelectedCity(selectedCity);
+      if (!context.mounted) return;
+      await context.read<PrayerViewModel>().updatePrayers();
+    }
   }
 }
