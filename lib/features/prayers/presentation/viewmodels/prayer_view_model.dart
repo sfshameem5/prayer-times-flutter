@@ -100,6 +100,24 @@ class PrayerViewModel extends ChangeNotifier {
     return DisplayPrayerModel.fromPrayerModel(prayer, strings, localeCode);
   }
 
+  DisplayPrayerModel currentPrayer(
+    AppLocalizations strings,
+    String localeCode,
+  ) {
+    if (_prayersList.isEmpty) {
+      return DisplayPrayerModel(name: strings.loading, time: strings.loading);
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    // Pick the latest prayer whose time is not in the future; if all are in the future, fall back to the first.
+    final current = _prayersList.lastWhere(
+      (p) => p.timestamp <= now,
+      orElse: () => _prayersList.first,
+    );
+
+    return DisplayPrayerModel.fromPrayerModel(current, strings, localeCode);
+  }
+
   List<DisplayPrayerModel> prayers(
     AppLocalizations strings,
     String localeCode,

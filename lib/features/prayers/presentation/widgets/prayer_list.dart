@@ -19,7 +19,7 @@ class PrayerList extends StatelessWidget {
     }
 
     final prayers = viewModel.prayers(strings, localeCode);
-    final next = viewModel.nextPrayer(strings, localeCode);
+    final current = viewModel.currentPrayer(strings, localeCode);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +37,7 @@ class PrayerList extends StatelessWidget {
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final prayer = prayers[index];
-            final isActive = prayer.name == next.name;
+            final isActive = prayer.name == current.name;
 
             return PrayerCard(
               name: prayer.name,

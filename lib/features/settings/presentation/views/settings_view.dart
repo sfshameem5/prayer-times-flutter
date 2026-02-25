@@ -422,55 +422,51 @@ class _LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final localeService = context.watch<LocaleService>();
     final currentCode = localeService.locale.languageCode;
-    final strings = AppLocalizations.of(context)!;
 
     String labelFor(String code) {
       switch (code) {
         case 'ta':
-          return strings.languageTamil;
+          return 'தமிழ்';
         case 'si':
-          return strings.languageSinhala;
+          return 'සිංහල';
         case 'en':
         default:
-          return strings.languageEnglish;
+          return 'English';
       }
     }
 
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppTheme.appOrange.withValues(alpha: isDark ? 0.15 : 0.1),
-          borderRadius: BorderRadius.circular(20),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.appOrange.withValues(alpha: isDark ? 0.15 : 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: DropdownButton<String>(
+        value: currentCode,
+        underline: const SizedBox(),
+        isDense: true,
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppTheme.appOrange,
+          size: 20,
         ),
-        child: DropdownButton<String>(
-          value: currentCode,
-          underline: const SizedBox(),
-          isDense: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppTheme.appOrange,
-            size: 20,
-          ),
-          dropdownColor: isDark ? AppTheme.navyLight : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppTheme.appOrange,
-            fontWeight: FontWeight.w600,
-          ),
-          items: const ['en', 'ta', 'si']
-              .map(
-                (code) =>
-                    DropdownMenuItem(value: code, child: Text(labelFor(code))),
-              )
-              .toList(),
-          onChanged: (code) {
-            if (code != null) {
-              context.read<LocaleService>().setLocale(Locale(code));
-            }
-          },
+        dropdownColor: isDark ? AppTheme.navyLight : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: AppTheme.appOrange,
+          fontWeight: FontWeight.w600,
         ),
+        items: const ['en', 'ta', 'si']
+            .map(
+              (code) =>
+                  DropdownMenuItem(value: code, child: Text(labelFor(code))),
+            )
+            .toList(),
+        onChanged: (code) {
+          if (code != null) {
+            context.read<LocaleService>().setLocale(Locale(code));
+          }
+        },
       ),
     );
   }
