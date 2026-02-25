@@ -22,6 +22,7 @@ class AlarmService {
         'body': data.body,
         'audioPath': data.audioPath,
         'isTest': data.isTest,
+        'localeCode': data.localeCode,
       });
     } catch (e) {
       await SentryService.logString("Error scheduling alarm: $e");

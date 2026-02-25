@@ -11,7 +11,6 @@ import android.os.PowerManager
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.prayer_times.R
@@ -35,8 +34,12 @@ class AlarmActivity : Activity() {
     }
 
     override fun attachBaseContext(newBase: Context?) {
-        val localized = newBase?.let { applyLocaleContext(it) }
-        super.attachBaseContext(localized)
+        // intent is null here, so use stored preference as best-effort default
+        val localized = newBase?.let { ctx ->
+            val code = AlarmLocaleHelper.getLocaleCode(ctx)
+            AlarmLocaleHelper.applyLocale(ctx, code)
+        }
+        super.attachBaseContext(localized ?: newBase)
     }
 
     @Suppress("DEPRECATION")
@@ -75,12 +78,17 @@ class AlarmActivity : Activity() {
         setContentView(R.layout.activity_alarm)
 
         val alarmId = intent.getIntExtra("alarm_id", -1)
-        val title = intent.getStringExtra("alarm_title") ?: getString(R.string.alarm_default_title)
-        val body = intent.getStringExtra("alarm_body") ?: getString(R.string.alarm_default_body)
-        val timestamp = intent.getLongExtra("alarm_timestamp", System.currentTimeMillis())
+        val localeCode = intent.getStringExtra("alarm_locale_code")
         isTest = intent.getBooleanExtra("alarm_is_test", false)
 
-        Log.d(TAG, "AlarmActivity created: id=$alarmId, title=$title, isTest=$isTest")
+        // Build a locale-aware context from the alarm's localeCode for all getString() calls
+        val localizedCtx = AlarmLocaleHelper.applyLocale(this, localeCode)
+
+        val title = intent.getStringExtra("alarm_title") ?: localizedCtx.getString(R.string.alarm_default_title)
+        val body = intent.getStringExtra("alarm_body") ?: localizedCtx.getString(R.string.alarm_default_body)
+        val timestamp = intent.getLongExtra("alarm_timestamp", System.currentTimeMillis())
+
+        Log.d(TAG, "AlarmActivity created: id=$alarmId, title=$title, isTest=$isTest, locale=$localeCode")
 
         // Set prayer name
         val prayerNameView = findViewById<TextView>(R.id.prayer_name)
@@ -102,7 +110,7 @@ class AlarmActivity : Activity() {
         // Dismiss button
         val dismissButton = findViewById<View>(R.id.btn_dismiss)
         val dismissLabel = findViewById<TextView>(R.id.label_dismiss)
-        dismissLabel.text = getString(R.string.alarm_action_dismiss)
+        dismissLabel.text = localizedCtx.getString(R.string.alarm_action_dismiss)
         dismissButton.setOnClickListener {
             dismissAlarm()
         }
@@ -110,7 +118,7 @@ class AlarmActivity : Activity() {
         // Snooze button — hidden for test alarms
         val snoozeButton = findViewById<View>(R.id.btn_snooze)
         val snoozeLabel = findViewById<TextView>(R.id.label_snooze)
-        snoozeLabel.text = getString(R.string.alarm_action_snooze)
+        snoozeLabel.text = localizedCtx.getString(R.string.alarm_action_snooze)
         if (isTest) {
             snoozeButton.visibility = View.GONE
         } else {
@@ -130,24 +138,6 @@ class AlarmActivity : Activity() {
         }
     }
 
-    private fun applyLocaleContext(context: Context): Context {
-        try {
-            val prefs = context.getSharedPreferences(
-                "FlutterSharedPreferences",
-                Context.MODE_PRIVATE
-            )
-            val code = prefs.getString("flutter.languageCode", null) ?: return context
-            val locale = Locale(code)
-            Locale.setDefault(locale)
-            val config = context.resources.configuration
-            config.setLocale(locale)
-            config.setLayoutDirection(locale)
-            return context.createConfigurationContext(config)
-        } catch (e: Exception) {
-            Log.e(TAG, "applyAppLocale error: ${e.message}")
-        }
-        return context
-    }
 
     private fun setPrayerIcon(iconView: ImageView, title: String) {
         val lowerTitle = title.lowercase()

@@ -37,9 +37,20 @@ class AlarmFiringService : Service() {
     private var currentAlarmId: Int = -1
     private var currentAudioPath: String = ""
     private var currentIsTest: Boolean = false
+    private var currentLocaleCode: String? = null
     private var isStopping: Boolean = false
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun attachBaseContext(newBase: Context?) {
+        // Locale will be re-applied per-alarm in onStartCommand once we know the localeCode.
+        // This initial override uses the stored preference as a best-effort default.
+        val localized = newBase?.let { ctx ->
+            val code = AlarmLocaleHelper.getLocaleCode(ctx)
+            AlarmLocaleHelper.applyLocale(ctx, code)
+        }
+        super.attachBaseContext(localized ?: newBase)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -82,6 +93,7 @@ class AlarmFiringService : Service() {
 
         currentAudioPath = alarmData.audioPath
         currentIsTest = alarmData.isTest
+        currentLocaleCode = alarmData.localeCode
 
         // Remove from storage since it's now firing
         storage.removeAlarm(alarmId)
@@ -94,7 +106,11 @@ class AlarmFiringService : Service() {
 
         // Start foreground with notification — use alarm-specific ID so
         // subsequent alarms don't reuse the same notification (which blocks fullScreenIntent)
-        startForeground(NOTIFICATION_ID + alarmId, buildNotification(alarmData))
+        // Re-create the notification channel with the alarm's locale so channel name is localised
+        val localizedCtx = AlarmLocaleHelper.applyLocale(this, alarmData.localeCode)
+        createNotificationChannel(localizedCtx)
+
+        startForeground(NOTIFICATION_ID + alarmId, buildNotification(alarmData, localizedCtx))
 
         // Start audio playback
         startAudio(currentAudioPath)
@@ -111,7 +127,7 @@ class AlarmFiringService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun createNotificationChannel() {
+    private fun createNotificationChannel(ctx: Context = this) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NotificationManager::class.java)
             // Recreate channel to ensure name/description refresh when locale changes
@@ -119,10 +135,10 @@ class AlarmFiringService : Service() {
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                getString(R.string.alarm_channel_name),
+                ctx.getString(R.string.alarm_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = getString(R.string.alarm_channel_description)
+                description = ctx.getString(R.string.alarm_channel_description)
                 setBypassDnd(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 setSound(null, null) // We handle audio ourselves
@@ -132,13 +148,14 @@ class AlarmFiringService : Service() {
         }
     }
 
-    private fun buildNotification(alarm: AlarmData): Notification {
+    private fun buildNotification(alarm: AlarmData, ctx: Context = this): Notification {
         val fullScreenIntent = Intent(this, AlarmActivity::class.java).apply {
             putExtra("alarm_id", alarm.id)
             putExtra("alarm_title", alarm.title)
             putExtra("alarm_body", alarm.body)
             putExtra("alarm_timestamp", alarm.timestamp)
             putExtra("alarm_is_test", alarm.isTest)
+            putExtra("alarm_locale_code", alarm.localeCode)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -183,7 +200,7 @@ class AlarmFiringService : Service() {
             .addAction(
                 Notification.Action.Builder(
                     null,
-                    getString(R.string.alarm_action_dismiss),
+                    ctx.getString(R.string.alarm_action_dismiss),
                     dismissPendingIntent
                 ).build()
             )
@@ -203,7 +220,7 @@ class AlarmFiringService : Service() {
             builder.addAction(
                 Notification.Action.Builder(
                     null,
-                    getString(R.string.alarm_action_snooze),
+                    ctx.getString(R.string.alarm_action_snooze),
                     snoozePendingIntent
                 ).build()
             )
@@ -368,16 +385,18 @@ class AlarmFiringService : Service() {
             val storage = AlarmStorage(this)
             val snoozeTimestamp = System.currentTimeMillis() + (snoozeMinutes * 60 * 1000L)
 
-            // Get original alarm data to preserve title/body
-            val originalTitle = "Snoozed Prayer Alarm"
-            val originalBody = "Snoozed for $snoozeMinutes minutes"
+            // Use localized strings for snooze notification
+            val localizedCtx = AlarmLocaleHelper.applyLocale(this, currentLocaleCode)
+            val originalTitle = localizedCtx.getString(R.string.alarm_snoozed_title)
+            val originalBody = localizedCtx.getString(R.string.alarm_snoozed_body, snoozeMinutes)
 
             val snoozeAlarm = AlarmData(
                 id = currentAlarmId,
                 timestamp = snoozeTimestamp,
                 title = originalTitle,
                 body = originalBody,
-                audioPath = ""
+                audioPath = "",
+                localeCode = currentLocaleCode
             )
 
             val scheduler = AlarmScheduler(this)

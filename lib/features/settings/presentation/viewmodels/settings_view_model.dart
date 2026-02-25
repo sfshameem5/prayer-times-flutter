@@ -324,6 +324,7 @@ class SettingsViewModel extends ChangeNotifier {
         timestamp: scheduledTime.millisecondsSinceEpoch,
         audioPath: 'short',
         isTest: true,
+        localeCode: _settings.languageCode,
       );
 
       await AlarmService.scheduleAlarm(alarmData);
