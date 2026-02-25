@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:intl/intl.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
@@ -12,8 +13,29 @@ import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
+import 'package:prayer_times/l10n/app_localizations.dart' as app_strings;
 
 class PrayerTimesRepository {
+  static String _localizedPrayerName(
+    PrayerNameEnum name,
+    app_strings.AppLocalizations strings,
+  ) {
+    switch (name) {
+      case PrayerNameEnum.fajr:
+        return strings.prayerFajr;
+      case PrayerNameEnum.sunrise:
+        return strings.prayerSunrise;
+      case PrayerNameEnum.dhuhr:
+        return strings.prayerDhuhr;
+      case PrayerNameEnum.asr:
+        return strings.prayerAsr;
+      case PrayerNameEnum.maghrib:
+        return strings.prayerMaghrib;
+      case PrayerNameEnum.isha:
+        return strings.prayerIsha;
+    }
+  }
+
   static String getTodayHijriDateFormatted() {
     return PrayerTimesService.getTodayHijriDateFormatted();
   }
@@ -102,6 +124,9 @@ class PrayerTimesRepository {
   static Future scheduleNotifications() async {
     var settings = await SettingsService().getSettings();
 
+    final localeCode = settings.languageCode;
+    final strings = app_strings.lookupAppLocalizations(Locale(localeCode));
+
     SentryService.logString("Scheduling prayer notifications");
     SentryService.logString(
       "Notifications: ${settings.notificationsEnabled ? 'ON' : 'OFF'}, "
@@ -138,22 +163,28 @@ class PrayerTimesRepository {
       }
 
       var date = DateTime.fromMillisecondsSinceEpoch(prayer.timestamp);
-      var displayTime = DateFormat.jm().format(date);
+      var displayTime = DateFormat.jm(localeCode).format(date);
+
+      final localizedName = _localizedPrayerName(prayer.name, strings);
 
       final notification = NotificationModel(
         id: _generateUniquePrayerId(prayer),
-        heading: "Time for ${prayer.name.name}",
-        body: "${prayer.name.name} at $displayTime",
+        heading: strings.nextPrayerLabel.replaceFirst(
+          '{prayer}',
+          localizedName,
+        ),
+        body: '$localizedName $displayTime',
         timestamp: prayer.timestamp,
       );
 
       final isFajr = prayer.name == PrayerNameEnum.fajr;
       final alarmData = AlarmModel(
         id: notification.id,
-        heading: notification.heading,
+        heading: localizedName,
         body: notification.body,
         timestamp: notification.timestamp!,
         audioPath: isFajr ? "fajr" : "full",
+        localeCode: localeCode,
       );
 
       final mode = settings.getModeForPrayer(prayer.name);

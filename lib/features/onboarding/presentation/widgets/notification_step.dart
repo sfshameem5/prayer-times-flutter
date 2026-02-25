@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/config/theme.dart';
 
 enum NotificationChoice { notifications, azaan }
@@ -17,6 +18,7 @@ class NotificationStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
+    final strings = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -35,14 +37,14 @@ class NotificationStep extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Stay on Time',
+                    strings.onboardingStayOnTime,
                     style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'How would you like to be reminded for prayers?',
+                    strings.onboardingReminderQuestion,
                     style: textTheme.bodyMedium?.copyWith(
                       color: isDark ? Colors.white60 : Colors.black54,
                     ),
@@ -51,8 +53,8 @@ class NotificationStep extends StatelessWidget {
                   const SizedBox(height: 40),
                   _ChoiceCard(
                     icon: Icons.notifications_outlined,
-                    title: 'Notifications',
-                    description: 'Get a notification reminder for each prayer',
+                    title: strings.onboardingChoiceNotifications,
+                    description: strings.onboardingChoiceNotificationsDesc,
                     isSelected:
                         selectedChoice == NotificationChoice.notifications,
                     onTap: () =>
@@ -62,9 +64,8 @@ class NotificationStep extends StatelessWidget {
                   const SizedBox(height: 16),
                   _ChoiceCard(
                     icon: Icons.volume_up_outlined,
-                    title: 'Azaan Alarm',
-                    description:
-                        'Play the Azaan sound as a full alarm for each prayer',
+                    title: strings.onboardingChoiceAzaan,
+                    description: strings.onboardingChoiceAzaanDesc,
                     isSelected: selectedChoice == NotificationChoice.azaan,
                     onTap: () => onChoiceSelected(NotificationChoice.azaan),
                     isDark: isDark,
@@ -86,7 +87,7 @@ class NotificationStep extends StatelessWidget {
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    'You can configure this per prayer later in Settings',
+                    strings.onboardingChoiceInfo,
                     style: textTheme.bodySmall?.copyWith(
                       color: isDark ? Colors.white38 : Colors.black38,
                     ),

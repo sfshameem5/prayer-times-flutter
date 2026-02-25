@@ -28,6 +28,7 @@ class AlarmMethodChannel(private val context: Context) : MethodChannel.MethodCal
                     val body = call.argument<String>("body") ?: ""
                     val audioPath = call.argument<String>("audioPath") ?: ""
                     val isTest = call.argument<Boolean>("isTest") ?: false
+                    val localeCode = call.argument<String>("localeCode")
 
                     val alarm = AlarmData(
                         id = id,
@@ -35,7 +36,8 @@ class AlarmMethodChannel(private val context: Context) : MethodChannel.MethodCal
                         title = title,
                         body = body,
                         audioPath = audioPath,
-                        isTest = isTest
+                        isTest = isTest,
+                        localeCode = localeCode
                     )
 
                     scheduler.schedule(alarm)

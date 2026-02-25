@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
@@ -90,23 +91,29 @@ class PrayerViewModel extends ChangeNotifier {
   bool get isSunrise =>
       _nextPrayer != null && _nextPrayer!.name == PrayerNameEnum.sunrise;
 
-  DisplayPrayerModel get nextPrayer {
+  DisplayPrayerModel nextPrayer(AppLocalizations strings, String localeCode) {
     final prayer = _nextPrayer;
     if (prayer == null) {
-      return DisplayPrayerModel(name: "Loading", time: "Loading");
+      return DisplayPrayerModel(name: strings.loading, time: strings.loading);
     }
 
-    return DisplayPrayerModel.fromPrayerModel(prayer);
+    return DisplayPrayerModel.fromPrayerModel(prayer, strings, localeCode);
   }
 
-  List<DisplayPrayerModel> get prayers {
+  List<DisplayPrayerModel> prayers(
+    AppLocalizations strings,
+    String localeCode,
+  ) {
     return _prayersList
-        .map((element) => DisplayPrayerModel.fromPrayerModel(element))
+        .map(
+          (element) =>
+              DisplayPrayerModel.fromPrayerModel(element, strings, localeCode),
+        )
         .toList();
   }
 
-  String get currentDate {
-    return DateFormat("d MMMM yyyy").format(DateTime.now());
+  String currentDate(String localeCode) {
+    return DateFormat("d MMMM yyyy", localeCode).format(DateTime.now());
   }
 
   String get currentHijriDate {

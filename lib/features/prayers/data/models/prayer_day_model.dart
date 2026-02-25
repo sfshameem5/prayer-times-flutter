@@ -12,7 +12,9 @@ class PrayerDayModel {
     var dayMonth = item['dayMonth'];
     List<dynamic> prayers = item['prayers'];
 
-    var dayFormatter = DateFormat("d-MMM y");
+    // API month/day strings are English abbreviations; force en locale so parsing
+    // remains stable even when Intl.defaultLocale is non-English.
+    var dayFormatter = DateFormat("d-MMM y", "en");
     var dayTimestamp = dayFormatter
         .parse("$dayMonth $year")
         .millisecondsSinceEpoch;
@@ -20,7 +22,7 @@ class PrayerDayModel {
     List<PrayerModel> prayersWithTimestamp = [];
 
     for (var prayer in prayers) {
-      var prayerFormatter = DateFormat("H:m d-MMM y");
+      var prayerFormatter = DateFormat("H:m d-MMM y", "en");
       var displayTime = prayer['displayTime'];
 
       var timestamp = prayerFormatter

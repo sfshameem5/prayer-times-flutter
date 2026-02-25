@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
+import 'package:prayer_times/common/services/locale_service.dart';
 import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/city_step.dart';
+import 'package:prayer_times/features/onboarding/presentation/widgets/language_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/completion_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/notification_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/permission_warning_sheet.dart';
@@ -27,6 +30,7 @@ class _OnboardingViewState extends State<OnboardingView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  Locale _selectedLocale = const Locale('en');
   String _selectedCity = 'colombo';
   AppThemeMode _selectedThemeMode = AppThemeMode.system;
   NotificationChoice _notificationChoice = NotificationChoice.notifications;
@@ -41,7 +45,7 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   void _nextPage() async {
     // When moving from notification step to completion step, run permission flow
-    if (_currentPage == 1 && Platform.isAndroid) {
+    if (_currentPage == 2 && Platform.isAndroid) {
       final isAzaan = _notificationChoice == NotificationChoice.azaan;
       final granted =
           await PermissionService.requestFullNotificationPermissions(
@@ -74,7 +78,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       }
     }
 
-    if (_currentPage < 2) {
+    if (_currentPage < 3) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -102,7 +106,11 @@ class _OnboardingViewState extends State<OnboardingView> {
         useAzaan: _notificationChoice == NotificationChoice.azaan,
         themeMode: _selectedThemeMode,
         notificationsEnabled: _permissionsGranted,
+        languageCode: _selectedLocale.languageCode,
       );
+
+      // Persist locale immediately so the rest of the app updates
+      await context.read<LocaleService>().setLocale(_selectedLocale);
 
       if (!mounted) return;
 
@@ -137,6 +145,13 @@ class _OnboardingViewState extends State<OnboardingView> {
                   setState(() => _currentPage = index);
                 },
                 children: [
+                  LanguageStep(
+                    selectedLocale: _selectedLocale,
+                    onLocaleSelected: (locale) {
+                      setState(() => _selectedLocale = locale);
+                      context.read<LocaleService>().setLocale(locale);
+                    },
+                  ),
                   CityStep(
                     selectedCity: _selectedCity,
                     onCitySelected: (city) {
@@ -178,7 +193,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           SmoothPageIndicator(
             controller: _pageController,
-            count: 3,
+            count: 4,
             effect: WormEffect(
               dotWidth: 8,
               dotHeight: 8,
@@ -206,7 +221,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                       ),
                     ),
                     child: Text(
-                      'Back',
+                      AppLocalizations.of(context)!.back,
                       style: TextStyle(
                         color: isDark ? Colors.white70 : Colors.black54,
                         fontWeight: FontWeight.w600,
@@ -220,7 +235,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 child: ElevatedButton(
                   onPressed: _isCompleting
                       ? null
-                      : (_currentPage == 2 ? _completeOnboarding : _nextPage),
+                      : (_currentPage == 3 ? _completeOnboarding : _nextPage),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.appOrange,
                     foregroundColor: Colors.white,
@@ -240,7 +255,9 @@ class _OnboardingViewState extends State<OnboardingView> {
                           ),
                         )
                       : Text(
-                          _currentPage == 2 ? 'Get Started' : 'Next',
+                          _currentPage == 3
+                              ? AppLocalizations.of(context)!.getStarted
+                              : AppLocalizations.of(context)!.next,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,

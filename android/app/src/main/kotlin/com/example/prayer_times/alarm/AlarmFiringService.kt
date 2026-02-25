@@ -113,19 +113,21 @@ class AlarmFiringService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(NotificationManager::class.java)
+            // Recreate channel to ensure name/description refresh when locale changes
+            manager.deleteNotificationChannel(CHANNEL_ID)
+
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Prayer Alarms",
+                getString(R.string.alarm_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Prayer alarm notifications"
+                description = getString(R.string.alarm_channel_description)
                 setBypassDnd(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 setSound(null, null) // We handle audio ourselves
                 enableVibration(false) // We handle vibration ourselves
             }
-
-            val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
     }
@@ -181,7 +183,7 @@ class AlarmFiringService : Service() {
             .addAction(
                 Notification.Action.Builder(
                     null,
-                    "Dismiss",
+                    getString(R.string.alarm_action_dismiss),
                     dismissPendingIntent
                 ).build()
             )
@@ -201,7 +203,7 @@ class AlarmFiringService : Service() {
             builder.addAction(
                 Notification.Action.Builder(
                     null,
-                    "Snooze",
+                    getString(R.string.alarm_action_snooze),
                     snoozePendingIntent
                 ).build()
             )

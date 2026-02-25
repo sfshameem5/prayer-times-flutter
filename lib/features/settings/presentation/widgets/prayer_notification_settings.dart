@@ -3,41 +3,49 @@ import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class PrayerNotificationSettings extends StatelessWidget {
   const PrayerNotificationSettings({super.key});
 
-  static String _prayerDisplayName(PrayerNameEnum prayer) {
+  static String _prayerDisplayName(
+    PrayerNameEnum prayer,
+    AppLocalizations strings,
+  ) {
     switch (prayer) {
       case PrayerNameEnum.fajr:
-        return 'Fajr';
+        return strings.prayerFajr;
       case PrayerNameEnum.sunrise:
-        return 'Sunrise';
+        return strings.prayerSunrise;
       case PrayerNameEnum.dhuhr:
-        return 'Dhuhr';
+        return strings.prayerDhuhr;
       case PrayerNameEnum.asr:
-        return 'Asr';
+        return strings.prayerAsr;
       case PrayerNameEnum.maghrib:
-        return 'Maghrib';
+        return strings.prayerMaghrib;
       case PrayerNameEnum.isha:
-        return 'Isha';
+        return strings.prayerIsha;
     }
   }
 
-  static String modeLabel(PrayerNotificationMode mode) {
+  static String modeLabel(
+    PrayerNotificationMode mode,
+    AppLocalizations strings,
+  ) {
     switch (mode) {
       case PrayerNotificationMode.azaan:
-        return 'Azaan';
+        return strings.modeAzaan;
       case PrayerNotificationMode.defaultSound:
-        return 'Default';
+        return strings.modeDefault;
       case PrayerNotificationMode.silent:
-        return 'Silent';
+        return strings.modeSilent;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
     return Consumer<SettingsViewModel>(
       builder: (context, viewModel, child) {
         return Column(
@@ -45,10 +53,11 @@ class PrayerNotificationSettings extends StatelessWidget {
               .map(
                 (prayer) => _PrayerModeRow(
                   prayer: prayer,
-                  displayName: _prayerDisplayName(prayer),
+                  displayName: _prayerDisplayName(prayer, strings),
                   currentMode: viewModel.getModeForPrayer(prayer),
                   isSunrise: prayer == PrayerNameEnum.sunrise,
                   alarmsEnabled: viewModel.alarmsEnabled,
+                  strings: strings,
                   onChanged: (mode) {
                     if (mode != null) {
                       viewModel.setPrayerNotificationMode(prayer, mode);
@@ -69,6 +78,7 @@ class _PrayerModeRow extends StatelessWidget {
   final PrayerNotificationMode currentMode;
   final bool isSunrise;
   final bool alarmsEnabled;
+  final AppLocalizations strings;
   final ValueChanged<PrayerNotificationMode?> onChanged;
 
   const _PrayerModeRow({
@@ -77,6 +87,7 @@ class _PrayerModeRow extends StatelessWidget {
     required this.currentMode,
     required this.isSunrise,
     required this.alarmsEnabled,
+    required this.strings,
     required this.onChanged,
   });
 
@@ -131,7 +142,9 @@ class _PrayerModeRow extends StatelessWidget {
                   .map(
                     (mode) => DropdownMenuItem(
                       value: mode,
-                      child: Text(PrayerNotificationSettings.modeLabel(mode)),
+                      child: Text(
+                        PrayerNotificationSettings.modeLabel(mode, strings),
+                      ),
                     ),
                   )
                   .toList(),

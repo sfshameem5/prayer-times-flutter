@@ -3,6 +3,7 @@ import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/calendar_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/widgets/prayer_card.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class CalendarView extends StatefulWidget {
@@ -18,7 +19,10 @@ class _CalendarViewState extends State<CalendarView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<CalendarViewModel>();
-      if (viewModel.selectedDayPrayers.isEmpty && !viewModel.isLoading) {
+      final strings = AppLocalizations.of(context)!;
+      final localeCode = Localizations.localeOf(context).languageCode;
+      if (viewModel.selectedDayPrayers(strings, localeCode).isEmpty &&
+          !viewModel.isLoading) {
         viewModel.loadMonth();
       }
     });
@@ -29,6 +33,9 @@ class _CalendarViewState extends State<CalendarView> {
     return SafeArea(
       child: Consumer<CalendarViewModel>(
         builder: (context, viewModel, child) {
+          final strings = AppLocalizations.of(context)!;
+          final localeCode = Localizations.localeOf(context).languageCode;
+
           if (viewModel.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -45,7 +52,7 @@ class _CalendarViewState extends State<CalendarView> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: viewModel.loadMonth,
-                    child: const Text('Retry'),
+                    child: Text(strings.actionRetry),
                   ),
                 ],
               ),
@@ -60,9 +67,12 @@ class _CalendarViewState extends State<CalendarView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  _CalendarHeader(monthYear: viewModel.monthYearLabel),
+                  _CalendarHeader(
+                    monthYear: viewModel.monthYearLabel(localeCode),
+                  ),
                   const SizedBox(height: 20),
                   _MonthGrid(
+                    strings: strings,
                     daysInMonth: viewModel.daysInMonth,
                     firstWeekday: viewModel.firstWeekdayOfMonth,
                     selectedDay: viewModel.selectedDay,
@@ -71,10 +81,11 @@ class _CalendarViewState extends State<CalendarView> {
                   ),
                   const SizedBox(height: 24),
                   _SelectedDayPrayers(
+                    strings: strings,
                     selectedDay: viewModel.selectedDay,
                     month: viewModel.month,
                     year: viewModel.year,
-                    prayers: viewModel.selectedDayPrayers,
+                    prayers: viewModel.selectedDayPrayers(strings, localeCode),
                   ),
                 ],
               ),
@@ -103,8 +114,10 @@ class _MonthGrid extends StatelessWidget {
   final int selectedDay;
   final int today;
   final ValueChanged<int> onDayTap;
+  final AppLocalizations strings;
 
   const _MonthGrid({
+    required this.strings,
     required this.daysInMonth,
     required this.firstWeekday,
     required this.selectedDay,
@@ -112,12 +125,19 @@ class _MonthGrid extends StatelessWidget {
     required this.onDayTap,
   });
 
-  static const _weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
+    final weekDays = [
+      strings.weekdayShortSun,
+      strings.weekdayShortMon,
+      strings.weekdayShortTue,
+      strings.weekdayShortWed,
+      strings.weekdayShortThu,
+      strings.weekdayShortFri,
+      strings.weekdayShortSat,
+    ];
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -138,7 +158,7 @@ class _MonthGrid extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _weekDays
+            children: weekDays
                 .map(
                   (day) => SizedBox(
                     width: 36,
@@ -251,8 +271,10 @@ class _SelectedDayPrayers extends StatelessWidget {
   final int month;
   final int year;
   final List<DisplayPrayerModel> prayers;
+  final AppLocalizations strings;
 
   const _SelectedDayPrayers({
+    required this.strings,
     required this.selectedDay,
     required this.month,
     required this.year,
@@ -265,7 +287,7 @@ class _SelectedDayPrayers extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final date = DateTime(year, month, selectedDay);
-    final label = _formatDayLabel(date);
+    final label = _formatDayLabel(date, strings);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +302,7 @@ class _SelectedDayPrayers extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Text(
-                'No prayer times available',
+                strings.calendarNoData,
                 style: textTheme.bodyMedium?.copyWith(
                   color: isDark ? Colors.white54 : Colors.black45,
                 ),
@@ -307,27 +329,27 @@ class _SelectedDayPrayers extends StatelessWidget {
     );
   }
 
-  String _formatDayLabel(DateTime date) {
+  String _formatDayLabel(DateTime date, AppLocalizations strings) {
     final now = DateTime.now();
     final todayDate = DateTime(now.year, now.month, now.day);
     final selected = DateTime(date.year, date.month, date.day);
 
     if (selected == todayDate) {
-      return 'Today';
+      return strings.today;
     } else if (selected == todayDate.add(const Duration(days: 1))) {
-      return 'Tomorrow';
+      return strings.tomorrow;
     } else if (selected == todayDate.subtract(const Duration(days: 1))) {
-      return 'Yesterday';
+      return strings.yesterday;
     }
 
     final dayNames = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
+      strings.dayMonday,
+      strings.dayTuesday,
+      strings.dayWednesday,
+      strings.dayThursday,
+      strings.dayFriday,
+      strings.daySaturday,
+      strings.daySunday,
     ];
     return '${dayNames[date.weekday - 1]}, ${date.day}';
   }

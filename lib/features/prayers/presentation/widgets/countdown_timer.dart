@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/models/countdown_model.dart';
-import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class CountdownTimer extends StatelessWidget {
@@ -13,20 +13,17 @@ class CountdownTimer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
+    final strings = AppLocalizations.of(context)!;
+    final localeCode = Localizations.localeOf(context).languageCode;
 
-    return Selector<
-      PrayerViewModel,
-      ({DisplayPrayerModel nextPrayer, bool isLoading, bool isSunrise})
-    >(
-      selector: (_, model) => (
-        nextPrayer: model.nextPrayer,
-        isLoading: model.isLoading,
-        isSunrise: model.isSunrise,
-      ),
-      builder: (context, data, child) {
-        if (data.isLoading) {
+    return Consumer<PrayerViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.isLoading) {
           return const _CountdownSkeleton();
         }
+
+        final nextPrayer = viewModel.nextPrayer(strings, localeCode);
+        final isSunrise = viewModel.isSunrise;
 
         return Container(
           margin: const EdgeInsets.only(top: 24),
@@ -50,7 +47,9 @@ class CountdownTimer extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  data.isSunrise ? 'NEXT EVENT' : 'NEXT PRAYER',
+                  isSunrise
+                      ? strings.nextEventLabel.toUpperCase()
+                      : strings.nextPrayerLabel.toUpperCase(),
                   style: textTheme.labelSmall?.copyWith(
                     color: isDark ? Colors.white54 : Colors.black45,
                     fontSize: 11,
@@ -59,7 +58,7 @@ class CountdownTimer extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  data.nextPrayer.name,
+                  nextPrayer.name,
                   style: textTheme.headlineMedium?.copyWith(
                     color: AppTheme.appOrange,
                     fontWeight: FontWeight.w700,
@@ -67,7 +66,7 @@ class CountdownTimer extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  data.nextPrayer.time,
+                  nextPrayer.time,
                   style: textTheme.titleMedium?.copyWith(
                     color: isDark ? Colors.white70 : Colors.black54,
                   ),
@@ -87,7 +86,7 @@ class CountdownTimer extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        'Time remaining',
+                        strings.timeRemaining,
                         style: textTheme.bodySmall?.copyWith(
                           color: isDark ? Colors.white54 : Colors.black45,
                         ),
@@ -107,21 +106,21 @@ class CountdownTimer extends StatelessWidget {
                                 children: [
                                   _buildTimeUnit(
                                     countdown.hours,
-                                    'H',
+                                    strings.timeUnitHour,
                                     textTheme,
                                     isDark,
                                   ),
                                   const SizedBox(width: 4),
                                   _buildTimeUnit(
                                     countdown.minutes,
-                                    'M',
+                                    strings.timeUnitMinute,
                                     textTheme,
                                     isDark,
                                   ),
                                   const SizedBox(width: 4),
                                   _buildTimeUnit(
                                     countdown.seconds,
-                                    'S',
+                                    strings.timeUnitSecond,
                                     textTheme,
                                     isDark,
                                   ),

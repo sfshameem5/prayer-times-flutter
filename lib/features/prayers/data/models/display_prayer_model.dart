@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
+import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 
 class DisplayPrayerModel {
   final String name;
@@ -41,16 +43,41 @@ class DisplayPrayerModel {
     return _prayerIcons[name.toLowerCase()] ?? Icons.access_time;
   }
 
-  static DisplayPrayerModel fromPrayerModel(PrayerModel item) {
+  static String _localizedName(PrayerNameEnum name, AppLocalizations? strings) {
+    if (strings == null) {
+      return name.name[0].toUpperCase() + name.name.substring(1);
+    }
+    switch (name) {
+      case PrayerNameEnum.fajr:
+        return strings.prayerFajr;
+      case PrayerNameEnum.sunrise:
+        return strings.prayerSunrise;
+      case PrayerNameEnum.dhuhr:
+        return strings.prayerDhuhr;
+      case PrayerNameEnum.asr:
+        return strings.prayerAsr;
+      case PrayerNameEnum.maghrib:
+        return strings.prayerMaghrib;
+      case PrayerNameEnum.isha:
+        return strings.prayerIsha;
+    }
+  }
+
+  static DisplayPrayerModel fromPrayerModel(
+    PrayerModel item, [
+    AppLocalizations? strings,
+    String? localeCode,
+  ]) {
     var date = DateTime.fromMillisecondsSinceEpoch(item.timestamp);
-    var name = item.name.name;
-    var capitalizedName = name[0].toUpperCase() + name.substring(1);
+    var nameEnum = item.name;
+    var localizedName = _localizedName(nameEnum, strings);
     var isPassed = DateTime.now().millisecondsSinceEpoch > item.timestamp;
+    final fmtLocale = localeCode ?? Intl.getCurrentLocale();
 
     return DisplayPrayerModel(
-      name: capitalizedName,
-      time: DateFormat.jm().format(date).toString(),
-      icon: _getIconForPrayer(name),
+      name: localizedName,
+      time: DateFormat.jm(fmtLocale).format(date).toString(),
+      icon: _getIconForPrayer(nameEnum.name),
       isPassed: isPassed,
     );
   }

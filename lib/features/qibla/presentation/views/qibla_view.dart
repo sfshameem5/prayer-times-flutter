@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/qibla/presentation/viewmodels/qibla_view_model.dart';
 import 'package:prayer_times/features/qibla/presentation/widgets/compass_widget.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class QiblaView extends StatelessWidget {
@@ -22,20 +23,20 @@ class QiblaView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
                   Text(
-                    'Qibla Direction',
+                    AppLocalizations.of(context)!.qiblaTitle,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
                   if (!viewModel.isUnsupported)
                     Text(
-                      'Point your device towards the Qibla',
+                      AppLocalizations.of(context)!.qiblaSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: isDark ? Colors.white70 : Colors.black54,
                       ),
                     )
                   else
                     Text(
-                      'Your device does not support compass functionality. Qibla direction is unavailable.',
+                      AppLocalizations.of(context)!.qiblaUnsupported,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: isDark ? Colors.white70 : Colors.black54,
@@ -87,7 +88,9 @@ class QiblaView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'LOCATION',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.qiblaLocationLabel.toUpperCase(),
                                   style: Theme.of(context).textTheme.labelSmall
                                       ?.copyWith(
                                         color: isDark
@@ -117,7 +120,9 @@ class QiblaView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'QIBLA BEARING',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.qiblaBearingLabel.toUpperCase(),
                                   style: Theme.of(context).textTheme.labelSmall
                                       ?.copyWith(
                                         color: isDark
@@ -156,8 +161,12 @@ class QiblaView extends StatelessWidget {
                         Expanded(
                           child: Text(
                             viewModel.needsCalibration
-                                ? 'Your compass needs calibration. Move your device in a gentle figure-8 motion.'
-                                : 'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.',
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.qiblaCalibrateNeeded
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.qiblaCalibrateGeneral,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: isDark

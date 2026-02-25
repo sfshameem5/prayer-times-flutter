@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/common/services/location_service.dart';
+import 'package:prayer_times/common/services/locale_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/common/widgets/city_picker_bottom_sheet.dart';
 import 'package:prayer_times/config/theme.dart';
@@ -30,12 +32,12 @@ class SettingsView extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               Text(
-                'Settings',
+                AppLocalizations.of(context)!.settingsTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'Customize your app preferences',
+                AppLocalizations.of(context)!.settingsSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isDark ? Colors.white70 : Colors.black54,
                 ),
@@ -50,7 +52,11 @@ class SettingsView extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _sectionHeader(context, 'Location', isDark),
+                      _sectionHeader(
+                        context,
+                        AppLocalizations.of(context)!.settingsSectionLocation,
+                        isDark,
+                      ),
                       const SizedBox(height: 8),
                       _sectionCard(
                         isDark: isDark,
@@ -78,7 +84,9 @@ class SettingsView extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Prayer Times Region',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.settingsPrayerRegion,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleMedium,
@@ -112,14 +120,20 @@ class SettingsView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      _sectionHeader(context, 'General', isDark),
+                      _sectionHeader(
+                        context,
+                        AppLocalizations.of(context)!.settingsSectionGeneral,
+                        isDark,
+                      ),
                       const SizedBox(height: 8),
                       _sectionCard(
                         isDark: isDark,
                         child: Column(
                           children: [
                             SettingsTile(
-                              title: 'Theme',
+                              title: AppLocalizations.of(
+                                context,
+                              )!.settingsTheme,
                               trailing: ThemeModeSelector(
                                 value: viewModel.themeMode,
                                 onChanged: (mode) {
@@ -131,7 +145,15 @@ class SettingsView extends StatelessWidget {
                               ),
                             ),
                             SettingsTile(
-                              title: 'Notifications',
+                              title: AppLocalizations.of(
+                                context,
+                              )!.settingsLanguage,
+                              trailing: _LanguageSelector(isDark: isDark),
+                            ),
+                            SettingsTile(
+                              title: AppLocalizations.of(
+                                context,
+                              )!.settingsNotifications,
                               trailing: Switch.adaptive(
                                 value: viewModel.notificationsEnabled,
                                 onChanged: viewModel.setNotificationsEnabled,
@@ -143,9 +165,12 @@ class SettingsView extends StatelessWidget {
                             ),
                             if (viewModel.notificationsEnabled)
                               SettingsTile(
-                                title: 'Alarms (Azaan)',
-                                subtitle:
-                                    'Enable full-screen azaan alarms for prayers',
+                                title: AppLocalizations.of(
+                                  context,
+                                )!.settingsAlarms,
+                                subtitle: AppLocalizations.of(
+                                  context,
+                                )!.settingsAlarmsSubtitle,
                                 trailing: Switch.adaptive(
                                   value: viewModel.alarmsEnabled,
                                   onChanged: viewModel.setAlarmsEnabled,
@@ -162,7 +187,9 @@ class SettingsView extends StatelessWidget {
                         const SizedBox(height: 24),
                         _sectionHeader(
                           context,
-                          'Prayer Notification Modes',
+                          AppLocalizations.of(
+                            context,
+                          )!.settingsSectionPrayerModes,
                           isDark,
                         ),
                         const SizedBox(height: 8),
@@ -172,7 +199,11 @@ class SettingsView extends StatelessWidget {
                         ),
                       ],
                       const SizedBox(height: 24),
-                      _sectionHeader(context, 'Advanced', isDark),
+                      _sectionHeader(
+                        context,
+                        AppLocalizations.of(context)!.settingsSectionAdvanced,
+                        isDark,
+                      ),
                       const SizedBox(height: 8),
                       _sectionCard(
                         isDark: isDark,
@@ -187,7 +218,9 @@ class SettingsView extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Show Advanced Settings',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.settingsShowAdvanced,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleMedium,
@@ -230,17 +263,16 @@ class SettingsView extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 32),
-              _sectionHeader(context, 'About', isDark),
+              _sectionHeader(
+                context,
+                AppLocalizations.of(context)!.settingsSectionAbout,
+                isDark,
+              ),
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
-                  'This app provides daily salah times for Muslims across '
-                  'Sri Lanka in a simple and easy-to-use format.\n\n'
-                  'Prayer times are based on data published by All Ceylon '
-                  'Jamiyyathul Ulama.\n\n'
-                  'This app operates independently and has no official '
-                  'connection with ACJU.',
+                  AppLocalizations.of(context)!.settingsAboutBody,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark ? Colors.white38 : Colors.black45,
                     height: 1.5,
@@ -328,14 +360,14 @@ class _ResetAppTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Reset App',
+                    AppLocalizations.of(context)!.settingsReset,
                     style: Theme.of(
                       context,
                     ).textTheme.titleMedium?.copyWith(color: Colors.redAccent),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Clear all settings and restart onboarding',
+                    AppLocalizations.of(context)!.settingsResetConfirm,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: isDark ? Colors.white54 : Colors.black45,
                     ),
@@ -353,14 +385,12 @@ class _ResetAppTile extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reset App'),
-        content: const Text(
-          'This will clear all settings and restart the onboarding. Are you sure?',
-        ),
+        title: Text(AppLocalizations.of(context)!.settingsReset),
+        content: Text(AppLocalizations.of(context)!.settingsResetConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.settingsCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -372,12 +402,75 @@ class _ResetAppTile extends StatelessWidget {
                 (route) => false,
               );
             },
-            child: const Text(
-              'Reset',
-              style: TextStyle(color: Colors.redAccent),
+            child: Text(
+              AppLocalizations.of(context)!.settingsResetAction,
+              style: const TextStyle(color: Colors.redAccent),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageSelector extends StatelessWidget {
+  final bool isDark;
+
+  const _LanguageSelector({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final localeService = context.watch<LocaleService>();
+    final currentCode = localeService.locale.languageCode;
+    final strings = AppLocalizations.of(context)!;
+
+    String labelFor(String code) {
+      switch (code) {
+        case 'ta':
+          return strings.languageTamil;
+        case 'si':
+          return strings.languageSinhala;
+        case 'en':
+        default:
+          return strings.languageEnglish;
+      }
+    }
+
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppTheme.appOrange.withValues(alpha: isDark ? 0.15 : 0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: DropdownButton<String>(
+          value: currentCode,
+          underline: const SizedBox(),
+          isDense: true,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: AppTheme.appOrange,
+            size: 20,
+          ),
+          dropdownColor: isDark ? AppTheme.navyLight : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppTheme.appOrange,
+            fontWeight: FontWeight.w600,
+          ),
+          items: const ['en', 'ta', 'si']
+              .map(
+                (code) =>
+                    DropdownMenuItem(value: code, child: Text(labelFor(code))),
+              )
+              .toList(),
+          onChanged: (code) {
+            if (code != null) {
+              context.read<LocaleService>().setLocale(Locale(code));
+            }
+          },
+        ),
       ),
     );
   }

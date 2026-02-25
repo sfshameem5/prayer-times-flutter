@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_month_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 
 class CalendarViewModel extends ChangeNotifier {
   PrayerMonthModel? _monthData;
@@ -45,8 +46,8 @@ class CalendarViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  String get monthYearLabel {
-    return DateFormat('MMMM yyyy').format(_monthDate);
+  String monthYearLabel(String localeCode) {
+    return DateFormat('MMMM yyyy', localeCode).format(_monthDate);
   }
 
   int get year => _monthDate.year;
@@ -62,7 +63,10 @@ class CalendarViewModel extends ChangeNotifier {
     return DateTime(_monthDate.year, _monthDate.month, 1).weekday % 7;
   }
 
-  List<DisplayPrayerModel> get selectedDayPrayers {
+  List<DisplayPrayerModel> selectedDayPrayers(
+    AppLocalizations strings,
+    String localeCode,
+  ) {
     if (_monthData == null) return [];
 
     final formatter = DateFormat('d');
@@ -71,7 +75,9 @@ class CalendarViewModel extends ChangeNotifier {
       final date = DateTime.fromMillisecondsSinceEpoch(day.timestamp);
       if (int.parse(formatter.format(date)) == _selectedDay) {
         return day.prayers
-            .map((p) => DisplayPrayerModel.fromPrayerModel(p))
+            .map(
+              (p) => DisplayPrayerModel.fromPrayerModel(p, strings, localeCode),
+            )
             .toList();
       }
     }

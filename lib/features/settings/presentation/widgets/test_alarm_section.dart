@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class TestAlarmSection extends StatefulWidget {
@@ -15,7 +16,11 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
   final TextEditingController _secondsController = TextEditingController();
   String? _inputError;
 
-  Future<void> _runTest(String key, Future<String?> Function() action) async {
+  Future<void> _runTest(
+    String key,
+    AppLocalizations strings,
+    Future<String?> Function() action,
+  ) async {
     if (_busyKey != null) return;
     setState(() => _busyKey = key);
 
@@ -31,7 +36,7 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_successMessage(key)),
+          content: Text(_successMessage(key, strings)),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.green.shade700,
         ),
@@ -45,22 +50,22 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
     super.dispose();
   }
 
-  String _successMessage(String key) {
+  String _successMessage(String key, AppLocalizations strings) {
     switch (key) {
       case 'alarm_30s':
-        return 'Test alarm scheduled in 30 seconds';
+        return strings.testAlarmScheduled30s;
       case 'alarm_1m':
-        return 'Test alarm scheduled in 1 minute';
+        return strings.testAlarmScheduled1m;
       case 'alarm_2m':
-        return 'Test alarm scheduled in 2 minutes';
+        return strings.testAlarmScheduled2m;
       case 'alarm_5m':
-        return 'Test alarm scheduled in 5 minutes';
+        return strings.testAlarmScheduled5m;
       case 'notif_instant':
-        return 'Test notification sent';
+        return strings.snackTestNotificationSent;
       case 'notif_30s':
-        return 'Test notification scheduled in 30 seconds';
+        return strings.snackTestNotificationScheduled;
       default:
-        return 'Test scheduled';
+        return strings.testAlarmScheduledCustom;
     }
   }
 
@@ -68,6 +73,7 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final viewModel = context.read<SettingsViewModel>();
+    final strings = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -78,13 +84,12 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
           if (viewModel.alarmsEnabled) ...[
             _SectionTitle(
               icon: Icons.alarm_rounded,
-              title: 'Test Alarm',
+              title: AppLocalizations.of(context)!.testAlarm,
               isDark: isDark,
             ),
             const SizedBox(height: 4),
             Text(
-              'Schedule a test alarm to verify it fires on your device. '
-              'Uses a short azaan clip for testing.',
+              AppLocalizations.of(context)!.testAlarmDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: isDark ? Colors.white60 : Colors.black45,
               ),
@@ -94,10 +99,10 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
               controller: _secondsController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Enter seconds',
-                hintText: 'e.g. 30',
+                labelText: AppLocalizations.of(context)!.testAlarmSecondsLabel,
+                hintText: AppLocalizations.of(context)!.testAlarmSecondsHint,
                 errorText: _inputError,
-                helperText: 'Uses short azaan. Min 1s, max 6h.',
+                helperText: AppLocalizations.of(context)!.testAlarmHelper,
               ),
               onChanged: (_) {
                 if (_inputError != null) {
@@ -119,7 +124,9 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
                         ),
                       )
                     : const Icon(Icons.play_arrow_rounded),
-                label: const Text('Schedule Test Alarm'),
+                label: Text(
+                  AppLocalizations.of(context)!.testAlarmScheduleButton,
+                ),
                 onPressed: _busyKey == null
                     ? () {
                         final seconds = int.tryParse(
@@ -127,12 +134,13 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
                         );
                         if (seconds == null) {
                           setState(
-                            () =>
-                                _inputError = 'Enter a valid number of seconds',
+                            () => _inputError = AppLocalizations.of(
+                              context,
+                            )!.testAlarmInvalid,
                           );
                           return;
                         }
-                        _runTest('alarm_custom', () async {
+                        _runTest('alarm_custom', strings, () async {
                           final error = await viewModel
                               .scheduleTestAlarmInSeconds(seconds: seconds);
                           if (error == null) {
@@ -151,12 +159,12 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
           if (viewModel.notificationsEnabled) ...[
             _SectionTitle(
               icon: Icons.notifications_outlined,
-              title: 'Test Notification',
+              title: AppLocalizations.of(context)!.testNotification,
               isDark: isDark,
             ),
             const SizedBox(height: 4),
             Text(
-              'Test notification-only mode (no alarm or full-screen intent).',
+              AppLocalizations.of(context)!.testNotificationDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: isDark ? Colors.white60 : Colors.black45,
               ),
@@ -167,20 +175,22 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
               runSpacing: 8,
               children: [
                 _TestChip(
-                  label: 'Instantly',
+                  label: AppLocalizations.of(context)!.testNotificationInstant,
                   busyKey: _busyKey,
                   myKey: 'notif_instant',
                   onTap: () => _runTest(
                     'notif_instant',
+                    strings,
                     () => viewModel.sendTestNotification(delayed: false),
                   ),
                 ),
                 _TestChip(
-                  label: 'In 30 sec',
+                  label: AppLocalizations.of(context)!.testNotification30s,
                   busyKey: _busyKey,
                   myKey: 'notif_30s',
                   onTap: () => _runTest(
                     'notif_30s',
+                    strings,
                     () => viewModel.sendTestNotification(delayed: true),
                   ),
                 ),
@@ -265,7 +275,7 @@ class _TestChip extends StatelessWidget {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppTheme.appOrange,
+                    color: Colors.white,
                   ),
                 )
               : Text(

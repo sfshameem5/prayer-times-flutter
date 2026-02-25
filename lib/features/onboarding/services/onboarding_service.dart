@@ -23,6 +23,7 @@ class OnboardingService {
     required bool useAzaan,
     required AppThemeMode themeMode,
     required bool notificationsEnabled,
+    required String languageCode,
   }) async {
     final settingsService = SettingsService();
 
@@ -46,6 +47,7 @@ class OnboardingService {
       prayerNotificationModes: modes,
       themeMode: themeMode,
       selectedCity: selectedCity,
+      languageCode: languageCode,
     );
 
     await settingsService.saveSettings(settings);

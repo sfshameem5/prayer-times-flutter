@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
@@ -30,21 +31,30 @@ class CityStep extends StatelessWidget {
           Icon(Icons.mosque_outlined, size: 64, color: AppTheme.appOrange),
           const SizedBox(height: 24),
           Text(
-            'Assalamu Alaikum',
+            AppLocalizations.of(context)!.onboardingGreeting,
             style: textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 24),
-          _sectionLabel(context, 'Appearance', isDark),
+          _sectionLabel(
+            context,
+            AppLocalizations.of(context)!.onboardingAppearance,
+            isDark,
+          ),
           const SizedBox(height: 8),
           _ThemePicker(
+            strings: AppLocalizations.of(context)!,
             value: themeMode,
             onChanged: onThemeModeChanged,
             isDark: isDark,
           ),
           const SizedBox(height: 24),
-          _sectionLabel(context, 'Region', isDark),
+          _sectionLabel(
+            context,
+            AppLocalizations.of(context)!.onboardingRegion,
+            isDark,
+          ),
           const SizedBox(height: 8),
           Expanded(
             child: Container(
@@ -163,11 +173,13 @@ class _ThemePicker extends StatelessWidget {
   final AppThemeMode value;
   final ValueChanged<AppThemeMode> onChanged;
   final bool isDark;
+  final AppLocalizations strings;
 
   const _ThemePicker({
     required this.value,
     required this.onChanged,
     required this.isDark,
+    required this.strings,
   });
 
   static IconData _icon(AppThemeMode mode) {
@@ -181,14 +193,14 @@ class _ThemePicker extends StatelessWidget {
     }
   }
 
-  static String _label(AppThemeMode mode) {
+  String _label(AppThemeMode mode) {
     switch (mode) {
       case AppThemeMode.system:
-        return 'System';
+        return strings.onboardingThemeSystem;
       case AppThemeMode.light:
-        return 'Light';
+        return strings.onboardingThemeLight;
       case AppThemeMode.dark:
-        return 'Dark';
+        return strings.onboardingThemeDark;
     }
   }
 

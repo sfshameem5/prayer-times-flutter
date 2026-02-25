@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">නමස්කාර වේල</string>
+    <string name="alarm_channel_name">ඇලාරම්</string>
+    <string name="alarm_channel_description">නමස්කාර ඇලාරම් දැනුම්දීම්</string>
+    <string name="alarm_default_title">නමස්කාර වේල</string>
+    <string name="alarm_default_body">නමස්කාර ඇලාරම්</string>
+    <string name="alarm_action_dismiss">අත්හැරීම</string>
+    <string name="alarm_action_snooze">සුසුප්තය</string>
+    <string name="alarm_snooze_subtitle">මිනිත්තු 10</string>
+</resources>

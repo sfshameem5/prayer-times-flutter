@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/notification_step.dart';
@@ -21,11 +22,11 @@ class CompletionStep extends StatelessWidget {
   static String _themeName(AppThemeMode mode) {
     switch (mode) {
       case AppThemeMode.system:
-        return 'System';
+        return 'system';
       case AppThemeMode.light:
-        return 'Light';
+        return 'light';
       case AppThemeMode.dark:
-        return 'Dark';
+        return 'dark';
     }
   }
 
@@ -33,13 +34,14 @@ class CompletionStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
+    final strings = AppLocalizations.of(context)!;
 
     final cityName = LocationService.getShortDisplayName(selectedCity);
     final modeName = permissionsGranted
         ? (notificationChoice == NotificationChoice.azaan
-              ? 'Azaan Alarm'
-              : 'Notifications')
-        : 'Disabled';
+              ? strings.onboardingAlertModeAzaan
+              : strings.onboardingAlertModeNotifications)
+        : strings.onboardingAlertModeDisabled;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -61,14 +63,14 @@ class CompletionStep extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            "You're All Set!",
+            strings.onboardingAllSet,
             style: textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'Your prayer times are ready',
+            strings.onboardingReady,
             style: textTheme.bodyMedium?.copyWith(
               color: isDark ? Colors.white60 : Colors.black54,
             ),
@@ -94,7 +96,7 @@ class CompletionStep extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Notifications are disabled. You can enable them later in Settings.',
+                      strings.onboardingNotificationsDisabled,
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.amber.shade700,
                         height: 1.4,
@@ -126,7 +128,7 @@ class CompletionStep extends StatelessWidget {
               children: [
                 _SummaryRow(
                   icon: Icons.location_on_outlined,
-                  label: 'Region',
+                  label: strings.onboardingSummaryRegion,
                   value: cityName,
                   isDark: isDark,
                 ),
@@ -143,7 +145,7 @@ class CompletionStep extends StatelessWidget {
                             ? Icons.volume_up_outlined
                             : Icons.notifications_outlined)
                       : Icons.notifications_off_outlined,
-                  label: 'Alert Mode',
+                  label: strings.onboardingSummaryAlertMode,
                   value: modeName,
                   isDark: isDark,
                   valueColor: permissionsGranted ? null : Colors.amber,
@@ -157,8 +159,12 @@ class CompletionStep extends StatelessWidget {
                 ),
                 _SummaryRow(
                   icon: Icons.brightness_6_outlined,
-                  label: 'Theme',
-                  value: _themeName(themeMode),
+                  label: strings.onboardingSummaryTheme,
+                  value: _themeName(themeMode) == 'system'
+                      ? strings.onboardingThemeSystem
+                      : _themeName(themeMode) == 'light'
+                      ? strings.onboardingThemeLight
+                      : strings.onboardingThemeDark,
                   isDark: isDark,
                 ),
               ],

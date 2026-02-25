@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 
 class ThemeModeSelector extends StatelessWidget {
   final AppThemeMode value;
@@ -12,20 +13,21 @@ class ThemeModeSelector extends StatelessWidget {
     required this.onChanged,
   });
 
-  String _label(AppThemeMode mode) {
+  String _label(AppThemeMode mode, AppLocalizations strings) {
     switch (mode) {
       case AppThemeMode.system:
-        return 'System';
+        return strings.onboardingThemeSystem;
       case AppThemeMode.light:
-        return 'Light';
+        return strings.onboardingThemeLight;
       case AppThemeMode.dark:
-        return 'Dark';
+        return strings.onboardingThemeDark;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final strings = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -50,8 +52,10 @@ class ThemeModeSelector extends StatelessWidget {
         ),
         items: AppThemeMode.values
             .map(
-              (mode) =>
-                  DropdownMenuItem(value: mode, child: Text(_label(mode))),
+              (mode) => DropdownMenuItem(
+                value: mode,
+                child: Text(_label(mode, strings)),
+              ),
             )
             .toList(),
         onChanged: (mode) {

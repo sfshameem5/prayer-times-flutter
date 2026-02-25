@@ -21,15 +21,24 @@ class AlarmReceiver : BroadcastReceiver() {
         val storage = AlarmStorage(context)
         val alarmData = storage.getAlarm(alarmId)
 
-        // Start the foreground service for audio, vibration, and notification
-        val serviceIntent = Intent(context, AlarmFiringService::class.java).apply {
-            putExtra("alarm_id", alarmId)
-        }
+        val alarm = storage.getAlarm(alarmId)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
-        } else {
-            context.startService(serviceIntent)
+        if (alarm != null) {
+            val serviceIntent = Intent(context, AlarmFiringService::class.java).apply {
+                putExtra("alarm_id", alarm.id)
+                putExtra("alarm_title", alarm.title)
+                putExtra("alarm_body", alarm.body)
+                putExtra("alarm_timestamp", alarm.timestamp)
+                putExtra("alarm_audio_path", alarm.audioPath)
+                putExtra("alarm_is_test", alarm.isTest)
+                putExtra("alarm_locale_code", alarm.localeCode)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
         }
 
         // Do NOT call startActivity() here. Rely solely on the notification's

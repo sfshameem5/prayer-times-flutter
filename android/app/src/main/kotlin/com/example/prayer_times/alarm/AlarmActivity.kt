@@ -34,6 +34,11 @@ class AlarmActivity : Activity() {
         }
     }
 
+    override fun attachBaseContext(newBase: Context?) {
+        val localized = newBase?.let { applyLocaleContext(it) }
+        super.attachBaseContext(localized)
+    }
+
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set show-when-locked BEFORE super.onCreate() for maximum reliability
@@ -70,8 +75,8 @@ class AlarmActivity : Activity() {
         setContentView(R.layout.activity_alarm)
 
         val alarmId = intent.getIntExtra("alarm_id", -1)
-        val title = intent.getStringExtra("alarm_title") ?: "Prayer Time"
-        val body = intent.getStringExtra("alarm_body") ?: ""
+        val title = intent.getStringExtra("alarm_title") ?: getString(R.string.alarm_default_title)
+        val body = intent.getStringExtra("alarm_body") ?: getString(R.string.alarm_default_body)
         val timestamp = intent.getLongExtra("alarm_timestamp", System.currentTimeMillis())
         isTest = intent.getBooleanExtra("alarm_is_test", false)
 
@@ -96,12 +101,16 @@ class AlarmActivity : Activity() {
 
         // Dismiss button
         val dismissButton = findViewById<View>(R.id.btn_dismiss)
+        val dismissLabel = findViewById<TextView>(R.id.label_dismiss)
+        dismissLabel.text = getString(R.string.alarm_action_dismiss)
         dismissButton.setOnClickListener {
             dismissAlarm()
         }
 
         // Snooze button — hidden for test alarms
         val snoozeButton = findViewById<View>(R.id.btn_snooze)
+        val snoozeLabel = findViewById<TextView>(R.id.label_snooze)
+        snoozeLabel.text = getString(R.string.alarm_action_snooze)
         if (isTest) {
             snoozeButton.visibility = View.GONE
         } else {
@@ -119,6 +128,25 @@ class AlarmActivity : Activity() {
         } else {
             registerReceiver(alarmStoppedReceiver, filter)
         }
+    }
+
+    private fun applyLocaleContext(context: Context): Context {
+        try {
+            val prefs = context.getSharedPreferences(
+                "FlutterSharedPreferences",
+                Context.MODE_PRIVATE
+            )
+            val code = prefs.getString("flutter.languageCode", null) ?: return context
+            val locale = Locale(code)
+            Locale.setDefault(locale)
+            val config = context.resources.configuration
+            config.setLocale(locale)
+            config.setLayoutDirection(locale)
+            return context.createConfigurationContext(config)
+        } catch (e: Exception) {
+            Log.e(TAG, "applyAppLocale error: ${e.message}")
+        }
+        return context
     }
 
     private fun setPrayerIcon(iconView: ImageView, title: String) {

@@ -33,7 +33,7 @@
     android:id="@+id/prayer_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Prayer Time"
+    android:text="@string/alarm_default_title"
     android:textColor="#FFFFFFFF"
     android:textSize="28sp"
     android:textStyle="bold"
@@ -102,9 +102,10 @@
       <View android:layout_width="0dp" android:layout_height="8dp" />
 
       <TextView
+        android:id="@+id/label_snooze"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Snooze"
+        android:text="@string/alarm_action_snooze"
         android:textColor="#FFFFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -113,7 +114,7 @@
       <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="10 min"
+        android:text="@string/alarm_snooze_subtitle"
         android:textColor="#B3FFFFFF"
         android:textSize="12sp"
       />
@@ -143,9 +144,10 @@
       <View android:layout_width="0dp" android:layout_height="8dp" />
 
       <TextView
+        android:id="@+id/label_dismiss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Dismiss"
+        android:text="@string/alarm_action_dismiss"
         android:textColor="#FFFFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"

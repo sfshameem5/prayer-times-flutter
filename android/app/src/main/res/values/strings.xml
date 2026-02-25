@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Prayer Times</string>
+    <string name="alarm_channel_name">Prayer Alarms</string>
+    <string name="alarm_channel_description">Prayer alarm notifications</string>
+    <string name="alarm_default_title">Prayer Time</string>
+    <string name="alarm_default_body">Prayer alarm</string>
+    <string name="alarm_action_dismiss">Dismiss</string>
+    <string name="alarm_action_snooze">Snooze</string>
+    <string name="alarm_snooze_subtitle">10 min</string>
+</resources>

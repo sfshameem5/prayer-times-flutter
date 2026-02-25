@@ -5,6 +5,7 @@ class AlarmModel {
   int timestamp;
   String audioPath;
   bool isTest;
+  String? localeCode;
 
   AlarmModel({
     required this.id,
@@ -13,5 +14,6 @@ class AlarmModel {
     required this.timestamp,
     required this.audioPath,
     this.isTest = false,
+    this.localeCode,
   });
 }

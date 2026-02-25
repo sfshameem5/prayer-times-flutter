@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/location_service.dart';
-import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
@@ -11,6 +10,9 @@ import 'package:prayer_times/features/prayers/data/respositories/prayer_times_re
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/settings/data/models/settings_model.dart';
 import 'package:prayer_times/features/settings/data/repositories/settings_repository.dart';
+import 'package:intl/intl.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
+import 'package:prayer_times/common/data/models/notification_model.dart';
 
 class SettingsViewModel extends ChangeNotifier {
   final SettingsRepository _repository;
@@ -54,21 +56,27 @@ class SettingsViewModel extends ChangeNotifier {
     }
   }
 
+  AppLocalizations _strings() {
+    final locale = Locale(Intl.getCurrentLocale());
+    return lookupAppLocalizations(locale);
+  }
+
   /// Schedule a test alarm in [seconds] with validation and unique test ID.
   Future<String?> scheduleTestAlarmInSeconds({
     required int seconds,
-    String label = 'Test Alarm',
+    String? label,
   }) async {
+    final strings = _strings();
     if (!_alarmsEnabled) {
-      return 'Please enable alarms first';
+      return strings.pleaseEnableAlarms;
     }
 
     if (seconds < minTestAlarmSeconds) {
-      return 'Please enter at least $minTestAlarmSeconds second';
+      return strings.testAlarmInvalid;
     }
 
     if (seconds > maxTestAlarmSeconds) {
-      return 'Please enter up to $maxTestAlarmSeconds seconds (max 6 hours)';
+      return strings.testAlarmHelper;
     }
 
     final generatedTestId =
@@ -82,7 +90,8 @@ class SettingsViewModel extends ChangeNotifier {
     return scheduleTestAlarm(
       delay: Duration(seconds: seconds),
       testId: generatedTestId,
-      label: label,
+      label: label ?? strings.testAlarm,
+      body: strings.testAlarmBody,
     );
   }
 
@@ -297,10 +306,12 @@ class SettingsViewModel extends ChangeNotifier {
   Future<String?> scheduleTestAlarm({
     required Duration delay,
     int testId = 99990,
-    String label = 'Test Alarm',
+    String? label,
+    String? body,
   }) async {
+    final strings = _strings();
     if (!_alarmsEnabled) {
-      return 'Please enable alarms first';
+      return strings.pleaseEnableAlarms;
     }
 
     try {
@@ -308,8 +319,8 @@ class SettingsViewModel extends ChangeNotifier {
 
       final alarmData = AlarmModel(
         id: testId,
-        heading: label,
-        body: 'This is a test alarm from Prayer Times',
+        heading: label ?? strings.testAlarm,
+        body: body ?? strings.testAlarmBody,
         timestamp: scheduledTime.millisecondsSinceEpoch,
         audioPath: 'short',
         isTest: true,
@@ -331,8 +342,9 @@ class SettingsViewModel extends ChangeNotifier {
   /// Send a test notification using flutter_local_notifications (no alarm/full-screen intent).
   /// If [delayed] is true, schedules 30 seconds from now; otherwise shows instantly.
   Future<String?> sendTestNotification({bool delayed = false}) async {
+    final strings = _strings();
     if (!_notificationsEnabled) {
-      return 'Please enable notifications first';
+      return strings.pleaseEnableNotifications;
     }
 
     try {
@@ -340,8 +352,8 @@ class SettingsViewModel extends ChangeNotifier {
 
       final notification = NotificationModel(
         id: 99993,
-        heading: 'Test Notification',
-        body: 'This is a test notification from Prayer Times',
+        heading: strings.testNotification,
+        body: strings.testNotificationBody,
         timestamp: delayed
             ? DateTime.now()
                   .add(const Duration(seconds: 30))

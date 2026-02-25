@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
+import 'package:prayer_times/common/services/locale_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
@@ -24,6 +26,7 @@ import 'package:prayer_times/core/background_executor.dart' as bg;
 import 'package:prayer_times/features/onboarding/services/onboarding_service.dart';
 import 'package:prayer_times/features/onboarding/presentation/views/onboarding_view.dart';
 import 'package:prayer_times/features/settings/services/settings_service.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -44,6 +47,7 @@ Future main() async {
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => PrayerViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => LocaleService()..load()),
       ],
       child: const MyApp(),
     ),
@@ -121,14 +125,31 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeService>(
-      builder: (context, themeService, child) {
+    return Consumer2<ThemeService, LocaleService>(
+      builder: (context, themeService, localeService, child) {
         return MaterialApp(
           navigatorKey: navigatorKey,
-          title: 'Prayer Times',
+          title: AppLocalizations.of(context)?.appTitle ?? 'Prayer Times',
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeService.themeMode,
+          locale: localeService.locale,
+          supportedLocales: LocaleService.supportedLocales,
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            if (locale == null) return supportedLocales.first;
+            for (final supported in supportedLocales) {
+              if (supported.languageCode == locale.languageCode) {
+                return supported;
+              }
+            }
+            return supportedLocales.first;
+          },
           home: _onboardingCompleted
               ? const MainScreen()
               : const OnboardingView(),
@@ -196,28 +217,28 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 _NavItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'Prayers',
+                  label: AppLocalizations.of(context)!.navPrayers,
                   isSelected: _currentIndex == 0,
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavItem(
                   icon: Icons.compass_calibration_outlined,
                   activeIcon: Icons.compass_calibration,
-                  label: 'Qibla',
+                  label: AppLocalizations.of(context)!.navQibla,
                   isSelected: _currentIndex == 1,
                   onTap: () => setState(() => _currentIndex = 1),
                 ),
                 _NavItem(
                   icon: Icons.calendar_month_outlined,
                   activeIcon: Icons.calendar_month,
-                  label: 'Calendar',
+                  label: AppLocalizations.of(context)!.navCalendar,
                   isSelected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),
                 _NavItem(
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
-                  label: 'Settings',
+                  label: AppLocalizations.of(context)!.navSettings,
                   isSelected: _currentIndex == 3,
                   onTap: () => setState(() => _currentIndex = 3),
                 ),

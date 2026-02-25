@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/widgets/prayer_card.dart';
 import 'package:provider/provider.dart';
@@ -10,58 +10,46 @@ class PrayerList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final strings = AppLocalizations.of(context)!;
+    final localeCode = Localizations.localeOf(context).languageCode;
 
-    return Selector<
-      PrayerViewModel,
-      ({
-        List<DisplayPrayerModel> prayers,
-        DisplayPrayerModel nextPrayer,
-        bool isLoading,
-      })
-    >(
-      selector: (_, model) => (
-        prayers: model.prayers,
-        nextPrayer: model.nextPrayer,
-        isLoading: model.isLoading,
-      ),
-      builder: (context, data, child) {
-        if (data.isLoading) {
-          return const _PrayerListSkeleton();
-        }
+    final viewModel = context.watch<PrayerViewModel>();
+    if (viewModel.isLoading) {
+      return const _PrayerListSkeleton();
+    }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 32),
-            Text(
-              'Prayer Times',
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: data.prayers.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final prayer = data.prayers[index];
-                final isActive = prayer.name == data.nextPrayer.name;
+    final prayers = viewModel.prayers(strings, localeCode);
+    final next = viewModel.nextPrayer(strings, localeCode);
 
-                return PrayerCard(
-                  name: prayer.name,
-                  time: prayer.time,
-                  isActive: isActive,
-                  isPassed: prayer.isPassed,
-                  icon: prayer.icon,
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 32),
+        Text(
+          AppLocalizations.of(context)!.prayerTimesTitle,
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 16),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: prayers.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final prayer = prayers[index];
+            final isActive = prayer.name == next.name;
+
+            return PrayerCard(
+              name: prayer.name,
+              time: prayer.time,
+              isActive: isActive,
+              isPassed: prayer.isPassed,
+              icon: prayer.icon,
+            );
+          },
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }
