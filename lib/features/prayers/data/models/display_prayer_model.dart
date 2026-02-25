@@ -73,10 +73,13 @@ class DisplayPrayerModel {
     var localizedName = _localizedName(nameEnum, strings);
     var isPassed = DateTime.now().millisecondsSinceEpoch > item.timestamp;
     final fmtLocale = localeCode ?? Intl.getCurrentLocale();
+    final formatter = fmtLocale == 'si'
+        ? DateFormat('h:mm a', fmtLocale)
+        : DateFormat.jm(fmtLocale);
 
     return DisplayPrayerModel(
       name: localizedName,
-      time: DateFormat.jm(fmtLocale).format(date).toString(),
+      time: formatter.format(date).toString(),
       icon: _getIconForPrayer(nameEnum.name),
       isPassed: isPassed,
     );

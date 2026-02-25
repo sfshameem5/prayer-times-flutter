@@ -163,7 +163,10 @@ class PrayerTimesRepository {
       }
 
       var date = DateTime.fromMillisecondsSinceEpoch(prayer.timestamp);
-      var displayTime = DateFormat.jm(localeCode).format(date);
+      final formatter = localeCode == 'si'
+          ? DateFormat('h:mm a', localeCode)
+          : DateFormat.jm(localeCode);
+      var displayTime = formatter.format(date);
 
       final localizedName = _localizedPrayerName(prayer.name, strings);
 
