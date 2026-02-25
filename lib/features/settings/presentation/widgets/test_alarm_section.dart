@@ -12,6 +12,8 @@ class TestAlarmSection extends StatefulWidget {
 
 class _TestAlarmSectionState extends State<TestAlarmSection> {
   String? _busyKey;
+  final TextEditingController _secondsController = TextEditingController();
+  String? _inputError;
 
   Future<void> _runTest(String key, Future<String?> Function() action) async {
     if (_busyKey != null) return;
@@ -35,6 +37,12 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _secondsController.dispose();
+    super.dispose();
   }
 
   String _successMessage(String key) {
@@ -82,63 +90,59 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
               ),
             ),
             const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _TestChip(
-                  label: '30 sec',
-                  busyKey: _busyKey,
-                  myKey: 'alarm_30s',
-                  onTap: () => _runTest(
-                    'alarm_30s',
-                    () => viewModel.scheduleTestAlarm(
-                      delay: const Duration(seconds: 30),
-                      testId: 99990,
-                      label: 'Test Alarm',
-                    ),
-                  ),
-                ),
-                _TestChip(
-                  label: '1 min',
-                  busyKey: _busyKey,
-                  myKey: 'alarm_1m',
-                  onTap: () => _runTest(
-                    'alarm_1m',
-                    () => viewModel.scheduleTestAlarm(
-                      delay: const Duration(minutes: 1),
-                      testId: 99990,
-                      label: 'Test Alarm',
-                    ),
-                  ),
-                ),
-                _TestChip(
-                  label: '2 min',
-                  busyKey: _busyKey,
-                  myKey: 'alarm_2m',
-                  onTap: () => _runTest(
-                    'alarm_2m',
-                    () => viewModel.scheduleTestAlarm(
-                      delay: const Duration(minutes: 2),
-                      testId: 99990,
-                      label: 'Test Alarm',
-                    ),
-                  ),
-                ),
-                _TestChip(
-                  label: '5 min',
-                  busyKey: _busyKey,
-                  myKey: 'alarm_5m',
-                  onTap: () => _runTest(
-                    'alarm_5m',
-                    () => viewModel.scheduleTestAlarm(
-                      delay: const Duration(minutes: 5),
-                      testId: 99990,
-                      label: 'Test Alarm',
-                    ),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: _secondsController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Enter seconds',
+                hintText: 'e.g. 30',
+                errorText: _inputError,
+                helperText: 'Uses short azaan. Min 1s, max 6h.',
+              ),
+              onChanged: (_) {
+                if (_inputError != null) {
+                  setState(() => _inputError = null);
+                }
+              },
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                icon: _busyKey == 'alarm_custom'
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.play_arrow_rounded),
+                label: const Text('Schedule Test Alarm'),
+                onPressed: _busyKey == null
+                    ? () {
+                        final seconds = int.tryParse(
+                          _secondsController.text.trim(),
+                        );
+                        if (seconds == null) {
+                          setState(
+                            () =>
+                                _inputError = 'Enter a valid number of seconds',
+                          );
+                          return;
+                        }
+                        _runTest('alarm_custom', () async {
+                          final error = await viewModel
+                              .scheduleTestAlarmInSeconds(seconds: seconds);
+                          if (error == null) {
+                            _secondsController.clear();
+                          }
+                          return error;
+                        });
+                      }
+                    : null,
+              ),
             ),
             const SizedBox(height: 20),
           ],

@@ -17,6 +17,9 @@ class SettingsViewModel extends ChangeNotifier {
   late SettingsModel _settings;
   bool _isLoading = true;
 
+  static const int minTestAlarmSeconds = 1;
+  static const int maxTestAlarmSeconds = 21600; // 6 hours
+
   SettingsViewModel({SettingsRepository? repository})
     : _repository = repository ?? SettingsRepository() {
     _loadSettings();
@@ -49,6 +52,38 @@ class SettingsViewModel extends ChangeNotifier {
       case AppThemeMode.system:
         return ThemeMode.system;
     }
+  }
+
+  /// Schedule a test alarm in [seconds] with validation and unique test ID.
+  Future<String?> scheduleTestAlarmInSeconds({
+    required int seconds,
+    String label = 'Test Alarm',
+  }) async {
+    if (!_alarmsEnabled) {
+      return 'Please enable alarms first';
+    }
+
+    if (seconds < minTestAlarmSeconds) {
+      return 'Please enter at least $minTestAlarmSeconds second';
+    }
+
+    if (seconds > maxTestAlarmSeconds) {
+      return 'Please enter up to $maxTestAlarmSeconds seconds (max 6 hours)';
+    }
+
+    final generatedTestId =
+        99990 +
+        (DateTime.now().millisecondsSinceEpoch % 10000); // keep test IDs unique
+
+    await SentryService.logString(
+      'UI: schedule test alarm in $seconds seconds (id=$generatedTestId)',
+    );
+
+    return scheduleTestAlarm(
+      delay: Duration(seconds: seconds),
+      testId: generatedTestId,
+      label: label,
+    );
   }
 
   Future<void> reload() async {
