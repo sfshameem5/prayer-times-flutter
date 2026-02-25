@@ -12,7 +12,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get appTitle => 'வழிபாட்டு நேரங்கள்';
 
   @override
-  String get navPrayers => 'நமாஸ்';
+  String get navPrayers => 'தொழுகை';
 
   @override
   String get navQibla => 'கிப்லா';
@@ -75,7 +75,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingAllSet => 'அனைத்தும் தயார்!';
 
   @override
-  String get onboardingReady => 'உங்கள் நமாஸ் நேரங்கள் தயார்';
+  String get onboardingReady => 'உங்கள் தொழுகை நேரங்கள் தயார்';
 
   @override
   String get onboardingNotificationsDisabled =>
@@ -130,7 +130,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get settingsSectionGeneral => 'பொது';
 
   @override
-  String get settingsSectionPrayerModes => 'நமாஸ் அறிவிப்பு முறைகள்';
+  String get settingsSectionPrayerModes => 'தொழுகை அறிவிப்பு முறைகள்';
 
   @override
   String get settingsSectionAdvanced => 'மேம்பட்டது';
@@ -139,7 +139,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get settingsSectionAbout => 'பற்றி';
 
   @override
-  String get settingsPrayerRegion => 'நமாஸ் நேர பிராந்தியம்';
+  String get settingsPrayerRegion => 'தொழுகை நேர பிராந்தியம்';
 
   @override
   String get settingsTheme => 'தீம்';
@@ -175,7 +175,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get settingsAboutBody =>
-      'இச்செயலி இலங்கையில் நமாஸ் நேரங்களை எளிதாக வழங்குகிறது.\n\nநேரங்கள் ACJU வெளியிட்ட தரவின் அடிப்படையில்.\n\nஇந்த செயலி ACJU-உடன் அதிகாரப்பூர்வ தொடர்பு இல்லை.';
+      'இச்செயலி இலங்கையில் தொழுகை நேரங்களை எளிதாக வழங்குகிறது.\n\nநேரங்கள் ACJU வெளியிட்ட தரவின் அடிப்படையில்.\n\nஇந்த செயலி ACJU-உடன் அதிகாரப்பூர்வ தொடர்பு இல்லை.';
 
   @override
   String get testNotification => 'சோதனை அறிவிப்பு';
@@ -191,10 +191,10 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get testNotificationBody =>
-      'இது நமாஸ் நேரங்களிலிருந்து ஒரு சோதனை அறிவிப்பு';
+      'இது தொழுகை நேரங்களிலிருந்து ஒரு சோதனை அறிவிப்பு';
 
   @override
-  String get testAlarmBody => 'இது நமாஸ் நேரங்களிலிருந்து ஒரு சோதனை அலாரம்';
+  String get testAlarmBody => 'இது தொழுகை நேரங்களிலிருந்து ஒரு சோதனை அலாரம்';
 
   @override
   String get testAlarmDescription =>
@@ -273,7 +273,7 @@ class AppLocalizationsTa extends AppLocalizations {
       'அருகிலுள்ள மின்சாதனங்கள்/உலோகம் திசைகாட்டி துல்லியத்தை பாதிக்கலாம். எண்-8 வடிவில் அசைத்து சரிசெய்க.';
 
   @override
-  String get prayerTimesTitle => 'நமாஸ் நேரங்கள்';
+  String get prayerTimesTitle => 'தொழுகை நேரங்கள்';
 
   @override
   String get languagePickerLabel => 'மொழி';
@@ -309,7 +309,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get loading => 'ஏற்றப்படுகிறது';
 
   @override
-  String get nextPrayerLabel => 'அடுத்த நமாஸ்';
+  String get nextPrayerLabel => 'அடுத்த தொழுகை';
 
   @override
   String get nextEventLabel => 'அடுத்த நிகழ்வு';
@@ -336,7 +336,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get modeSilent => 'அமைதி';
 
   @override
-  String get calendarTitle => 'நமாஸ் நாட்காட்டி';
+  String get calendarTitle => 'தொழுகை நாட்காட்டி';
 
   @override
   String get calendarTabMonthly => 'மாதம்';

@@ -27,7 +27,8 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingLanguageTitle => 'ඔබේ භාෂාව තෝරන්න';
 
   @override
-  String get onboardingLanguageSubtitle => 'පසුව සිටුවම් තුළ වෙනස් කළ හැක';
+  String get onboardingLanguageSubtitle =>
+      'ඔබට මෙය පසුව සැකසුම් තුළ වෙනස් කළ හැක.';
 
   @override
   String get languageEnglish => 'ඉංග්‍රීසි';
@@ -39,7 +40,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get languageSinhala => 'සිංහල (සිංහල)';
 
   @override
-  String get onboardingGreeting => 'අස්සලාමු අලෆෆුම';
+  String get onboardingGreeting => 'අස්සලාමු අලයිකුම්';
 
   @override
   String get onboardingAppearance => 'පෙනුම';
@@ -52,7 +53,7 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get onboardingReminderQuestion =>
-      'නමස් සඳහා ඔබට කෙසේ මතකපැවැත්වීමට ඇවැසිද?';
+      'ආගමික වතාවත් සඳහා ඔබට කෙසේ මතක් කිරීමට අවශ්‍යද?';
 
   @override
   String get onboardingChoiceNotifications => 'දැනුම්දීම්';
@@ -62,7 +63,7 @@ class AppLocalizationsSi extends AppLocalizations {
       'එක් එක් නමස් සඳහා දැනුම්දීම් ලබා ගන්න';
 
   @override
-  String get onboardingChoiceAzaan => 'අදාන් ඇලාම්';
+  String get onboardingChoiceAzaan => 'ආගමික ඇඟවීම';
 
   @override
   String get onboardingChoiceAzaanDesc =>
@@ -72,7 +73,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingChoiceInfo => 'පසුව සිටුවම් තුළ මෙය වෙනස් කළ හැක';
 
   @override
-  String get onboardingAllSet => 'සෑමදේම සූදානම්!';
+  String get onboardingAllSet => 'සියල්ලම සූදානම්!';
 
   @override
   String get onboardingReady => 'ඔබගේ නමස් වේලාවන් සූදානම්';
@@ -91,7 +92,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingSummaryTheme => 'තේමාව';
 
   @override
-  String get onboardingAlertModeAzaan => 'අදාන් ඇලාම්';
+  String get onboardingAlertModeAzaan => 'ආගමික ඇඟවීම';
 
   @override
   String get onboardingAlertModeNotifications => 'දැනුම්දීම්';
@@ -100,10 +101,10 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingAlertModeDisabled => 'අක්‍රීයයි';
 
   @override
-  String get onboardingThemeSystem => 'පද්ධති';
+  String get onboardingThemeSystem => 'පෙරනිමි';
 
   @override
-  String get onboardingThemeLight => 'ලාෆ්';
+  String get onboardingThemeLight => 'ලයිට්';
 
   @override
   String get onboardingThemeDark => 'අඳුරු';
@@ -139,7 +140,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get settingsSectionAbout => 'පිළිබඳ';
 
   @override
-  String get settingsPrayerRegion => 'නමස් වේලාවන් කලාපය';
+  String get settingsPrayerRegion => 'ආගමික වේලාවන් කලාපය';
 
   @override
   String get settingsTheme => 'තේමාව';
@@ -155,7 +156,7 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get settingsAlarmsSubtitle =>
-      'නමස් සඳහා සම්පූර්ණ තිර අදාන් ඇලාම් සක්‍රීය කරන්න';
+      'නමස් සඳහා සම්පූර්ණ තිර ආගමික ඇඟවීම සක්‍රීය කරන්න';
 
   @override
   String get settingsShowAdvanced => 'උසස් සිටුවම් පෙන්වන්න';
