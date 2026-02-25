@@ -28,7 +28,7 @@ class PrayerDayModel {
           .millisecondsSinceEpoch;
 
       prayersWithTimestamp.add(
-        PrayerModel(PrayerNameEnum.values.byName(prayer["name"]), timestamp),
+        PrayerModel(parsePrayerName(prayer["name"]), timestamp),
       );
     }
 

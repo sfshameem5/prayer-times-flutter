@@ -40,26 +40,35 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   void _nextPage() async {
-    // When moving from notification step to completion step, run full permission flow
+    // When moving from notification step to completion step, run permission flow
     if (_currentPage == 1 && Platform.isAndroid) {
+      final isAzaan = _notificationChoice == NotificationChoice.azaan;
       final granted =
-          await PermissionService.requestFullNotificationPermissions();
+          await PermissionService.requestFullNotificationPermissions(
+            isAzaanMode: isAzaan,
+          );
 
       if (!granted) {
         if (!mounted) return;
-        // Show warning and let user choose to retry or skip
-        final action = await PermissionWarningSheet.show(context);
+        // Check if notification permission is permanently denied by the system
+        final isPermanent =
+            await PermissionService.isNotificationPermanentlyDenied();
 
-        if (action == PermissionWarningAction.tryAgain) {
-          // Re-run the permission flow
+        if (!mounted) return;
+        final action = await PermissionWarningSheet.show(
+          context,
+          isAzaanMode: isAzaan,
+          isPermanentlyDenied: isPermanent,
+        );
+
+        if (action == PermissionWarningAction.tryAgain ||
+            action == PermissionWarningAction.openSettings) {
+          // User either wants to retry or has returned from app settings
           _nextPage();
           return;
-        } else if (action == PermissionWarningAction.continueAnyway) {
-          setState(() => _permissionsGranted = false);
-        } else {
-          // Dismissed without choosing — stay on current page
-          return;
         }
+        // Dismissed or null — stay on current page, user can change choice or retry
+        return;
       } else {
         setState(() => _permissionsGranted = true);
       }

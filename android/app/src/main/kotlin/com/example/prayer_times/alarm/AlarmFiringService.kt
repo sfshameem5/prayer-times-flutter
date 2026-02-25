@@ -26,6 +26,7 @@ class AlarmFiringService : Service() {
         private const val TAG = "AlarmFiringService"
         const val CHANNEL_ID = "prayer_alarm_channel"
         const val NOTIFICATION_ID = 7777
+        const val ACTION_ALARM_STOPPED = "com.example.prayer_times.ALARM_STOPPED"
         private const val AUTO_STOP_TIMEOUT_MS = 5L * 60 * 1000 // 5 minutes
     }
 
@@ -34,6 +35,9 @@ class AlarmFiringService : Service() {
     private var vibrator: Vibrator? = null
     private val handler = Handler(Looper.getMainLooper())
     private var currentAlarmId: Int = -1
+    private var currentAudioPath: String = ""
+    private var currentIsTest: Boolean = false
+    private var isStopping: Boolean = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -65,6 +69,7 @@ class AlarmFiringService : Service() {
         }
 
         currentAlarmId = alarmId
+        isStopping = false
 
         val storage = AlarmStorage(this)
         val alarmData = storage.getAlarm(alarmId)
@@ -74,6 +79,9 @@ class AlarmFiringService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+
+        currentAudioPath = alarmData.audioPath
+        currentIsTest = alarmData.isTest
 
         // Remove from storage since it's now firing
         storage.removeAlarm(alarmId)
@@ -89,7 +97,7 @@ class AlarmFiringService : Service() {
         startForeground(NOTIFICATION_ID + alarmId, buildNotification(alarmData))
 
         // Start audio playback
-        startAudio()
+        startAudio(currentAudioPath)
 
         // Start vibration
         startVibration()
@@ -128,6 +136,7 @@ class AlarmFiringService : Service() {
             putExtra("alarm_title", alarm.title)
             putExtra("alarm_body", alarm.body)
             putExtra("alarm_timestamp", alarm.timestamp)
+            putExtra("alarm_is_test", alarm.isTest)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -159,7 +168,7 @@ class AlarmFiringService : Service() {
             Notification.Builder(this)
         }
 
-        return builder
+        builder
             .setSmallIcon(R.drawable.ic_new)
             .setContentTitle(alarm.title)
             .setContentText(alarm.body)
@@ -176,10 +185,32 @@ class AlarmFiringService : Service() {
                     dismissPendingIntent
                 ).build()
             )
-            .build()
+
+        // Only add snooze action for production alarms, never for test alarms
+        if (!alarm.isTest) {
+            val snoozeIntent = Intent(this, AlarmActionReceiver::class.java).apply {
+                action = "com.example.prayer_times.SNOOZE_ALARM"
+                putExtra("alarm_id", alarm.id)
+            }
+            val snoozePendingIntent = PendingIntent.getBroadcast(
+                this,
+                alarm.id + 20000,
+                snoozeIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                Notification.Action.Builder(
+                    null,
+                    "Snooze",
+                    snoozePendingIntent
+                ).build()
+            )
+        }
+
+        return builder.build()
     }
 
-    private fun startAudio() {
+    private fun startAudio(audioPath: String) {
         try {
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
@@ -198,7 +229,20 @@ class AlarmFiringService : Service() {
                     0
                 )
 
-                val afd = resources.openRawResourceFd(R.raw.azaan_full)
+                // Strict audio mapping:
+                // - Test alarms: ALWAYS azaan_short (never azaan_full or azaan_fajr)
+                // - Real alarms: fajr → azaan_fajr, all others → azaan_full
+                val rawResId = if (currentIsTest) {
+                    R.raw.azaan_short
+                } else {
+                    when {
+                        audioPath.contains("fajr", ignoreCase = true) -> R.raw.azaan_fajr
+                        else -> R.raw.azaan_full
+                    }
+                }
+                Log.d(TAG, "Playing audio: isTest=$currentIsTest, audioPath=$audioPath, resId=$rawResId")
+
+                val afd = resources.openRawResourceFd(rawResId)
                 setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 afd.close()
 
@@ -207,7 +251,8 @@ class AlarmFiringService : Service() {
                 start()
 
                 setOnCompletionListener {
-                    Log.d(TAG, "Audio playback completed")
+                    Log.d(TAG, "Audio playback completed, stopping alarm")
+                    stopAlarm()
                 }
             }
             Log.d(TAG, "Audio playback started")
@@ -253,6 +298,11 @@ class AlarmFiringService : Service() {
     }
 
     fun stopAlarm() {
+        if (isStopping) {
+            Log.d(TAG, "stopAlarm() already in progress, skipping")
+            return
+        }
+        isStopping = true
         Log.d(TAG, "Stopping alarm")
         handler.removeCallbacksAndMessages(null)
 
@@ -289,11 +339,27 @@ class AlarmFiringService : Service() {
             Log.e(TAG, "Error cancelling notifications: ${e.message}")
         }
 
+        // Broadcast so AlarmActivity can finish itself
+        try {
+            val stoppedIntent = Intent(ACTION_ALARM_STOPPED)
+            stoppedIntent.setPackage(packageName)
+            sendBroadcast(stoppedIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sending alarm stopped broadcast: ${e.message}")
+        }
+
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     fun snoozeAlarm(snoozeMinutes: Int = 10) {
+        // Never snooze test alarms
+        if (currentIsTest) {
+            Log.d(TAG, "Test alarm — snooze disabled, dismissing instead")
+            stopAlarm()
+            return
+        }
+
         Log.d(TAG, "Snoozing alarm for $snoozeMinutes minutes")
 
         if (currentAlarmId != -1) {

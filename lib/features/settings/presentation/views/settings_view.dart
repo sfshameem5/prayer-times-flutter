@@ -141,9 +141,23 @@ class SettingsView extends StatelessWidget {
                                 activeThumbColor: AppTheme.appOrange,
                               ),
                             ),
+                            if (viewModel.notificationsEnabled)
+                              SettingsTile(
+                                title: 'Alarms (Azaan)',
+                                subtitle:
+                                    'Enable full-screen azaan alarms for prayers',
+                                trailing: Switch.adaptive(
+                                  value: viewModel.alarmsEnabled,
+                                  onChanged: viewModel.setAlarmsEnabled,
+                                  activeTrackColor: AppTheme.appOrange
+                                      .withValues(alpha: 0.5),
+                                  activeThumbColor: AppTheme.appOrange,
+                                ),
+                              ),
                           ],
                         ),
                       ),
+                      // Prayer notification modes — only shown when notifications are enabled
                       if (viewModel.notificationsEnabled) ...[
                         const SizedBox(height: 24),
                         _sectionHeader(
@@ -164,50 +178,44 @@ class SettingsView extends StatelessWidget {
                         isDark: isDark,
                         child: Column(
                           children: [
-                            InkWell(
-                              onTap: viewModel.toggleAdvancedSettings,
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.cardRadius,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        'Developer Options',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium,
-                                      ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Show Advanced Settings',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
                                     ),
-                                    AnimatedRotation(
-                                      turns: viewModel.advancedSettingsExpanded
-                                          ? 0.5
-                                          : 0,
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      child: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: isDark
-                                            ? Colors.white38
-                                            : Colors.black38,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Switch.adaptive(
+                                    value: viewModel.showAdvancedSettings,
+                                    onChanged:
+                                        viewModel.setShowAdvancedSettings,
+                                    activeTrackColor: AppTheme.appOrange
+                                        .withValues(alpha: 0.5),
+                                    activeThumbColor: AppTheme.appOrange,
+                                  ),
+                                ],
                               ),
                             ),
-                            if (viewModel.advancedSettingsExpanded) ...[
-                              Divider(
-                                height: 1,
-                                color: isDark ? Colors.white12 : Colors.black12,
-                              ),
-                              const TestAlarmSection(),
+                            if (viewModel.showAdvancedSettings) ...[
+                              // Test sections — only shown when at least one feature is enabled
+                              if (viewModel.notificationsEnabled ||
+                                  viewModel.alarmsEnabled) ...[
+                                Divider(
+                                  height: 1,
+                                  color: isDark
+                                      ? Colors.white12
+                                      : Colors.black12,
+                                ),
+                                const TestAlarmSection(),
+                              ],
                               Divider(
                                 height: 1,
                                 color: isDark ? Colors.white12 : Colors.black12,
@@ -221,7 +229,25 @@ class SettingsView extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
+              _sectionHeader(context, 'About', isDark),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  'This app provides daily salah times for Muslims across '
+                  'Sri Lanka in a simple and easy-to-use format.\n\n'
+                  'Prayer times are based on data published by All Ceylon '
+                  'Jamiyyathul Ulama.\n\n'
+                  'This app operates independently and has no official '
+                  'connection with ACJU.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.white38 : Colors.black45,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

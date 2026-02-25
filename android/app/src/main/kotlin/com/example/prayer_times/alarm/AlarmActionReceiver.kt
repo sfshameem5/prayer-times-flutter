@@ -18,7 +18,7 @@ class AlarmActionReceiver : BroadcastReceiver() {
                 val stopIntent = Intent(context, AlarmFiringService::class.java).apply {
                     action = "STOP"
                 }
-                context.stopService(stopIntent)
+                context.startService(stopIntent)
             }
             "com.example.prayer_times.SNOOZE_ALARM" -> {
                 val snoozeIntent = Intent(context, AlarmFiringService::class.java).apply {

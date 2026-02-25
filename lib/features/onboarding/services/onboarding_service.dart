@@ -39,9 +39,10 @@ class OnboardingService {
       }
     }
 
-    // Save settings
+    // Save settings — alarmsEnabled must match the user's azaan choice
     final settings = SettingsModel(
       notificationsEnabled: notificationsEnabled,
+      alarmsEnabled: useAzaan && notificationsEnabled,
       prayerNotificationModes: modes,
       themeMode: themeMode,
       selectedCity: selectedCity,

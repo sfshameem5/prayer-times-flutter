@@ -1,17 +1,32 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
 
-enum PermissionWarningAction { continueAnyway, tryAgain }
+enum PermissionWarningAction { tryAgain, openSettings }
 
 class PermissionWarningSheet extends StatelessWidget {
-  const PermissionWarningSheet({super.key});
+  final bool isAzaanMode;
+  final bool isPermanentlyDenied;
 
-  static Future<PermissionWarningAction?> show(BuildContext context) {
+  const PermissionWarningSheet({
+    super.key,
+    this.isAzaanMode = false,
+    this.isPermanentlyDenied = false,
+  });
+
+  static Future<PermissionWarningAction?> show(
+    BuildContext context, {
+    bool isAzaanMode = false,
+    bool isPermanentlyDenied = false,
+  }) {
     return showModalBottomSheet<PermissionWarningAction>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const PermissionWarningSheet(),
+      builder: (_) => PermissionWarningSheet(
+        isAzaanMode: isAzaanMode,
+        isPermanentlyDenied: isPermanentlyDenied,
+      ),
     );
   }
 
@@ -56,14 +71,24 @@ class PermissionWarningSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Permissions Required',
+                isPermanentlyDenied
+                    ? 'Permission Blocked'
+                    : 'Permissions Required',
                 style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Without the required permissions, prayer notifications and azaan alarms will not work. You can enable them later from Settings.',
+                isPermanentlyDenied
+                    ? 'It looks like notification permission was previously denied. '
+                          'Android will not show the permission popup again.\n\n'
+                          'To enable notifications, please open your phone\'s Settings '
+                          'for this app and turn on Notifications manually.'
+                    : isAzaanMode
+                    ? 'All permissions (notifications, battery optimization, and '
+                          'full-screen intent) are required for azaan alarms to work properly.'
+                    : 'Notification permission is required for prayer reminders to work.',
                 style: textTheme.bodyMedium?.copyWith(
                   color: isDark ? Colors.white60 : Colors.black54,
                   height: 1.5,
@@ -71,52 +96,111 @@ class PermissionWarningSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .pop(PermissionWarningAction.tryAgain),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.appOrange,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.smallRadius),
+              if (isPermanentlyDenied) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      AppSettings.openAppSettings(
+                        type: AppSettingsType.notification,
+                      );
+                      Navigator.of(
+                        context,
+                      ).pop(PermissionWarningAction.openSettings);
+                    },
+                    icon: const Icon(Icons.settings_outlined, size: 20),
+                    label: const Text(
+                      'Open App Settings',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Try Again',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.appOrange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.smallRadius,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                Text(
+                  'After enabling notifications in Settings, come back '
+                  'and tap "Grant Permissions" to continue.',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.white38 : Colors.black38,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pop(PermissionWarningAction.tryAgain),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(
+                        color: isDark ? Colors.white24 : Colors.black26,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.smallRadius,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'Try Again',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
+                    ),
+                  ),
+                ),
+              ] else ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pop(PermissionWarningAction.tryAgain),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.appOrange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.smallRadius,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      'Grant Permissions',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context)
-                      .pop(PermissionWarningAction.continueAnyway),
-                  style: TextButton.styleFrom(
-                    foregroundColor: isDark ? Colors.white54 : Colors.black45,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.smallRadius),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue Without Notifications',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
-                    ),
-                  ),
+              Text(
+                'You can go back to change your notification mode.',
+                style: textTheme.bodySmall?.copyWith(
+                  color: isDark ? Colors.white38 : Colors.black38,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

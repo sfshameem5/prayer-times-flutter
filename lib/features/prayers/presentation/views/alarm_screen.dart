@@ -7,12 +7,14 @@ class AlarmScreen extends StatefulWidget {
   final String title;
   final String body;
   final int timestamp;
+  final bool isTest;
 
   const AlarmScreen({
     super.key,
     required this.title,
     required this.body,
     required this.timestamp,
+    this.isTest = false,
   });
 
   @override
@@ -56,11 +58,11 @@ class _AlarmScreenState extends State<AlarmScreen>
     final title = _prayerName.toLowerCase();
     if (title.contains('fajr')) return Icons.nightlight_round;
     if (title.contains('sunrise')) return Icons.wb_twilight;
-    if (title.contains('luhr') || title.contains('dhuhr')) {
+    if (title.contains('dhuhr')) {
       return Icons.wb_sunny;
     }
     if (title.contains('asr')) return Icons.wb_sunny_outlined;
-    if (title.contains('magrib') || title.contains('maghrib')) {
+    if (title.contains('maghrib')) {
       return Icons.nights_stay_outlined;
     }
     if (title.contains('isha')) return Icons.dark_mode;
@@ -149,33 +151,44 @@ class _AlarmScreenState extends State<AlarmScreen>
                 const Spacer(flex: 3),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _AlarmButton(
-                          label: _hasSnoozed ? 'Snoozed' : 'Snooze',
-                          sublabel: _hasSnoozed ? '' : '10 min',
-                          icon: Icons.snooze,
-                          color: isDark
-                              ? AppTheme.navyLight
-                              : const Color(0xFFE8E8E8),
-                          textColor: isDark ? Colors.white : AppTheme.darkText,
-                          onTap: _hasSnoozed ? null : _snooze,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: _AlarmButton(
+                  child: widget.isTest
+                      ? _AlarmButton(
                           label: 'Dismiss',
                           sublabel: '',
                           icon: Icons.close,
                           color: AppTheme.appOrange,
                           textColor: Colors.white,
                           onTap: _dismiss,
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: _AlarmButton(
+                                label: _hasSnoozed ? 'Snoozed' : 'Snooze',
+                                sublabel: _hasSnoozed ? '' : '10 min',
+                                icon: Icons.snooze,
+                                color: isDark
+                                    ? AppTheme.navyLight
+                                    : const Color(0xFFE8E8E8),
+                                textColor: isDark
+                                    ? Colors.white
+                                    : AppTheme.darkText,
+                                onTap: _hasSnoozed ? null : _snooze,
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: _AlarmButton(
+                                label: 'Dismiss',
+                                sublabel: '',
+                                icon: Icons.close,
+                                color: AppTheme.appOrange,
+                                textColor: Colors.white,
+                                onTap: _dismiss,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 60),
               ],

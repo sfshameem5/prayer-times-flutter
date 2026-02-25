@@ -24,8 +24,6 @@
     <!-- Main Flutter Activity -->
     <activity
       android:name=".MainActivity"
-      android:showWhenLocked="true"
-      android:turnScreenOn="true"
       android:exported="true"
       android:launchMode="singleTop"
       android:taskAffinity=""

@@ -19,7 +19,7 @@ class PrayerModel {
 
   static PrayerModel fromJSON(Map<String, dynamic> item) {
     return PrayerModel(
-      PrayerNameEnum.values.byName(item["name"]),
+      parsePrayerName(item["name"]),
       item["timestamp"],
       // DateTime.now().add(Duration(seconds: 20)).millisecondsSinceEpoch,
       // 1770003450000,

@@ -5,7 +5,6 @@ import 'package:prayer_times/common/data/models/alarm_model.dart';
 import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
-import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
@@ -105,12 +104,11 @@ class PrayerTimesRepository {
 
     SentryService.logString("Scheduling prayer notifications");
     SentryService.logString(
-      "Notifications are ${settings.notificationsEnabled ? 'enabled ' : 'disabled'}",
+      "Notifications: ${settings.notificationsEnabled ? 'ON' : 'OFF'}, "
+      "Alarms: ${settings.alarmsEnabled ? 'ON' : 'OFF'}",
     );
 
     if (!settings.notificationsEnabled) return;
-
-    await PermissionService.ensureAlarmPermissions();
 
     // For each prayer use timestamp as ID and schedule notifications
     var todayDate = DateTime.now();
@@ -149,27 +147,39 @@ class PrayerTimesRepository {
         timestamp: prayer.timestamp,
       );
 
+      final isFajr = prayer.name == PrayerNameEnum.fajr;
       final alarmData = AlarmModel(
         id: notification.id,
         heading: notification.heading,
         body: notification.body,
         timestamp: notification.timestamp!,
-        audioPath: "assets/sounds/azaan_full.mp3",
+        audioPath: isFajr ? "fajr" : "full",
       );
 
       final mode = settings.getModeForPrayer(prayer.name);
 
-      // Sunrise should never get azaan
+      // Sunrise should never get azaan; also gate on alarmsEnabled
       final effectiveMode =
-          prayer.name == PrayerNameEnum.sunrise &&
-              mode == PrayerNotificationMode.azaan
+          (prayer.name == PrayerNameEnum.sunrise &&
+                  mode == PrayerNotificationMode.azaan) ||
+              (mode == PrayerNotificationMode.azaan && !settings.alarmsEnabled)
           ? PrayerNotificationMode.defaultSound
           : mode;
 
       if (effectiveMode == PrayerNotificationMode.silent) {
         continue;
       } else if (effectiveMode == PrayerNotificationMode.azaan) {
-        await AlarmService.scheduleAlarm(alarmData);
+        // Silently check if full-screen intent is available for azaan
+        final canFullScreen = await AlarmService.canUseFullScreenIntent();
+        if (canFullScreen) {
+          await AlarmService.scheduleAlarm(alarmData);
+        } else {
+          // Fall back to default notification if full-screen intent is not granted
+          await SentryService.logString(
+            'Full-screen intent not available for ${prayer.name.name}, falling back to notification',
+          );
+          await NotificationService.scheduleNotification(notification);
+        }
       } else {
         await NotificationService.scheduleNotification(notification);
       }

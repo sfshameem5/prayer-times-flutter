@@ -10,7 +10,8 @@ data class AlarmData(
     val timestamp: Long,
     val title: String,
     val body: String,
-    val audioPath: String
+    val audioPath: String,
+    val isTest: Boolean = false
 ) {
     fun toJson(): JSONObject {
         return JSONObject().apply {
@@ -19,6 +20,7 @@ data class AlarmData(
             put("title", title)
             put("body", body)
             put("audioPath", audioPath)
+            put("isTest", isTest)
         }
     }
 
@@ -29,7 +31,8 @@ data class AlarmData(
                 timestamp = json.getLong("timestamp"),
                 title = json.getString("title"),
                 body = json.getString("body"),
-                audioPath = json.optString("audioPath", "")
+                audioPath = json.optString("audioPath", ""),
+                isTest = json.optBoolean("isTest", false)
             )
         }
     }

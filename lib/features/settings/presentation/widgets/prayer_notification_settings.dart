@@ -14,11 +14,11 @@ class PrayerNotificationSettings extends StatelessWidget {
         return 'Fajr';
       case PrayerNameEnum.sunrise:
         return 'Sunrise';
-      case PrayerNameEnum.luhr:
+      case PrayerNameEnum.dhuhr:
         return 'Dhuhr';
       case PrayerNameEnum.asr:
         return 'Asr';
-      case PrayerNameEnum.magrib:
+      case PrayerNameEnum.maghrib:
         return 'Maghrib';
       case PrayerNameEnum.isha:
         return 'Isha';
@@ -48,6 +48,7 @@ class PrayerNotificationSettings extends StatelessWidget {
                   displayName: _prayerDisplayName(prayer),
                   currentMode: viewModel.getModeForPrayer(prayer),
                   isSunrise: prayer == PrayerNameEnum.sunrise,
+                  alarmsEnabled: viewModel.alarmsEnabled,
                   onChanged: (mode) {
                     if (mode != null) {
                       viewModel.setPrayerNotificationMode(prayer, mode);
@@ -67,6 +68,7 @@ class _PrayerModeRow extends StatelessWidget {
   final String displayName;
   final PrayerNotificationMode currentMode;
   final bool isSunrise;
+  final bool alarmsEnabled;
   final ValueChanged<PrayerNotificationMode?> onChanged;
 
   const _PrayerModeRow({
@@ -74,6 +76,7 @@ class _PrayerModeRow extends StatelessWidget {
     required this.displayName,
     required this.currentMode,
     required this.isSunrise,
+    required this.alarmsEnabled,
     required this.onChanged,
   });
 
@@ -82,9 +85,16 @@ class _PrayerModeRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Sunrise only gets defaultSound and silent (no azaan)
-    final availableModes = isSunrise
-        ? [PrayerNotificationMode.defaultSound, PrayerNotificationMode.silent]
-        : PrayerNotificationMode.values;
+    // If alarms are disabled, azaan is not available for any prayer
+    final List<PrayerNotificationMode> availableModes;
+    if (isSunrise || !alarmsEnabled) {
+      availableModes = [
+        PrayerNotificationMode.defaultSound,
+        PrayerNotificationMode.silent,
+      ];
+    } else {
+      availableModes = PrayerNotificationMode.values;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

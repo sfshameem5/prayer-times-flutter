@@ -34,7 +34,7 @@ class PrayerTimesService {
       PrayerNameEnum.fajr,
       PrayerNameEnum.sunrise,
       PrayerNameEnum.asr,
-      PrayerNameEnum.magrib,
+      PrayerNameEnum.maghrib,
       PrayerNameEnum.isha,
     ];
 

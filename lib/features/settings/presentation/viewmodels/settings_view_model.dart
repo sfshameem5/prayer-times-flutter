@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_times/common/data/models/alarm_model.dart';
-import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/alarm_service.dart';
 import 'package:prayer_times/common/services/location_service.dart';
+import 'package:prayer_times/common/data/models/notification_model.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/permission_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
@@ -24,9 +24,11 @@ class SettingsViewModel extends ChangeNotifier {
 
   SettingsModel get settings => _settings;
   bool get isLoading => _isLoading;
-  // bool get notificationsEnabled => _settings.notificationsEnabled;
   bool _notificationsEnabled = false;
   bool get notificationsEnabled => _notificationsEnabled;
+
+  bool _alarmsEnabled = false;
+  bool get alarmsEnabled => _alarmsEnabled;
 
   Map<PrayerNameEnum, PrayerNotificationMode> get prayerNotificationModes =>
       _settings.prayerNotificationModes;
@@ -61,6 +63,7 @@ class SettingsViewModel extends ChangeNotifier {
     LocationService.setSelectedCity(_settings.selectedCity);
 
     await _checkNotificationsEnabled();
+    _checkAlarmsEnabled();
 
     _isLoading = false;
     notifyListeners();
@@ -75,7 +78,9 @@ class SettingsViewModel extends ChangeNotifier {
 
     if (enabled) {
       final granted =
-          await PermissionService.requestFullNotificationPermissions();
+          await PermissionService.requestFullNotificationPermissions(
+            isAzaanMode: false,
+          );
 
       if (granted) {
         _notificationsEnabled = true;
@@ -87,6 +92,27 @@ class SettingsViewModel extends ChangeNotifier {
 
     if (!enabled) {
       _notificationsEnabled = false;
+
+      // Disabling notifications must also disable alarms — alarms depend on notifications
+      if (_alarmsEnabled) {
+        _alarmsEnabled = false;
+        await AlarmService.cancelAllAlarms();
+
+        // Downgrade any azaan prayers to defaultSound
+        final updatedModes = Map<PrayerNameEnum, PrayerNotificationMode>.from(
+          _settings.prayerNotificationModes,
+        );
+        for (final prayer in updatedModes.keys.toList()) {
+          if (updatedModes[prayer] == PrayerNotificationMode.azaan) {
+            updatedModes[prayer] = PrayerNotificationMode.defaultSound;
+          }
+        }
+        _settings = _settings.copyWith(
+          prayerNotificationModes: updatedModes,
+          alarmsEnabled: false,
+        );
+      }
+
       await NotificationService.cancelAllNotifications();
     }
 
@@ -95,7 +121,62 @@ class SettingsViewModel extends ChangeNotifier {
 
     await _updateSettings();
 
+    if (enabled && _notificationsEnabled) {
+      await PrayerTimesRepository.scheduleNotifications();
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> setAlarmsEnabled(bool enabled) async {
+    if (enabled && _alarmsEnabled) return;
+
     if (enabled) {
+      // Alarms require notifications to be enabled first
+      if (!_notificationsEnabled) {
+        notifyListeners();
+        return;
+      }
+
+      // Alarms require full azaan permissions: notification + battery + full-screen intent
+      final granted =
+          await PermissionService.requestFullNotificationPermissions(
+            isAzaanMode: true,
+          );
+
+      if (granted) {
+        _alarmsEnabled = true;
+      } else {
+        _alarmsEnabled = false;
+        notifyListeners();
+        return;
+      }
+    }
+
+    if (!enabled) {
+      _alarmsEnabled = false;
+      await AlarmService.cancelAllAlarms();
+
+      // Downgrade any azaan prayers to defaultSound
+      final updatedModes = Map<PrayerNameEnum, PrayerNotificationMode>.from(
+        _settings.prayerNotificationModes,
+      );
+      for (final prayer in updatedModes.keys.toList()) {
+        if (updatedModes[prayer] == PrayerNotificationMode.azaan) {
+          updatedModes[prayer] = PrayerNotificationMode.defaultSound;
+        }
+      }
+      _settings = _settings.copyWith(prayerNotificationModes: updatedModes);
+    }
+
+    _settings = _settings.copyWith(alarmsEnabled: _alarmsEnabled);
+    await _repository.saveSettings(_settings);
+    await _updateSettings();
+
+    // Reschedule with new alarm state
+    if (_notificationsEnabled) {
+      await NotificationService.cancelAllNotifications();
+      await AlarmService.cancelAllAlarms();
       await PrayerTimesRepository.scheduleNotifications();
     }
 
@@ -109,6 +190,11 @@ class SettingsViewModel extends ChangeNotifier {
     // Sunrise can never be set to azaan
     if (prayer == PrayerNameEnum.sunrise &&
         mode == PrayerNotificationMode.azaan) {
+      return;
+    }
+
+    // Azaan mode requires alarms to be enabled
+    if (mode == PrayerNotificationMode.azaan && !_alarmsEnabled) {
       return;
     }
 
@@ -161,47 +247,43 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _advancedSettingsExpanded = false;
-  bool get advancedSettingsExpanded => _advancedSettingsExpanded;
+  bool get showAdvancedSettings => _settings.showAdvancedSettings;
 
-  void toggleAdvancedSettings() {
-    _advancedSettingsExpanded = !_advancedSettingsExpanded;
+  Future<void> setShowAdvancedSettings(bool value) async {
+    _settings = _settings.copyWith(showAdvancedSettings: value);
+    await _repository.saveSettings(_settings);
+    await _updateSettings();
     notifyListeners();
   }
 
-  Future<String?> scheduleTestAlarm(DateTime scheduledTime) async {
-    if (!_notificationsEnabled) {
-      return 'Please enable notifications first';
-    }
-
-    if (scheduledTime.isBefore(DateTime.now())) {
-      return 'Please select a time in the future';
+  /// Schedule a test alarm after [delay] using the production alarm pipeline.
+  /// Always uses azaan_short — azaan_full and azaan_fajr are NEVER used for tests.
+  /// [testId] must be unique per concurrent test to avoid overwriting real alarms.
+  Future<String?> scheduleTestAlarm({
+    required Duration delay,
+    int testId = 99990,
+    String label = 'Test Alarm',
+  }) async {
+    if (!_alarmsEnabled) {
+      return 'Please enable alarms first';
     }
 
     try {
-      // await NotificationService.initialize();
-
-      // final notification = NotificationModel(
-      //   id: 99999,
-      //   heading: 'Test Alarm',
-      //   body: 'This is a test notification from Prayer Times',
-      //   timestamp: scheduledTime.millisecondsSinceEpoch,
-      // );
+      final scheduledTime = DateTime.now().add(delay);
 
       final alarmData = AlarmModel(
-        id: 99998,
-        heading: 'Test Alarm',
+        id: testId,
+        heading: label,
         body: 'This is a test alarm from Prayer Times',
         timestamp: scheduledTime.millisecondsSinceEpoch,
-        audioPath: 'assets/sounds/azaan_short.mp3',
+        audioPath: 'short',
+        isTest: true,
       );
 
-      // Alarm screen will only be shown if all notificaitions are cleared
-      // await NotificationService.scheduleNotification(notification);
       await AlarmService.scheduleAlarm(alarmData);
 
       await SentryService.logString(
-        'Test alarm scheduled for ${scheduledTime.toIso8601String()}',
+        'Test alarm ($label) scheduled for ${scheduledTime.toIso8601String()} with audio=short',
       );
 
       return null;
@@ -211,25 +293,64 @@ class SettingsViewModel extends ChangeNotifier {
     }
   }
 
-  Future _checkNotificationsEnabled() async {
-    var batteryOptimization = await _repository
-        .isBackgroundOptimizationEnabled();
-    var notifications = await NotificationService.checkPermissionStatus();
-
-    if (!batteryOptimization && notifications) {
-      _notificationsEnabled = true;
-    } else {
-      _notificationsEnabled = false;
+  /// Send a test notification using flutter_local_notifications (no alarm/full-screen intent).
+  /// If [delayed] is true, schedules 30 seconds from now; otherwise shows instantly.
+  Future<String?> sendTestNotification({bool delayed = false}) async {
+    if (!_notificationsEnabled) {
+      return 'Please enable notifications first';
     }
 
-    if (!notificationsEnabled) {
+    try {
+      await NotificationService.initialize();
+
+      final notification = NotificationModel(
+        id: 99993,
+        heading: 'Test Notification',
+        body: 'This is a test notification from Prayer Times',
+        timestamp: delayed
+            ? DateTime.now()
+                  .add(const Duration(seconds: 30))
+                  .millisecondsSinceEpoch
+            : null,
+      );
+
+      if (delayed) {
+        await NotificationService.scheduleNotification(notification);
+      } else {
+        await NotificationService.showNotification(notification);
+      }
+
+      await SentryService.logString(
+        'Test notification ${delayed ? "scheduled for 30s" : "sent instantly"}',
+      );
+
+      return null;
+    } catch (e) {
+      await SentryService.logString('Error sending test notification: $e');
+      return 'Failed to send test notification: $e';
+    }
+  }
+
+  Future _checkNotificationsEnabled() async {
+    // Only check basic notification permission — do NOT check battery optimization
+    // here. Battery optimization being re-enabled by OEM after an update should
+    // not silently cancel all alarms and disable notifications.
+    var notifications = await NotificationService.checkPermissionStatus();
+
+    // Respect the user's saved preference, but reflect actual permission state
+    _notificationsEnabled = _settings.notificationsEnabled && notifications;
+
+    // Only update saved state if notification permission was explicitly revoked
+    if (_settings.notificationsEnabled && !notifications) {
+      _settings = _settings.copyWith(notificationsEnabled: false);
+      await _repository.saveSettings(_settings);
       await NotificationService.cancelAllNotifications();
       await AlarmService.cancelAllAlarms();
     }
+  }
 
-    _settings = _settings.copyWith(notificationsEnabled: _notificationsEnabled);
-    await _repository.saveSettings(settings);
-
-    _updateSettings();
+  void _checkAlarmsEnabled() {
+    // Alarms depend on notifications — if notifications are off, alarms must be off
+    _alarmsEnabled = _settings.alarmsEnabled && _notificationsEnabled;
   }
 }

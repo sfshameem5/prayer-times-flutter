@@ -4,6 +4,7 @@ class AlarmModel {
   String body;
   int timestamp;
   String audioPath;
+  bool isTest;
 
   AlarmModel({
     required this.id,
@@ -11,5 +12,6 @@ class AlarmModel {
     required this.body,
     required this.timestamp,
     required this.audioPath,
+    this.isTest = false,
   });
 }

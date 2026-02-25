@@ -13,25 +13,49 @@ import 'package:prayer_times/common/services/sentry_service.dart';
 class PermissionService {
   static const _batteryOptKey = 'battery_optimization_prompted';
   static const _autoStartKey = 'auto_start_prompted';
+  static const _notificationAskedKey = 'notification_permission_asked';
 
-  /// Runs the full permission flow matching the Settings notification toggle:
-  /// 1. Request notification + exact alarm permissions
-  /// 2. Check & request battery optimization disabling
-  /// 3. Request auto-start if available
-  /// Returns true only if notifications are granted AND battery optimization is disabled.
-  static Future<bool> requestFullNotificationPermissions() async {
+  /// Returns true if notification permission appears permanently denied.
+  /// This happens when the user has denied the system popup and Android
+  /// won't show it again.
+  static Future<bool> isNotificationPermanentlyDenied() async {
+    if (!Platform.isAndroid) return false;
+    final mmkv = MMKV.defaultMMKV();
+    final askedBefore = mmkv.decodeBool(_notificationAskedKey);
+    if (!askedBefore) return false;
+    final granted = await NotificationService.checkPermissionStatus();
+    return !granted;
+  }
+
+  /// Runs the permission flow based on the notification mode:
+  /// - Default mode: only notification + exact alarm permissions
+  /// - Azaan mode: notification + exact alarm + battery optimization + full-screen intent + auto-start
+  /// Returns true only if all required permissions for the selected mode are granted.
+  static Future<bool> requestFullNotificationPermissions({
+    bool isAzaanMode = false,
+  }) async {
     if (!Platform.isAndroid) return false;
 
-    // Step 1: Notification + exact alarm permissions
+    // Step 1: Notification + exact alarm permissions (always required)
     var notificationsGranted = false;
     var notificationStatus = await NotificationService.checkPermissionStatus();
 
     if (!notificationStatus) {
       var result = await NotificationService.requestNotificationPermissions();
+      // Track that we've asked for notification permission
+      final mmkv = MMKV.defaultMMKV();
+      mmkv.encodeBool(_notificationAskedKey, true);
       notificationsGranted = result;
     } else {
       notificationsGranted = true;
     }
+
+    // For Default mode, notification permission is all we need
+    if (!isAzaanMode) {
+      return notificationsGranted;
+    }
+
+    // --- Azaan mode: additional permissions ---
 
     // Step 2: Battery optimization
     var batteryOptimizationDisabled = true;
@@ -47,7 +71,6 @@ class PermissionService {
     }
 
     // Step 3: Full-screen intent permission (Android 14+)
-    // Required for the alarm to show as a full-screen activity on the lock screen
     final canUseFullScreen = await AlarmService.canUseFullScreenIntent();
     if (!canUseFullScreen) {
       await SentryService.logString(
@@ -69,6 +92,9 @@ class PermissionService {
     return notificationsGranted && batteryOptimizationDisabled;
   }
 
+  /// Ensures basic alarm permissions (notification + exact alarm) are granted.
+  /// Does NOT check or request full-screen intent — that is only done
+  /// explicitly during onboarding or settings changes for Azaan mode.
   static Future<void> ensureAlarmPermissions() async {
     if (!Platform.isAndroid) return;
 
@@ -94,15 +120,30 @@ class PermissionService {
       );
       await androidImpl.requestNotificationsPermission();
     }
+  }
 
-    // Full-screen intent permission (Android 14+)
+  /// Passive check: returns true if basic notification + exact alarm permissions are granted.
+  static Future<bool> hasBasicNotificationPermissions() async {
+    if (!Platform.isAndroid) return true;
+    return await NotificationService.checkPermissionStatus();
+  }
+
+  /// Passive check: returns true if all Azaan-required permissions are granted
+  /// (notification + exact alarm + battery optimization disabled + full-screen intent).
+  static Future<bool> hasAllAzaanPermissions() async {
+    if (!Platform.isAndroid) return true;
+
+    final notifications = await NotificationService.checkPermissionStatus();
+    if (!notifications) return false;
+
+    final batteryOptEnabled =
+        await BatteryOptimizationHelper.isBatteryOptimizationEnabled();
+    if (batteryOptEnabled) return false;
+
     final canUseFullScreen = await AlarmService.canUseFullScreenIntent();
-    if (!canUseFullScreen) {
-      await SentryService.logString(
-        'Full-screen intent permission not granted, opening settings...',
-      );
-      await AlarmService.requestFullScreenIntentPermission();
-    }
+    if (!canUseFullScreen) return false;
+
+    return true;
   }
 
   static Future<void> requestBatteryOptimization(BuildContext context) async {
@@ -195,10 +236,14 @@ class PermissionService {
     mmkv.encodeBool(_autoStartKey, true);
   }
 
-  static Future<void> requestAllPermissions(BuildContext context) async {
+  static Future<void> requestAllPermissions(
+    BuildContext context, {
+    bool isAzaanMode = false,
+  }) async {
     if (!Platform.isAndroid) return;
 
     await ensureAlarmPermissions();
+    if (!isAzaanMode) return;
     if (!context.mounted) return;
     await requestBatteryOptimization(context);
     if (!context.mounted) return;

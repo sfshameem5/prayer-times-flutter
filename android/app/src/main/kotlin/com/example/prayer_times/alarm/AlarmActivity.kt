@@ -1,8 +1,10 @@
 package com.example.prayer_times.alarm
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -23,6 +25,14 @@ class AlarmActivity : Activity() {
     }
 
     private var wakeLock: PowerManager.WakeLock? = null
+    private var isTest: Boolean = false
+
+    private val alarmStoppedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "Received alarm stopped broadcast, finishing activity")
+            cleanupAndFinish()
+        }
+    }
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,8 +73,9 @@ class AlarmActivity : Activity() {
         val title = intent.getStringExtra("alarm_title") ?: "Prayer Time"
         val body = intent.getStringExtra("alarm_body") ?: ""
         val timestamp = intent.getLongExtra("alarm_timestamp", System.currentTimeMillis())
+        isTest = intent.getBooleanExtra("alarm_is_test", false)
 
-        Log.d(TAG, "AlarmActivity created: id=$alarmId, title=$title")
+        Log.d(TAG, "AlarmActivity created: id=$alarmId, title=$title, isTest=$isTest")
 
         // Set prayer name
         val prayerNameView = findViewById<TextView>(R.id.prayer_name)
@@ -89,12 +100,24 @@ class AlarmActivity : Activity() {
             dismissAlarm()
         }
 
-        // Snooze button
+        // Snooze button — hidden for test alarms
         val snoozeButton = findViewById<View>(R.id.btn_snooze)
-        snoozeButton.setOnClickListener {
-            snoozeAlarm()
-            snoozeButton.isEnabled = false
-            snoozeButton.alpha = 0.5f
+        if (isTest) {
+            snoozeButton.visibility = View.GONE
+        } else {
+            snoozeButton.setOnClickListener {
+                snoozeAlarm()
+                snoozeButton.isEnabled = false
+                snoozeButton.alpha = 0.5f
+            }
+        }
+
+        // Listen for service stop broadcast so we finish when audio completes
+        val filter = IntentFilter(AlarmFiringService.ACTION_ALARM_STOPPED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(alarmStoppedReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(alarmStoppedReceiver, filter)
         }
     }
 
@@ -103,9 +126,9 @@ class AlarmActivity : Activity() {
         val iconRes = when {
             lowerTitle.contains("fajr") -> android.R.drawable.btn_star_big_on
             lowerTitle.contains("sunrise") -> android.R.drawable.btn_star_big_on
-            lowerTitle.contains("dhuhr") || lowerTitle.contains("luhr") -> android.R.drawable.btn_star_big_on
+            lowerTitle.contains("dhuhr") -> android.R.drawable.btn_star_big_on
             lowerTitle.contains("asr") -> android.R.drawable.btn_star_big_on
-            lowerTitle.contains("magrib") || lowerTitle.contains("maghrib") -> android.R.drawable.btn_star_big_on
+            lowerTitle.contains("maghrib") -> android.R.drawable.btn_star_big_on
             lowerTitle.contains("isha") -> android.R.drawable.btn_star_big_on
             else -> android.R.drawable.btn_star_big_on
         }
@@ -114,21 +137,25 @@ class AlarmActivity : Activity() {
 
     private fun dismissAlarm() {
         Log.d(TAG, "Dismissing alarm")
-        releaseWakeLock()
         val stopIntent = Intent(this, AlarmFiringService::class.java).apply {
             action = "STOP"
         }
         startService(stopIntent)
-        finishAndRemoveTask()
+        cleanupAndFinish()
     }
 
     private fun snoozeAlarm() {
         Log.d(TAG, "Snoozing alarm")
-        releaseWakeLock()
         val snoozeIntent = Intent(this, AlarmFiringService::class.java).apply {
             action = "SNOOZE"
         }
         startService(snoozeIntent)
+        cleanupAndFinish()
+    }
+
+    private fun cleanupAndFinish() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        releaseWakeLock()
         finishAndRemoveTask()
     }
 
@@ -144,6 +171,11 @@ class AlarmActivity : Activity() {
     }
 
     override fun onDestroy() {
+        try {
+            unregisterReceiver(alarmStoppedReceiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error unregistering receiver: ${e.message}")
+        }
         releaseWakeLock()
         super.onDestroy()
     }

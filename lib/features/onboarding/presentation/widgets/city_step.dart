@@ -194,26 +194,103 @@ class _ThemePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<AppThemeMode>(
-      segments: AppThemeMode.values
-          .map(
-            (mode) => ButtonSegment<AppThemeMode>(
-              value: mode,
-              label: Text(_label(mode)),
-              icon: Icon(_icon(mode), size: 18),
+    return Row(
+      children: AppThemeMode.values.map((mode) {
+        final isSelected = mode == value;
+        final isLast = mode == AppThemeMode.values.last;
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: isLast ? 0 : 8),
+            child: _ThemeTile(
+              icon: _icon(mode),
+              label: _label(mode),
+              isSelected: isSelected,
+              isDark: isDark,
+              onTap: () => onChanged(mode),
             ),
-          )
-          .toList(),
-      selected: {value},
-      onSelectionChanged: (selected) => onChanged(selected.first),
-      style: SegmentedButton.styleFrom(
-        selectedForegroundColor: Colors.white,
-        selectedBackgroundColor: AppTheme.appOrange,
-        foregroundColor: isDark ? Colors.white60 : Colors.black54,
-        backgroundColor: isDark ? AppTheme.navyLight : Colors.white,
-        side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
-        shape: RoundedRectangleBorder(
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ThemeTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ThemeTile({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? null
+              : (isDark
+                    ? AppTheme.darkCardGradient
+                    : AppTheme.lightCardGradient),
+          color: isSelected ? AppTheme.appOrange : null,
           borderRadius: BorderRadius.circular(AppTheme.smallRadius),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.appOrange
+                : (isDark ? Colors.white12 : Colors.black12),
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.appOrange.withValues(
+                      alpha: isDark ? 0.3 : 0.25,
+                    ),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white54 : Colors.black45),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white60 : Colors.black54),
+              ),
+            ),
+          ],
         ),
       ),
     );

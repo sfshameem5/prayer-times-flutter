@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:provider/provider.dart';
@@ -12,99 +11,25 @@ class TestAlarmSection extends StatefulWidget {
 }
 
 class _TestAlarmSectionState extends State<TestAlarmSection> {
-  DateTime? _selectedDateTime;
-  bool _isScheduling = false;
+  String? _busyKey;
 
-  DateTime _defaultTime() {
-    return DateTime.now().add(const Duration(minutes: 1));
-  }
+  Future<void> _runTest(String key, Future<String?> Function() action) async {
+    if (_busyKey != null) return;
+    setState(() => _busyKey = key);
 
-  Future<void> _pickDateTime() async {
-    final now = DateTime.now();
-
-    final date = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 7)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppTheme.appOrange,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (date == null || !mounted) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(
-        now.add(const Duration(minutes: 2)),
-      ),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppTheme.appOrange,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (time == null || !mounted) return;
-
-    setState(() {
-      _selectedDateTime = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
-  }
-
-  Future<void> _scheduleTest() async {
-    final dateTime = _selectedDateTime ?? _defaultTime();
-
-    if (dateTime.isBefore(DateTime.now())) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a time in the future'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isScheduling = true);
-
-    final viewModel = context.read<SettingsViewModel>();
-    final error = await viewModel.scheduleTestAlarm(dateTime);
+    final error = await action();
 
     if (!mounted) return;
-    setState(() => _isScheduling = false);
+    setState(() => _busyKey = null);
 
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(error), behavior: SnackBarBehavior.floating),
       );
     } else {
-      final formatted = DateFormat('MMM d, h:mm a').format(dateTime);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Test alarm scheduled for $formatted'),
+          content: Text(_successMessage(key)),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.green.shade700,
         ),
@@ -112,105 +37,243 @@ class _TestAlarmSectionState extends State<TestAlarmSection> {
     }
   }
 
+  String _successMessage(String key) {
+    switch (key) {
+      case 'alarm_30s':
+        return 'Test alarm scheduled in 30 seconds';
+      case 'alarm_1m':
+        return 'Test alarm scheduled in 1 minute';
+      case 'alarm_2m':
+        return 'Test alarm scheduled in 2 minutes';
+      case 'alarm_5m':
+        return 'Test alarm scheduled in 5 minutes';
+      case 'notif_instant':
+        return 'Test notification sent';
+      case 'notif_30s':
+        return 'Test notification scheduled in 30 seconds';
+      default:
+        return 'Test scheduled';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final displayTime = _selectedDateTime ?? _defaultTime();
-    final formatted = DateFormat('MMM d, yyyy – h:mm a').format(displayTime);
+    final viewModel = context.read<SettingsViewModel>();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Test Alarm',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Schedule a test notification and alarm to verify they work on your device.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: isDark ? Colors.white60 : Colors.black45,
+          // --- Test Alarm Section (only shown when alarms enabled) ---
+          if (viewModel.alarmsEnabled) ...[
+            _SectionTitle(
+              icon: Icons.alarm_rounded,
+              title: 'Test Alarm',
+              isDark: isDark,
             ),
-          ),
-          const SizedBox(height: 16),
-          InkWell(
-            onTap: _pickDateTime,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isDark ? Colors.white24 : Colors.black12,
-                ),
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 4),
+            Text(
+              'Schedule a test alarm to verify it fires on your device. '
+              'Uses a short azaan clip for testing.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: isDark ? Colors.white60 : Colors.black45,
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.schedule_rounded,
-                    color: AppTheme.appOrange,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _selectedDateTime != null
-                          ? formatted
-                          : 'Tap to pick date & time',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: _selectedDateTime != null
-                            ? null
-                            : (isDark ? Colors.white38 : Colors.black38),
-                      ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _TestChip(
+                  label: '30 sec',
+                  busyKey: _busyKey,
+                  myKey: 'alarm_30s',
+                  onTap: () => _runTest(
+                    'alarm_30s',
+                    () => viewModel.scheduleTestAlarm(
+                      delay: const Duration(seconds: 30),
+                      testId: 99990,
+                      label: 'Test Alarm',
                     ),
                   ),
-                  Icon(
-                    Icons.edit_calendar_rounded,
-                    color: isDark ? Colors.white38 : Colors.black38,
-                    size: 18,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isScheduling ? null : _scheduleTest,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.appOrange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                disabledBackgroundColor: AppTheme.appOrange.withValues(
-                  alpha: 0.4,
-                ),
-              ),
-              child: _isScheduling
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text(
-                      'Schedule Test Alarm',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
+                _TestChip(
+                  label: '1 min',
+                  busyKey: _busyKey,
+                  myKey: 'alarm_1m',
+                  onTap: () => _runTest(
+                    'alarm_1m',
+                    () => viewModel.scheduleTestAlarm(
+                      delay: const Duration(minutes: 1),
+                      testId: 99990,
+                      label: 'Test Alarm',
                     ),
+                  ),
+                ),
+                _TestChip(
+                  label: '2 min',
+                  busyKey: _busyKey,
+                  myKey: 'alarm_2m',
+                  onTap: () => _runTest(
+                    'alarm_2m',
+                    () => viewModel.scheduleTestAlarm(
+                      delay: const Duration(minutes: 2),
+                      testId: 99990,
+                      label: 'Test Alarm',
+                    ),
+                  ),
+                ),
+                _TestChip(
+                  label: '5 min',
+                  busyKey: _busyKey,
+                  myKey: 'alarm_5m',
+                  onTap: () => _runTest(
+                    'alarm_5m',
+                    () => viewModel.scheduleTestAlarm(
+                      delay: const Duration(minutes: 5),
+                      testId: 99990,
+                      label: 'Test Alarm',
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: 20),
+          ],
+
+          // --- Test Notification Section (only shown when notifications enabled) ---
+          if (viewModel.notificationsEnabled) ...[
+            _SectionTitle(
+              icon: Icons.notifications_outlined,
+              title: 'Test Notification',
+              isDark: isDark,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Test notification-only mode (no alarm or full-screen intent).',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: isDark ? Colors.white60 : Colors.black45,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _TestChip(
+                  label: 'Instantly',
+                  busyKey: _busyKey,
+                  myKey: 'notif_instant',
+                  onTap: () => _runTest(
+                    'notif_instant',
+                    () => viewModel.sendTestNotification(delayed: false),
+                  ),
+                ),
+                _TestChip(
+                  label: 'In 30 sec',
+                  busyKey: _busyKey,
+                  myKey: 'notif_30s',
+                  onTap: () => _runTest(
+                    'notif_30s',
+                    () => viewModel.sendTestNotification(delayed: true),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isDark;
+
+  const _SectionTitle({
+    required this.icon,
+    required this.title,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppTheme.appOrange, size: 18),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
+}
+
+class _TestChip extends StatelessWidget {
+  final String label;
+  final String? busyKey;
+  final String myKey;
+  final VoidCallback onTap;
+
+  const _TestChip({
+    required this.label,
+    required this.busyKey,
+    required this.myKey,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBusy = busyKey == myKey;
+    final isDisabled = busyKey != null;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isDisabled ? null : onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: isBusy
+                ? AppTheme.appOrange.withValues(alpha: 0.2)
+                : AppTheme.appOrange.withValues(alpha: isDark ? 0.12 : 0.08),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isBusy
+                  ? AppTheme.appOrange
+                  : AppTheme.appOrange.withValues(alpha: 0.3),
+            ),
+          ),
+          child: isBusy
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.appOrange,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDisabled
+                        ? (isDark ? Colors.white30 : Colors.black26)
+                        : AppTheme.appOrange,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+        ),
       ),
     );
   }

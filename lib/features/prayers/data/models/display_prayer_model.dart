@@ -31,10 +31,8 @@ class DisplayPrayerModel {
   static const Map<String, IconData> _prayerIcons = {
     'fajr': Icons.nightlight_round,
     'sunrise': Icons.wb_twilight,
-    'luhr': Icons.wb_sunny,
     'dhuhr': Icons.wb_sunny,
     'asr': Icons.wb_sunny_outlined,
-    'magrib': Icons.nights_stay_outlined,
     'maghrib': Icons.nights_stay_outlined,
     'isha': Icons.dark_mode,
   };
