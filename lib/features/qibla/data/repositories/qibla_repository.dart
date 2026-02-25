@@ -22,4 +22,7 @@ class QiblaRepository {
   }
 
   String get locationName => LocationService.getShortDisplayName(_citySlug);
+
+  ({double latitude, double longitude}) get storedCoordinates =>
+      LocationService.getCoordinates(_citySlug);
 }

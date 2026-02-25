@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:compassx/compassx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prayer_times/features/qibla/data/repositories/qibla_repository.dart';
+import 'package:prayer_times/features/qibla/services/qibla_native_service.dart';
 
 class QiblaViewModel extends ChangeNotifier {
   final QiblaRepository _repository;
-  final Stream<CompassXEvent> _compassStream;
+  final QiblaNativeService _nativeService;
 
   static const double _alignmentThreshold = 3.0;
 
@@ -16,16 +16,17 @@ class QiblaViewModel extends ChangeNotifier {
   double _deviceHeading = 0;
   bool _hasCompassData = false;
   bool _isAligned = false;
+  String _fallbackMode = 'stored_city';
 
-  StreamSubscription<CompassXEvent>? _subscription;
+  StreamSubscription<QiblaNativeEvent>? _subscription;
 
   QiblaViewModel({
     QiblaRepository? repository,
-    Stream<CompassXEvent>? compassStream,
+    QiblaNativeService? nativeService,
   }) : _repository = repository ?? QiblaRepository(),
-       _compassStream = compassStream ?? CompassX.events {
+       _nativeService = nativeService ?? QiblaNativeService() {
     _qiblaDirection = _repository.getQiblaDirection();
-    _subscription = _compassStream.listen(_onCompassEvent);
+    _startNative();
   }
 
   double get qiblaDirection => _qiblaDirection;
@@ -33,6 +34,7 @@ class QiblaViewModel extends ChangeNotifier {
   bool get hasCompassData => _hasCompassData;
   bool get isAligned => _isAligned;
   String get locationName => _repository.locationName;
+  String get fallbackMode => _fallbackMode;
 
   double get rotationAngle {
     if (!_hasCompassData) return 0.0;
@@ -56,9 +58,13 @@ class QiblaViewModel extends ChangeNotifier {
     return _repository.getQiblaDirectionString(bearing);
   }
 
-  void _onCompassEvent(CompassXEvent event) {
-    _deviceHeading = event.heading;
-    _hasCompassData = true;
+  void _onNativeEvent(QiblaNativeEvent event) {
+    _deviceHeading = event.heading ?? _deviceHeading;
+    _hasCompassData = event.heading != null;
+    _fallbackMode = event.fallbackMode;
+    if (event.qiblaBearing != null) {
+      _qiblaDirection = event.qiblaBearing!;
+    }
 
     final wasAligned = _isAligned;
     final diff = (_qiblaDirection - _deviceHeading) % 360;
@@ -72,9 +78,20 @@ class QiblaViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _startNative() {
+    final coords = _repository.storedCoordinates;
+    _subscription = _nativeService.events.listen(_onNativeEvent);
+    _nativeService.start(
+      storedLat: coords.latitude,
+      storedLng: coords.longitude,
+      storedName: _repository.locationName,
+    );
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();
+    _nativeService.stop();
     super.dispose();
   }
 }
