@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
+import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/calendar_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
 import 'package:prayer_times/features/prayers/presentation/views/calendar_view.dart';
@@ -21,23 +23,77 @@ import 'package:workmanager/workmanager.dart';
 import 'package:prayer_times/core/background_executor.dart' as bg;
 import 'package:prayer_times/features/onboarding/services/onboarding_service.dart';
 import 'package:prayer_times/features/onboarding/presentation/views/onboarding_view.dart';
+import 'package:prayer_times/features/settings/services/settings_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 late final bool _onboardingCompleted;
 
 Future main() async {
-  await CacheManager.initialize();
-
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
-
+  // Only initialize the minimum required before the first frame.
+  // MMKV/Cache is needed to read onboarding state; everything else is deferred.
+  await CacheManager.initialize();
   _onboardingCompleted = OnboardingService.isOnboardingCompleted();
 
-  if (Platform.isAndroid && _onboardingCompleted) {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+
+  // Defer heavy work until after the first frame to unblock startup.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+    StartupCoordinator.run(onboardingCompleted: _onboardingCompleted);
+  });
+}
+
+/// Coordinates all heavy/IO-bound startup tasks off the critical path.
+class StartupCoordinator {
+  static bool _started = false;
+  static bool _timezoneInitialized = false;
+  static bool _workmanagerInitialized = false;
+
+  static Future<void> run({required bool onboardingCompleted}) async {
+    if (_started) return;
+    _started = true;
+
+    // Kick off independent tasks in parallel to reduce total wait time.
+    final deferredTasks = <Future<void>>[_initTimezones(), _warmCaches()];
+
+    if (Platform.isAndroid && onboardingCompleted) {
+      deferredTasks.add(_initBackgroundSchedulers());
+    }
+
+    await Future.wait(deferredTasks);
+  }
+
+  static Future<void> _initTimezones() async {
+    if (_timezoneInitialized) return;
+    _timezoneInitialized = true;
+
+    // Runs after first frame; still on main isolate but off the launch hot path.
+    await Future<void>(() {
+      tz.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation("Asia/Colombo"));
+    });
+  }
+
+  static Future<void> _initBackgroundSchedulers() async {
+    if (_workmanagerInitialized) return;
+    _workmanagerInitialized = true;
+
+    // Ensure timezones are ready before scheduling alarms.
+    await _initTimezones();
+
     await Workmanager().initialize(bg.callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       "prayer",
@@ -50,18 +106,15 @@ Future main() async {
     await PrayerTimesRepository.scheduleNotifications();
   }
 
-  FlutterNativeSplash.remove();
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeService()),
-        ChangeNotifierProvider(create: (_) => PrayerViewModel()),
-        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  static Future<void> _warmCaches() async {
+    // Parallel lightweight warmups; ignore failures to avoid blocking UI.
+    await Future.wait([
+      // Prefetch upcoming prayer times into cache to avoid cold fetch later.
+      PrayerTimesService.prefetchPrayerTimes(),
+      // Touch settings to hydrate in-memory copy for subsequent reads.
+      SettingsService().getSettings(),
+    ]);
+  }
 }
 
 class MyApp extends StatelessWidget {
