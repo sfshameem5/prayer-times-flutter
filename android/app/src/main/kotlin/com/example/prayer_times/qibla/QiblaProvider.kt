@@ -14,7 +14,6 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -33,12 +32,21 @@ class QiblaProvider(
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
+    private var rotationSensor: Sensor? = null
+    private var accelSensor: Sensor? = null
+    private var magSensor: Sensor? = null
+
     private var accelValues = FloatArray(3)
     private var magValues = FloatArray(3)
     private var haveAccel = false
     private var haveMag = false
     private var rotationVectorValues = FloatArray(5)
     private var haveRotationVector = false
+
+    // Tracks whether the device has all required sensors (rotation vector + accel + magnetometer).
+    private var hasCriticalSensors = true
+    // Tracks whether the magnetometer needs user calibration (figure-8).
+    private var needsCalibration = false
 
     private var headingFiltered: Double? = null
     private var lastBearing: Double? = null
@@ -52,7 +60,7 @@ class QiblaProvider(
     private var isListeningLocation = false
 
     private val alpha = 0.12f // low-pass smoothing factor
-    private val locationMinDistanceMeters = 25f
+    private val locationMinDistanceMeters = 10f
 
     fun start(storedLat: Double, storedLng: Double, storedName: String) {
         this.storedLat = storedLat
@@ -70,15 +78,27 @@ class QiblaProvider(
 
     private fun startSensors() {
         if (isListeningSensors) return
-        sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+
+        rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+
+        hasCriticalSensors = rotationSensor != null && accelSensor != null && magSensor != null
+
+        if (!hasCriticalSensors) {
+            // Device cannot provide compass heading; publish unsupported state so Flutter can disable the page.
+            publishUpdate(
+                fallbackMode = "unsupported",
+                heading = null,
+                bearing = computeQiblaBearing(lastLocation),
+                location = lastLocation,
+            )
+            return
         }
-        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
-        }
-        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
-        }
+
+        rotationSensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+        accelSensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+        magSensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
         isListeningSensors = true
     }
 
@@ -94,6 +114,7 @@ class QiblaProvider(
         val hasFine = PermissionUtils.hasFineLocation(context)
         val hasCoarse = PermissionUtils.hasCoarseLocation(context)
         if (!hasFine && !hasCoarse) {
+            // Permission denied → rely on stored city
             publishUpdate(fallbackMode = "stored_city", location = null)
             return
         }
@@ -102,12 +123,18 @@ class QiblaProvider(
         for (provider in providers) {
             if (locationManager.isProviderEnabled(provider)) {
                 try {
-                    locationManager.requestLocationUpdates(provider, 2000L, 5f, this)
+                    locationManager.requestLocationUpdates(provider, 2000L, locationMinDistanceMeters, this)
                     isListeningLocation = true
                 } catch (_: SecurityException) {
                     // handled by fallback
                 }
             }
+        }
+
+        // If neither provider is enabled, fall back immediately to stored city
+        if (!isListeningLocation) {
+            publishUpdate(fallbackMode = "stored_city", location = null)
+            return
         }
 
         val lastKnown = providers.asSequence()
@@ -123,7 +150,7 @@ class QiblaProvider(
         if (lastKnown != null) {
             onLocationChanged(lastKnown)
         } else {
-            publishUpdate(fallbackMode = "gps", location = null)
+            publishUpdate(fallbackMode = "gps_only", location = null)
         }
     }
 
@@ -153,11 +180,13 @@ class QiblaProvider(
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 haveMag = true
                 magValues = lowPass(event.values, magValues)
+                updateCalibration(event.accuracy)
             }
         }
 
-        val heading = computeHeading() ?: return
-        headingFiltered = lowPassAngle(headingFiltered, heading, alpha.toDouble())
+        // heading can be null on devices without compass; UI must fall back to bearing-only
+        val heading = computeHeading()
+        headingFiltered = heading?.let { lowPassAngle(headingFiltered, it, alpha.toDouble()) }
         val location = lastLocation
         val bearing = computeQiblaBearing(location)
         publishUpdate(
@@ -169,7 +198,9 @@ class QiblaProvider(
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // no-op
+        if (sensor?.type == Sensor.TYPE_MAGNETIC_FIELD) {
+            updateCalibration(accuracy)
+        }
     }
 
     override fun onLocationChanged(location: Location) {
@@ -246,9 +277,10 @@ class QiblaProvider(
 
     private fun deriveFallbackMode(location: Location?): String {
         return when {
+            !hasCriticalSensors -> "unsupported"
             haveRotationVector && haveAccel && haveMag -> "compass"
             haveRotationVector -> "rotation_vector_only"
-            location != null -> "gps"
+            location != null -> "gps_only"
             else -> "stored_city"
         }
     }
@@ -264,9 +296,24 @@ class QiblaProvider(
             qiblaBearing = bearing,
             fallbackMode = fallbackMode,
             locationAccuracy = location?.accuracy,
-            locationSource = location?.provider,
+            provider = location?.provider?.uppercase() ?: "STORED_CITY",
+            needsCalibration = needsCalibration,
         )
         callback(update)
+    }
+
+    private fun updateCalibration(accuracy: Int) {
+        val needsCal = accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE ||
+            accuracy == SensorManager.SENSOR_STATUS_ACCURACY_LOW
+        if (needsCalibration != needsCal) {
+            needsCalibration = needsCal
+            publishUpdate(
+                fallbackMode = deriveFallbackMode(lastLocation),
+                heading = headingFiltered,
+                bearing = lastBearing ?: computeQiblaBearing(lastLocation),
+                location = lastLocation,
+            )
+        }
     }
 
     private fun lowPass(input: FloatArray, output: FloatArray): FloatArray {
@@ -302,5 +349,6 @@ data class QiblaUpdate(
     val qiblaBearing: Double?,
     val fallbackMode: String,
     val locationAccuracy: Float?,
-    val locationSource: String?,
+    val provider: String?,
+    val needsCalibration: Boolean,
 )

@@ -57,8 +57,9 @@ class QiblaMethodChannel(
                 "qiblaBearing" to update.qiblaBearing,
                 "fallbackMode" to update.fallbackMode,
                 "locationAccuracy" to update.locationAccuracy,
-                "locationSource" to update.locationSource,
+                "provider" to update.provider,
                 "locationName" to storedName,
+                "needsCalibration" to update.needsCalibration,
             )
             eventSink?.success(payload)
         }

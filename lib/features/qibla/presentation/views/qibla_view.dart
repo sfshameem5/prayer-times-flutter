@@ -26,22 +26,38 @@ class QiblaView extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Point your device towards the Qibla',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isDark ? Colors.white70 : Colors.black54,
+                  if (!viewModel.isUnsupported)
+                    Text(
+                      'Point your device towards the Qibla',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
+                    )
+                  else
+                    Text(
+                      'Your device does not support compass functionality. Qibla direction is unavailable.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
                     ),
-                  ),
                   const Spacer(),
-                  CompassWidget(
-                    isDark: isDark,
-                    rotationAngle: viewModel.rotationAngle,
-                    qiblaDirection: viewModel.qiblaDirection,
-                    deviceHeading: viewModel.deviceHeading,
-                    hasCompassData: viewModel.hasCompassData,
-                    isAligned: viewModel.isAligned,
-                    angleDifference: viewModel.angleDifference,
-                  ),
+                  if (!viewModel.isUnsupported)
+                    CompassWidget(
+                      isDark: isDark,
+                      rotationAngle: viewModel.rotationAngle,
+                      qiblaDirection: viewModel.qiblaDirection,
+                      deviceHeading: viewModel.deviceHeading,
+                      hasCompassData: viewModel.hasCompassData,
+                      isAligned: viewModel.isAligned,
+                      angleDifference: viewModel.angleDifference,
+                    )
+                  else
+                    Icon(
+                      Icons.do_not_disturb_alt_rounded,
+                      size: 96,
+                      color: isDark ? Colors.white24 : Colors.black26,
+                    ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -139,7 +155,9 @@ class QiblaView extends StatelessWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.',
+                            viewModel.needsCalibration
+                                ? 'Your compass needs calibration. Move your device in a gentle figure-8 motion.'
+                                : 'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: isDark

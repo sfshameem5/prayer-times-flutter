@@ -17,6 +17,10 @@ class QiblaViewModel extends ChangeNotifier {
   bool _hasCompassData = false;
   bool _isAligned = false;
   String _fallbackMode = 'stored_city';
+  double? _locationAccuracy;
+  String? _provider;
+  bool _needsCalibration = false;
+  bool _isUnsupported = false;
 
   StreamSubscription<QiblaNativeEvent>? _subscription;
 
@@ -35,6 +39,10 @@ class QiblaViewModel extends ChangeNotifier {
   bool get isAligned => _isAligned;
   String get locationName => _repository.locationName;
   String get fallbackMode => _fallbackMode;
+  double? get locationAccuracy => _locationAccuracy;
+  String? get provider => _provider;
+  bool get needsCalibration => _needsCalibration;
+  bool get isUnsupported => _isUnsupported;
 
   double get rotationAngle {
     if (!_hasCompassData) return 0.0;
@@ -59,9 +67,18 @@ class QiblaViewModel extends ChangeNotifier {
   }
 
   void _onNativeEvent(QiblaNativeEvent event) {
-    _deviceHeading = event.heading ?? _deviceHeading;
-    _hasCompassData = event.heading != null;
+    _needsCalibration = event.needsCalibration;
+    _isUnsupported = event.fallbackMode == 'unsupported';
+
+    if (event.heading != null) {
+      _deviceHeading = event.heading!;
+      _hasCompassData = true;
+    } else {
+      _hasCompassData = false;
+    }
     _fallbackMode = event.fallbackMode;
+    _locationAccuracy = event.locationAccuracy;
+    _provider = event.provider;
     if (event.qiblaBearing != null) {
       _qiblaDirection = event.qiblaBearing!;
     }
