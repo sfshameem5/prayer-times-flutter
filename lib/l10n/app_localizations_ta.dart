@@ -76,7 +76,91 @@ class AppLocalizationsTa extends AppLocalizations {
       'எனக்கு நினைவூட்டல் வேண்டாம். பின்னர் அமைப்புகளில் இயக்குவேன்.';
 
   @override
-  String get onboardingChoiceInfo => 'பிறகு அமைப்புகளில் இதை மாற்றலாம்';
+  String get onboardingChoiceInfo =>
+      'பின்னர் அமைப்புகளில் ஒவ்வொரு தொழுகைக்கும் மாற்றலாம்';
+
+  @override
+  String get onboardingPermissionsTitle => 'அனுமதிகளை இயக்கவும்';
+
+  @override
+  String get onboardingPermissionsSubtitle =>
+      'நீங்கள் தேர்ந்தெடுத்ததை மட்டும் கேட்கிறோம்.';
+
+  @override
+  String get onboardingPermissionsNotificationsTitle => 'அறிவிப்புகள்';
+
+  @override
+  String get onboardingPermissionsNotificationsDesc =>
+      'தொழுகை நினைவூட்டல்களை பூட்டுத்திரையிலும் காட்டவும்.';
+
+  @override
+  String get onboardingPermissionsAzaanTitle => 'அதான் அலாரம்';
+
+  @override
+  String get onboardingPermissionsAzaanDesc =>
+      'திரை பூட்டப்பட்டாலும் முழுத்திரை அதான் அலாரம்.';
+
+  @override
+  String get onboardingPermissionsRequired => 'தேவை';
+
+  @override
+  String get onboardingPermissionsStatusOff => 'ஆஃப்';
+
+  @override
+  String get onboardingPermissionsAllow => 'அனுமதிக்கவும்';
+
+  @override
+  String get onboardingPermissionsAllowed => 'அனுமதிக்கப்பட்டது';
+
+  @override
+  String get onboardingPermissionsSkip => 'தவிர்க்கவும்';
+
+  @override
+  String get onboardingPermissionsInfoNotifications =>
+      'பிரார்த்தனை நினைவூட்டல்களுக்கு (heads-up + lock screen) தேவை.';
+
+  @override
+  String get onboardingPermissionsInfoAzaan =>
+      'முழுத்திரை அனுமதி, battery exemption, lock screen அனுமதி தேவை.';
+
+  @override
+  String get onboardingPermissionsTipXiaomi =>
+      'Xiaomi/Redmi/Poco: \'Show on lock screen\' மற்றும் \'Floating/Banners\' ஐ இயக்கு.';
+
+  @override
+  String get onboardingPermBlockedTitle => 'அனுமதி தடுக்கப்பட்டது';
+
+  @override
+  String get onboardingPermRequiredTitle => 'அனுமதிகள் தேவை';
+
+  @override
+  String get onboardingPermBlockedBody =>
+      'அறிவிப்பு அனுமதி முன்பு மறுக்கப்பட்டது. ஆண்ட்ராய்டு மீண்டும் popup காட்டாமல் இருக்கலாம். அமைப்புகளில் சென்று அறிவிப்புகளை இயக்கவும்.';
+
+  @override
+  String get onboardingPermAzaanBody =>
+      'அதான் அலாரத்திற்கு அறிவிப்புகள், battery optimization ஆஃப், full-screen intent தேவை.';
+
+  @override
+  String get onboardingPermNotificationBody =>
+      'தொழுகை நினைவூட்டல்களுக்கு அறிவிப்பு அனுமதி தேவை.';
+
+  @override
+  String get onboardingPermOpenSettings => 'அமைப்புகள் திறக்க';
+
+  @override
+  String get onboardingPermGrant => 'அனுமதி வழங்கவும்';
+
+  @override
+  String get onboardingPermTryAgain => 'மீண்டும் முயற்சி';
+
+  @override
+  String get onboardingPermHintBack =>
+      'உங்கள் அறிவிப்பு முறையை மாற்றப் பின்னுக்கு செல்லலாம்.';
+
+  @override
+  String get onboardingPermReturnHint =>
+      'அமைப்புகளில் அறிவிப்புகளை இயக்கி, இங்கே வந்து ‘அனுமதி வழங்கவும்’ தட்டவும்.';
 
   @override
   String get onboardingAllSet => 'அனைத்தும் தயார்!';

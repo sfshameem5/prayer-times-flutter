@@ -77,7 +77,90 @@ class AppLocalizationsSi extends AppLocalizations {
       'මට මතක් කිරීම් අවශ්‍ය නැහැ. පසුව සිටුවම් තුළ සක්‍රීය කරගන්නම්.';
 
   @override
-  String get onboardingChoiceInfo => 'පසුව සිටුවම් තුළ මෙය වෙනස් කළ හැක';
+  String get onboardingChoiceInfo =>
+      'පසුව සැකසුම් වලින් එක් එක් නමස් සඳහා වෙනස් කළ හැක';
+
+  @override
+  String get onboardingPermissionsTitle => 'අවසර සක්‍රීය කරන්න';
+
+  @override
+  String get onboardingPermissionsSubtitle => 'ඔබ තෝරාගත්තේ පමණයි ඉල්ලන්නේ.';
+
+  @override
+  String get onboardingPermissionsNotificationsTitle => 'දැනුම්දීම්';
+
+  @override
+  String get onboardingPermissionsNotificationsDesc =>
+      'නමස් මතක් කිරීම් ලොක් තිරය ඇතුළු ලබා ගන්න.';
+
+  @override
+  String get onboardingPermissionsAzaanTitle => 'අධාන් ඇලාරම්';
+
+  @override
+  String get onboardingPermissionsAzaanDesc =>
+      'තිරය ලොක් වුවද සම්පූර්ණ තිර අධාන් ඇලාරම්.';
+
+  @override
+  String get onboardingPermissionsRequired => 'අවශ්‍යයි';
+
+  @override
+  String get onboardingPermissionsStatusOff => 'අක්‍රීය';
+
+  @override
+  String get onboardingPermissionsAllow => 'Allow';
+
+  @override
+  String get onboardingPermissionsAllowed => 'Allowed';
+
+  @override
+  String get onboardingPermissionsSkip => 'Skip';
+
+  @override
+  String get onboardingPermissionsInfoNotifications =>
+      'නමස් මතක් කිරීම් (කවුළු මතුපිට/ලොක් තිරය) සඳහා අවශ්‍යයි.';
+
+  @override
+  String get onboardingPermissionsInfoAzaan =>
+      'සම්පූර්ණ තිර අයිතිය, බැටරි හැරීම, ලොක් තිර පෙනුම අවශ්‍යයි.';
+
+  @override
+  String get onboardingPermissionsTipXiaomi =>
+      'Xiaomi/Redmi/Poco: \'Show on lock screen\' සහ \'Floating/Banners\' සක්‍රීය කරන්න.';
+
+  @override
+  String get onboardingPermBlockedTitle => 'අවසර අවහිරයි';
+
+  @override
+  String get onboardingPermRequiredTitle => 'අවසර අවශ්‍යයි';
+
+  @override
+  String get onboardingPermBlockedBody =>
+      'දැනුම්දීම් අවසරය පෙර ප්‍රතික්ෂේප කෙරිණි. Android නැවත popup නොකළ හැක. සැකසුම් වෙත ගොස් දැනුම්දීම් සක්‍රීය කරන්න.';
+
+  @override
+  String get onboardingPermAzaanBody =>
+      'අදාන් ඇලාරම් සඳහා දැනුම්දීම්, බැටරි සුරක්ෂිතතාව අක්‍රීය කිරීම, සහ සම්පූර්ණ තිර අයිතිය අවශ්‍යයි.';
+
+  @override
+  String get onboardingPermNotificationBody =>
+      'නමස් මතක් කිරීම් සඳහා දැනුම්දීම් අවසරය අවශ්‍යයි.';
+
+  @override
+  String get onboardingPermOpenSettings => 'යෙදුම් සැකසුම් திறන්න';
+
+  @override
+  String get onboardingPermGrant => 'අවසර දෙන්න';
+
+  @override
+  String get onboardingPermTryAgain => 'නැවත උත්සාහ කරන්න';
+
+  @override
+  String get onboardingPermHintBack =>
+      'ඔබේ දැනුම්දීම් මෝඩය වෙනස් කිරීමට පසුපසට යා හැක.';
+
+  @override
+  String get onboardingPermReturnHint =>
+      'සැකසුම් වල දැනුම්දීම් සක්‍රීය කර මෙයට පැමිණ ‘අවසර දෙන්න’ තට්ටු කරන්න.';
 
   @override
   String get onboardingAllSet => 'සියල්ලම සූදානම්!';
@@ -96,7 +179,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingSummaryAlertMode => 'අතුරුදහන් ආකාරය';
 
   @override
-  String get onboardingSummaryTheme => 'තේමාව';
+  String get onboardingSummaryTheme => 'Theme';
 
   @override
   String get onboardingAlertModeAzaan => 'ආගමික ඇඟවීම';

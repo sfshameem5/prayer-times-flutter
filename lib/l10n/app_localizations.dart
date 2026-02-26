@@ -232,6 +232,150 @@ abstract class AppLocalizations {
   /// **'You can configure this per prayer later in Settings'**
   String get onboardingChoiceInfo;
 
+  /// No description provided for @onboardingPermissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable permissions'**
+  String get onboardingPermissionsTitle;
+
+  /// No description provided for @onboardingPermissionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We request only what you chose.'**
+  String get onboardingPermissionsSubtitle;
+
+  /// No description provided for @onboardingPermissionsNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get onboardingPermissionsNotificationsTitle;
+
+  /// No description provided for @onboardingPermissionsNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow prayer reminders, including on your lock screen.'**
+  String get onboardingPermissionsNotificationsDesc;
+
+  /// No description provided for @onboardingPermissionsAzaanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Azaan alarms'**
+  String get onboardingPermissionsAzaanTitle;
+
+  /// No description provided for @onboardingPermissionsAzaanDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play full-screen azaan alarms even when the screen is locked.'**
+  String get onboardingPermissionsAzaanDesc;
+
+  /// No description provided for @onboardingPermissionsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get onboardingPermissionsRequired;
+
+  /// No description provided for @onboardingPermissionsStatusOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get onboardingPermissionsStatusOff;
+
+  /// No description provided for @onboardingPermissionsAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get onboardingPermissionsAllow;
+
+  /// No description provided for @onboardingPermissionsAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get onboardingPermissionsAllowed;
+
+  /// No description provided for @onboardingPermissionsSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingPermissionsSkip;
+
+  /// No description provided for @onboardingPermissionsInfoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for prayer reminders (heads-up and lock screen).'**
+  String get onboardingPermissionsInfoNotifications;
+
+  /// No description provided for @onboardingPermissionsInfoAzaan.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs full-screen intent, battery exemption, and lock-screen visibility.'**
+  String get onboardingPermissionsInfoAzaan;
+
+  /// No description provided for @onboardingPermissionsTipXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Xiaomi/Redmi/Poco: turn on \'Show on lock screen\' and \'Floating notifications/Banners\' for this app to ensure alarms appear.'**
+  String get onboardingPermissionsTipXiaomi;
+
+  /// No description provided for @onboardingPermBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission blocked'**
+  String get onboardingPermBlockedTitle;
+
+  /// No description provided for @onboardingPermRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions required'**
+  String get onboardingPermRequiredTitle;
+
+  /// No description provided for @onboardingPermBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission was previously denied. Android may not show the prompt again. Open Settings and enable notifications to continue.'**
+  String get onboardingPermBlockedBody;
+
+  /// No description provided for @onboardingPermAzaanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications, battery optimization off, and full-screen intent are required for azaan alarms to work.'**
+  String get onboardingPermAzaanBody;
+
+  /// No description provided for @onboardingPermNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission is required for prayer reminders to work.'**
+  String get onboardingPermNotificationBody;
+
+  /// No description provided for @onboardingPermOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app settings'**
+  String get onboardingPermOpenSettings;
+
+  /// No description provided for @onboardingPermGrant.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant permissions'**
+  String get onboardingPermGrant;
+
+  /// No description provided for @onboardingPermTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get onboardingPermTryAgain;
+
+  /// No description provided for @onboardingPermHintBack.
+  ///
+  /// In en, this message translates to:
+  /// **'You can go back to change your notification mode.'**
+  String get onboardingPermHintBack;
+
+  /// No description provided for @onboardingPermReturnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After enabling notifications in Settings, come back and tap \"Grant permissions\" to continue.'**
+  String get onboardingPermReturnHint;
+
   /// No description provided for @onboardingAllSet.
   ///
   /// In en, this message translates to:

@@ -81,6 +81,88 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can configure this per prayer later in Settings';
 
   @override
+  String get onboardingPermissionsTitle => 'Enable permissions';
+
+  @override
+  String get onboardingPermissionsSubtitle => 'We request only what you chose.';
+
+  @override
+  String get onboardingPermissionsNotificationsTitle => 'Notifications';
+
+  @override
+  String get onboardingPermissionsNotificationsDesc =>
+      'Allow prayer reminders, including on your lock screen.';
+
+  @override
+  String get onboardingPermissionsAzaanTitle => 'Azaan alarms';
+
+  @override
+  String get onboardingPermissionsAzaanDesc =>
+      'Play full-screen azaan alarms even when the screen is locked.';
+
+  @override
+  String get onboardingPermissionsRequired => 'Required';
+
+  @override
+  String get onboardingPermissionsStatusOff => 'Off';
+
+  @override
+  String get onboardingPermissionsAllow => 'Allow';
+
+  @override
+  String get onboardingPermissionsAllowed => 'Allowed';
+
+  @override
+  String get onboardingPermissionsSkip => 'Skip';
+
+  @override
+  String get onboardingPermissionsInfoNotifications =>
+      'Needed for prayer reminders (heads-up and lock screen).';
+
+  @override
+  String get onboardingPermissionsInfoAzaan =>
+      'Needs full-screen intent, battery exemption, and lock-screen visibility.';
+
+  @override
+  String get onboardingPermissionsTipXiaomi =>
+      'Xiaomi/Redmi/Poco: turn on \'Show on lock screen\' and \'Floating notifications/Banners\' for this app to ensure alarms appear.';
+
+  @override
+  String get onboardingPermBlockedTitle => 'Permission blocked';
+
+  @override
+  String get onboardingPermRequiredTitle => 'Permissions required';
+
+  @override
+  String get onboardingPermBlockedBody =>
+      'Notification permission was previously denied. Android may not show the prompt again. Open Settings and enable notifications to continue.';
+
+  @override
+  String get onboardingPermAzaanBody =>
+      'Notifications, battery optimization off, and full-screen intent are required for azaan alarms to work.';
+
+  @override
+  String get onboardingPermNotificationBody =>
+      'Notification permission is required for prayer reminders to work.';
+
+  @override
+  String get onboardingPermOpenSettings => 'Open app settings';
+
+  @override
+  String get onboardingPermGrant => 'Grant permissions';
+
+  @override
+  String get onboardingPermTryAgain => 'Try again';
+
+  @override
+  String get onboardingPermHintBack =>
+      'You can go back to change your notification mode.';
+
+  @override
+  String get onboardingPermReturnHint =>
+      'After enabling notifications in Settings, come back and tap \"Grant permissions\" to continue.';
+
+  @override
   String get onboardingAllSet => 'You\'re All Set!';
 
   @override

@@ -1,6 +1,7 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
+import 'package:prayer_times/l10n/app_localizations.dart';
 
 enum PermissionWarningAction { tryAgain, openSettings }
 
@@ -34,6 +35,7 @@ class PermissionWarningSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
+    final strings = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -72,8 +74,8 @@ class PermissionWarningSheet extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 isPermanentlyDenied
-                    ? 'Permission Blocked'
-                    : 'Permissions Required',
+                    ? strings.onboardingPermBlockedTitle
+                    : strings.onboardingPermRequiredTitle,
                 style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -81,14 +83,10 @@ class PermissionWarningSheet extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 isPermanentlyDenied
-                    ? 'It looks like notification permission was previously denied. '
-                          'Android will not show the permission popup again.\n\n'
-                          'To enable notifications, please open your phone\'s Settings '
-                          'for this app and turn on Notifications manually.'
+                    ? strings.onboardingPermBlockedBody
                     : isAzaanMode
-                    ? 'All permissions (notifications, battery optimization, and '
-                          'full-screen intent) are required for azaan alarms to work properly.'
-                    : 'Notification permission is required for prayer reminders to work.',
+                    ? strings.onboardingPermAzaanBody
+                    : strings.onboardingPermNotificationBody,
                 style: textTheme.bodyMedium?.copyWith(
                   color: isDark ? Colors.white60 : Colors.black54,
                   height: 1.5,
@@ -109,9 +107,9 @@ class PermissionWarningSheet extends StatelessWidget {
                       ).pop(PermissionWarningAction.openSettings);
                     },
                     icon: const Icon(Icons.settings_outlined, size: 20),
-                    label: const Text(
-                      'Open App Settings',
-                      style: TextStyle(
+                    label: Text(
+                      strings.onboardingPermOpenSettings,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -131,8 +129,7 @@ class PermissionWarningSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'After enabling notifications in Settings, come back '
-                  'and tap "Grant Permissions" to continue.',
+                  strings.onboardingPermReturnHint,
                   style: textTheme.bodySmall?.copyWith(
                     color: isDark ? Colors.white38 : Colors.black38,
                     height: 1.4,
@@ -158,7 +155,7 @@ class PermissionWarningSheet extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Try Again',
+                      strings.onboardingPermTryAgain,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white70 : Colors.black54,
@@ -184,9 +181,9 @@ class PermissionWarningSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: const Text(
-                      'Grant Permissions',
-                      style: TextStyle(
+                    child: Text(
+                      strings.onboardingPermGrant,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -196,7 +193,7 @@ class PermissionWarningSheet extends StatelessWidget {
               ],
               const SizedBox(height: 12),
               Text(
-                'You can go back to change your notification mode.',
+                strings.onboardingPermHintBack,
                 style: textTheme.bodySmall?.copyWith(
                   color: isDark ? Colors.white38 : Colors.black38,
                 ),

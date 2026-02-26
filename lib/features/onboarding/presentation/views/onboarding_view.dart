@@ -11,6 +11,7 @@ import 'package:prayer_times/features/onboarding/presentation/widgets/city_step.
 import 'package:prayer_times/features/onboarding/presentation/widgets/language_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/completion_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/notification_step.dart';
+import 'package:prayer_times/features/onboarding/presentation/widgets/permissions_step.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/permission_warning_sheet.dart';
 import 'package:prayer_times/features/onboarding/services/onboarding_service.dart';
 import 'package:prayer_times/features/prayers/presentation/viewmodels/prayer_view_model.dart';
@@ -36,6 +37,7 @@ class _OnboardingViewState extends State<OnboardingView> {
   NotificationChoice _notificationChoice = NotificationChoice.notifications;
   bool _isCompleting = false;
   bool _permissionsGranted = false;
+  bool _isRequestingPermissions = false;
 
   @override
   void dispose() {
@@ -44,45 +46,27 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   void _nextPage() async {
-    // When moving from notification step to completion step, run permission flow
-    if (_currentPage == 2) {
-      if (_notificationChoice == NotificationChoice.none) {
-        setState(() => _permissionsGranted = false);
-      } else if (Platform.isAndroid) {
-        final isAzaan = _notificationChoice == NotificationChoice.azaan;
-        final granted =
-            await PermissionService.requestFullNotificationPermissions(
-              isAzaanMode: isAzaan,
-            );
-
-        if (!granted) {
-          if (!mounted) return;
-          // Check if notification permission is permanently denied by the system
-          final isPermanent =
-              await PermissionService.isNotificationPermanentlyDenied();
-
-          if (!mounted) return;
-          final action = await PermissionWarningSheet.show(
-            context,
-            isAzaanMode: isAzaan,
-            isPermanentlyDenied: isPermanent,
-          );
-
-          if (action == PermissionWarningAction.tryAgain ||
-              action == PermissionWarningAction.openSettings) {
-            // User either wants to retry or has returned from app settings
-            _nextPage();
-            return;
-          }
-          // Dismissed or null — stay on current page, user can change choice or retry
-          return;
-        } else {
-          setState(() => _permissionsGranted = true);
-        }
-      }
+    // Skip permissions step entirely when user chose no notifications
+    if (_currentPage == 2 && _notificationChoice == NotificationChoice.none) {
+      setState(() {
+        _permissionsGranted = false;
+      });
+      _pageController.animateToPage(
+        4,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      return;
     }
 
-    if (_currentPage < 3) {
+    // If leaving permissions step without grants, fall back to "No notifications"
+    if (_currentPage == 3 && !_permissionsGranted) {
+      setState(() {
+        _notificationChoice = NotificationChoice.none;
+      });
+    }
+
+    if (_currentPage < 4) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -91,12 +75,85 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   void _previousPage() {
+    if (_currentPage == 4 && _notificationChoice == NotificationChoice.none) {
+      _pageController.animateToPage(
+        2,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      return;
+    }
+
     if (_currentPage > 0) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  Future<void> _requestPermissions() async {
+    if (_isRequestingPermissions) return;
+
+    if (_notificationChoice == NotificationChoice.none) {
+      setState(() => _permissionsGranted = false);
+      return;
+    }
+
+    if (!Platform.isAndroid) {
+      setState(() => _permissionsGranted = true);
+      return;
+    }
+
+    setState(() => _isRequestingPermissions = true);
+
+    final isAzaan = _notificationChoice == NotificationChoice.azaan;
+    final granted = await PermissionService.requestFullNotificationPermissions(
+      isAzaanMode: isAzaan,
+    );
+
+    if (!mounted) {
+      setState(() => _isRequestingPermissions = false);
+      return;
+    }
+
+    if (!granted) {
+      // Check if notification permission is permanently denied by the system
+      final isPermanent =
+          await PermissionService.isNotificationPermanentlyDenied();
+
+      if (!mounted) {
+        setState(() => _isRequestingPermissions = false);
+        return;
+      }
+
+      final action = await PermissionWarningSheet.show(
+        context,
+        isAzaanMode: isAzaan,
+        isPermanentlyDenied: isPermanent,
+      );
+
+      setState(() => _isRequestingPermissions = false);
+
+      if (action == PermissionWarningAction.tryAgain ||
+          action == PermissionWarningAction.openSettings) {
+        // User either wants to retry or has returned from app settings
+        await _requestPermissions();
+        return;
+      }
+
+      // Dismissed or skipped — fall back to no notifications
+      setState(() {
+        _permissionsGranted = false;
+        _notificationChoice = NotificationChoice.none;
+      });
+      return;
+    }
+
+    setState(() {
+      _permissionsGranted = true;
+      _isRequestingPermissions = false;
+    });
   }
 
   Future<void> _completeOnboarding() async {
@@ -173,9 +230,22 @@ class _OnboardingViewState extends State<OnboardingView> {
                     onChoiceSelected: (choice) {
                       setState(() {
                         _notificationChoice = choice;
+                        _permissionsGranted = false;
                         if (choice == NotificationChoice.none) {
                           _permissionsGranted = false;
                         }
+                      });
+                    },
+                  ),
+                  PermissionsStep(
+                    selectedChoice: _notificationChoice,
+                    permissionsGranted: _permissionsGranted,
+                    isRequesting: _isRequestingPermissions,
+                    onRequestPermissions: _requestPermissions,
+                    onSkip: () {
+                      setState(() {
+                        _notificationChoice = NotificationChoice.none;
+                        _permissionsGranted = false;
                       });
                     },
                   ),
@@ -203,7 +273,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           SmoothPageIndicator(
             controller: _pageController,
-            count: 4,
+            count: 5,
             effect: WormEffect(
               dotWidth: 8,
               dotHeight: 8,
@@ -245,7 +315,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 child: ElevatedButton(
                   onPressed: _isCompleting
                       ? null
-                      : (_currentPage == 3 ? _completeOnboarding : _nextPage),
+                      : (_currentPage == 4 ? _completeOnboarding : _nextPage),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.appOrange,
                     foregroundColor: Colors.white,
@@ -265,7 +335,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                           ),
                         )
                       : Text(
-                          _currentPage == 3
+                          _currentPage == 4
                               ? AppLocalizations.of(context)!.getStarted
                               : AppLocalizations.of(context)!.next,
                           style: const TextStyle(
