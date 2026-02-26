@@ -31,6 +31,8 @@ class PermissionsStep extends StatelessWidget {
     final isNone = selectedChoice == NotificationChoice.none;
     final isAllowed = permissionsGranted && !isNone;
 
+    final xiaomiFamilyFuture = DeviceService.isXiaomiFamily();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -107,68 +109,47 @@ class PermissionsStep extends StatelessWidget {
                       isDark: isDark,
                     ),
                   ],
-                  const SizedBox(height: 20),
                   FutureBuilder<bool>(
-                    future: DeviceService.isXiaomiFamily(),
+                    future: xiaomiFamilyFuture,
                     builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox(height: 16);
+                      }
+
                       if (snapshot.hasData && snapshot.data == true) {
                         return Column(
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.info_outline_rounded,
-                                  size: 16,
-                                  color: Colors.amber,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    strings.onboardingPermissionsTipXiaomi,
-                                    style: textTheme.bodySmall?.copyWith(
-                                      color: isDark
-                                          ? Colors.white60
-                                          : Colors.black54,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                             const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  await AlarmService.openLockScreenNotifications();
-                                },
-                                icon: const Icon(Icons.lock_open_rounded),
-                                label: Text(strings.onboardingPermOpenSettings),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
-                                  side: BorderSide(
-                                    color: isDark
-                                        ? Colors.white24
-                                        : Colors.black26,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppTheme.smallRadius,
-                                    ),
-                                  ),
-                                ),
+                            _PermissionCard(
+                              icon: Icons.lock_open_rounded,
+                              title: strings.onboardingPermOpenSettings,
+                              description:
+                                  strings.onboardingPermissionsTipXiaomi,
+                              badgeLabel: strings.onboardingPermissionsRequired,
+                              badgeColor: AppTheme.appOrange.withValues(
+                                alpha: 0.14,
                               ),
+                              badgeTextColor: AppTheme.appOrange,
+                              onPrimary: isRequesting
+                                  ? null
+                                  : () async {
+                                      await AlarmService.openLockScreenNotifications();
+                                    },
+                              primaryLabel: strings.onboardingPermOpenSettings,
+                              primaryBusy: false,
+                              onSecondary: null,
+                              secondaryLabel: '',
+                              info: strings.onboardingPermissionsInfoAzaan,
+                              isDark: isDark,
                             ),
-                            const SizedBox(height: 16),
                           ],
                         );
                       }
+
                       return const SizedBox.shrink();
                     },
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
