@@ -131,6 +131,16 @@ class AlarmMethodChannel(private val context: Context) : MethodChannel.MethodCal
                 }
             }
 
+            "openLockScreenNotifications" -> {
+                try {
+                    openLockScreenNotifications(context)
+                    result.success(true)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error opening lock screen notifications: ${e.message}")
+                    result.error("OPEN_LOCK_SCREEN_ERROR", e.message, null)
+                }
+            }
+
             "getScheduledAlarms" -> {
                 try {
                     val storage = AlarmStorage(context)
@@ -153,5 +163,44 @@ class AlarmMethodChannel(private val context: Context) : MethodChannel.MethodCal
 
             else -> result.notImplemented()
         }
+    }
+
+    private fun openLockScreenNotifications(context: Context) {
+        val pkg = context.packageName
+        val uid = context.applicationInfo.uid
+
+        val intents = listOf(
+            Intent("miui.intent.action.APP_NOTIFICATION_SETTINGS").apply {
+                putExtra("app_package", pkg)
+                putExtra("app_uid", uid)
+            },
+            Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity")
+                putExtra("extra_pkgname", pkg)
+            },
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, pkg)
+            },
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", pkg, null)
+            }
+        )
+
+        for (intent in intents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+                return
+            } catch (_: Exception) {
+                continue
+            }
+        }
+
+        // If all intents fail, fall back to standard app settings
+        val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", pkg, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(fallback)
     }
 }

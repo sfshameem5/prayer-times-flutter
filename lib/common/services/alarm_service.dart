@@ -96,4 +96,16 @@ class AlarmService {
       );
     }
   }
+
+  static Future<void> openLockScreenNotifications() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('openLockScreenNotifications');
+    } catch (e) {
+      await SentryService.logString(
+        "Error opening lock screen notifications: $e",
+      );
+    }
+  }
 }

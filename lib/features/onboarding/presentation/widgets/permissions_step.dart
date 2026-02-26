@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/config/theme.dart';
 import 'package:prayer_times/features/onboarding/presentation/widgets/notification_step.dart';
 import 'package:prayer_times/l10n/app_localizations.dart';
+import 'package:prayer_times/common/services/device_service.dart';
+import 'package:prayer_times/common/services/alarm_service.dart';
 
 class PermissionsStep extends StatelessWidget {
   final NotificationChoice selectedChoice;
@@ -106,27 +108,67 @@ class PermissionsStep extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        Icons.info_outline_rounded,
-                        size: 16,
-                        color: Colors.amber,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          strings.onboardingPermissionsTipXiaomi,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: isDark ? Colors.white60 : Colors.black54,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
+                  FutureBuilder<bool>(
+                    future: DeviceService.isXiaomiFamily(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data == true) {
+                        return Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.info_outline_rounded,
+                                  size: 16,
+                                  color: Colors.amber,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    strings.onboardingPermissionsTipXiaomi,
+                                    style: textTheme.bodySmall?.copyWith(
+                                      color: isDark
+                                          ? Colors.white60
+                                          : Colors.black54,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  await AlarmService.openLockScreenNotifications();
+                                },
+                                icon: const Icon(Icons.lock_open_rounded),
+                                label: Text(strings.onboardingPermOpenSettings),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  side: BorderSide(
+                                    color: isDark
+                                        ? Colors.white24
+                                        : Colors.black26,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.smallRadius,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),
