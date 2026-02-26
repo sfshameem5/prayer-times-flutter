@@ -3,12 +3,16 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/features/qibla/data/repositories/qibla_repository.dart';
 import 'package:prayer_times/features/qibla/services/qibla_native_service.dart';
 
 class QiblaViewModel extends ChangeNotifier {
   final QiblaRepository _repository;
   final QiblaNativeService _nativeService;
+  final MMKV _mmkv = MMKV.defaultMMKV();
+
+  static const String _permissionPromptedKey = 'qibla_permission_prompted';
 
   static const double _alignmentThreshold = 3.0;
 
@@ -21,6 +25,7 @@ class QiblaViewModel extends ChangeNotifier {
   String? _provider;
   bool _needsCalibration = false;
   bool _isUnsupported = false;
+  bool _shouldShowPermissionPrompt = false;
 
   StreamSubscription<QiblaNativeEvent>? _subscription;
 
@@ -29,6 +34,8 @@ class QiblaViewModel extends ChangeNotifier {
     QiblaNativeService? nativeService,
   }) : _repository = repository ?? QiblaRepository(),
        _nativeService = nativeService ?? QiblaNativeService() {
+    _shouldShowPermissionPrompt =
+        _mmkv.decodeBool(_permissionPromptedKey) != true;
     _qiblaDirection = _repository.getQiblaDirection();
     _startNative();
   }
@@ -43,6 +50,7 @@ class QiblaViewModel extends ChangeNotifier {
   String? get provider => _provider;
   bool get needsCalibration => _needsCalibration;
   bool get isUnsupported => _isUnsupported;
+  bool get shouldShowPermissionPrompt => _shouldShowPermissionPrompt;
 
   double get rotationAngle {
     if (!_hasCompassData) return 0.0;
@@ -103,6 +111,24 @@ class QiblaViewModel extends ChangeNotifier {
       storedLng: coords.longitude,
       storedName: _repository.locationName,
     );
+  }
+
+  Future<void> requestLocationPermission() async {
+    final coords = _repository.storedCoordinates;
+    await _nativeService.start(
+      storedLat: coords.latitude,
+      storedLng: coords.longitude,
+      storedName: _repository.locationName,
+      requestLocationPermission: true,
+    );
+  }
+
+  void markPermissionPrompted() {
+    _mmkv.encodeBool(_permissionPromptedKey, true);
+    if (_shouldShowPermissionPrompt) {
+      _shouldShowPermissionPrompt = false;
+      notifyListeners();
+    }
   }
 
   @override

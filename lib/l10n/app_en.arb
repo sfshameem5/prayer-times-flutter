@@ -114,6 +114,11 @@
   "qiblaCalibrateNeeded": "Your compass needs calibration. Move your device in a gentle figure-8 motion.",
   "qiblaCalibrateGeneral": "Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.",
 
+  "qiblaPermissionTitle": "Improve Qibla accuracy",
+  "qiblaPermissionBody": "Compass readings can be affected by nearby magnetic fields or metal objects. Allowing location helps us refine the Qibla direction for your area.",
+  "qiblaPermissionAllow": "Allow location",
+  "qiblaPermissionSkip": "Skip for now",
+
   "prayerTimesTitle": "Prayer Times",
   "languagePickerLabel": "Language",
   "regionLabel": "Region",

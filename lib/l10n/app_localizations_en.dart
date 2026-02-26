@@ -363,6 +363,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.';
 
   @override
+  String get qiblaPermissionTitle => 'Improve Qibla accuracy';
+
+  @override
+  String get qiblaPermissionBody =>
+      'Compass readings can be affected by nearby magnetic fields or metal objects. Allowing location helps us refine the Qibla direction for your area.';
+
+  @override
+  String get qiblaPermissionAllow => 'Allow location';
+
+  @override
+  String get qiblaPermissionSkip => 'Skip for now';
+
+  @override
   String get prayerTimesTitle => 'Prayer Times';
 
   @override

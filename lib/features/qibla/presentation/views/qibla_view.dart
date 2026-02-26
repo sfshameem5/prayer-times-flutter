@@ -19,6 +19,14 @@ class QiblaView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Consumer<QiblaViewModel>(
             builder: (context, viewModel, child) {
+              if (viewModel.shouldShowPermissionPrompt) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!context.mounted) return;
+                  viewModel.markPermissionPrompted();
+                  _showPermissionDialog(context, viewModel);
+                });
+              }
+
               return Column(
                 children: [
                   const SizedBox(height: 20),
@@ -188,5 +196,34 @@ class QiblaView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showPermissionDialog(
+    BuildContext context,
+    QiblaViewModel viewModel,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final allow = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.qiblaPermissionTitle),
+        content: Text(l10n.qiblaPermissionBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.qiblaPermissionSkip),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.qiblaPermissionAllow),
+          ),
+        ],
+      ),
+    );
+
+    if (allow == true) {
+      await viewModel.requestLocationPermission();
+    }
   }
 }

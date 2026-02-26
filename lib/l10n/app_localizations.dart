@@ -754,6 +754,30 @@ abstract class AppLocalizations {
   /// **'Compass accuracy may be affected by nearby electronic devices or metal objects. Calibrate by moving your phone in a figure-8 pattern.'**
   String get qiblaCalibrateGeneral;
 
+  /// No description provided for @qiblaPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve Qibla accuracy'**
+  String get qiblaPermissionTitle;
+
+  /// No description provided for @qiblaPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass readings can be affected by nearby magnetic fields or metal objects. Allowing location helps us refine the Qibla direction for your area.'**
+  String get qiblaPermissionBody;
+
+  /// No description provided for @qiblaPermissionAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location'**
+  String get qiblaPermissionAllow;
+
+  /// No description provided for @qiblaPermissionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get qiblaPermissionSkip;
+
   /// No description provided for @prayerTimesTitle.
   ///
   /// In en, this message translates to:

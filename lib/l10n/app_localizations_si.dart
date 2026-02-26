@@ -346,21 +346,34 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get qiblaUnsupported =>
-      'ඔබගේ උපකරණය කුම්පස් ක්‍රියාකාරකමට සහය නොදෙයි. කිබ්ලා දිශාව නොමැත.';
+      'ඔබගේ උපාංගය තොරතුරු දක්නාව (කම්පස්) සහය නොදක්වයි. කිබ්ලා දිශාව ලබාගත නොහැක.';
 
   @override
-  String get qiblaLocationLabel => 'ස්ථානය';
+  String get qiblaLocationLabel => 'පිහිටුම';
 
   @override
   String get qiblaBearingLabel => 'කිබ්ලා දිශාව';
 
   @override
   String get qiblaCalibrateNeeded =>
-      'ඔබගේ කුම්පස් සම්බන්ධනය අවශ්‍යයි. උපාංගය සෙමින් 8 ආකාරයෙන් සංචලනය කරන්න.';
+      'ඔබගේ කම්පස්ය සකස් කිරීමට අවශ්‍යයි. උපාංගය මෘදු අට අකාරයෙන් ගෙනයන්න.';
 
   @override
   String get qiblaCalibrateGeneral =>
-      'නැඳි එලෙක්ට්‍රොනික උපාංග හෝ ලෝහ ද්‍රව්‍ය කුම්පස් නිරවද්‍යතාවට බලපායි. දුරකතනය 8 ආකාරයෙන් සංචලනය කර සම්බන්ධනය කරන්න.';
+      'අසල ඇති විද්‍යුත් උපාංග හෝ ලෝහ වස්තූන් නිසා කම්පස් නිරවද්‍යතාවට බලපායි. ඔබේ දුරකථනය අට අකාරයෙන් ගෙන යාමෙන් සකස් කරන්න.';
+
+  @override
+  String get qiblaPermissionTitle => 'කිබ්ලා නිරවද්‍යතාව වැඩි කරන්න';
+
+  @override
+  String get qiblaPermissionBody =>
+      'කම්පස් කියවීම් අසල ඇති චුම්බක ක්ෂේත්‍ර හෝ ලෝහ වස්තූන්ගෙන් බලපෑම් ලබන්න පුළුවන්. පිහිටුම් අවසරය දීමෙන් ඔබගේ ප්‍රදේශයට අදාළව කිබ්ලා දිශාව තවදුරටත් නිරවද්‍ය කරගන්න අපට උදව් වේ.';
+
+  @override
+  String get qiblaPermissionAllow => 'පිහිටුම අවසර දෙන්න';
+
+  @override
+  String get qiblaPermissionSkip => 'දැනට පසුව';
 
   @override
   String get prayerTimesTitle => 'නමස් වේලාවන්';

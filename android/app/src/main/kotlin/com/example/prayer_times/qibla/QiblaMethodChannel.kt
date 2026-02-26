@@ -29,8 +29,11 @@ class QiblaMethodChannel(
                 val storedLat = call.argument<Double>("storedLat") ?: 0.0
                 val storedLng = call.argument<Double>("storedLng") ?: 0.0
                 val storedName = call.argument<String>("storedName") ?: ""
+                val requestLocation = call.argument<Boolean>("requestLocation") ?: false
                 startProvider(activity, storedLat, storedLng, storedName)
-                PermissionUtils.requestLocationIfNeeded(activity)
+                if (requestLocation) {
+                    PermissionUtils.requestLocationIfNeeded(activity)
+                }
                 result.success(null)
             }
             "stop" -> {

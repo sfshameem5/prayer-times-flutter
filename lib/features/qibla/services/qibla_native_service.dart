@@ -64,11 +64,13 @@ class QiblaNativeService {
     required double storedLat,
     required double storedLng,
     required String storedName,
+    bool requestLocationPermission = false,
   }) async {
     await _channel.invokeMethod('start', {
       'storedLat': storedLat,
       'storedLng': storedLng,
       'storedName': storedName,
+      'requestLocation': requestLocationPermission,
     });
   }
 

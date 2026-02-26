@@ -357,11 +357,24 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get qiblaCalibrateNeeded =>
-      'உங்கள் திசைகாட்டி சரிசெய்ய வேண்டும். சாதனத்தை மெதுவாக எண்-8 வடிவில் அசைக்கவும்.';
+      'உங்கள் திசைகாட்டி சீரமைப்பு தேவை. உங்கள் சாதனத்தை மென்மையான எட்டு வடிவத்தில் அசைக்கவும்.';
 
   @override
   String get qiblaCalibrateGeneral =>
-      'அருகிலுள்ள மின்சாதனங்கள்/உலோகம் திசைகாட்டி துல்லியத்தை பாதிக்கலாம். எண்-8 வடிவில் அசைத்து சரிசெய்க.';
+      'அருகிலுள்ள மின்சாதனங்கள் அல்லது இரும்பு பொருட்கள் திசைகாட்டி துல்லியத்தை பாதிக்கலாம். உங்கள் போனையை எட்டு வடிவத்தில் அசைத்து சீரமைக்கவும்.';
+
+  @override
+  String get qiblaPermissionTitle => 'கிப்லா துல்லியத்தை மேம்படுத்துங்கள்';
+
+  @override
+  String get qiblaPermissionBody =>
+      'காந்தப் புலங்கள் அல்லது இரும்பு பொருட்கள் திசைகாட்டியை பாதிக்கலாம். இடம் அனுமதியை வழங்குவது உங்கள் பகுதியில் கிப்லா திசையை நாங்கள் துல்லியமாக்க உதவும்.';
+
+  @override
+  String get qiblaPermissionAllow => 'இடத்தை அனுமதிக்கவும்';
+
+  @override
+  String get qiblaPermissionSkip => 'பின்னர்';
 
   @override
   String get prayerTimesTitle => 'தொழுகை நேரங்கள்';
