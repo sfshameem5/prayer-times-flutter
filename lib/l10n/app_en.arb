@@ -20,6 +20,8 @@
   "onboardingChoiceNotificationsDesc": "Get a notification reminder for each prayer",
   "onboardingChoiceAzaan": "Azaan Alarm",
   "onboardingChoiceAzaanDesc": "Play the Azaan sound as a full alarm for each prayer",
+  "onboardingChoiceNone": "No notifications",
+  "onboardingChoiceNoneDesc": "I don't want any reminders. I'll enable them later in Settings.",
   "onboardingChoiceInfo": "You can configure this per prayer later in Settings",
   "onboardingAllSet": "You're All Set!",
   "onboardingReady": "Your prayer times are ready",

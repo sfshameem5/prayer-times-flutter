@@ -52,7 +52,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get onboardingReminderQuestion =>
-      'நமாஸிற்கான நினைவூட்டலை எப்படிப் பெற விரும்புகிறீர்கள்?';
+      'தொழுகைக்கான நினைவூட்டலை எப்படிப் பெற விரும்புகிறீர்கள்?';
 
   @override
   String get onboardingChoiceNotifications => 'அறிவிப்புகள்';
@@ -67,6 +67,13 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get onboardingChoiceAzaanDesc =>
       'ஒவ்வொரு நமாஸுக்கும் முழு அலாரமாக அதான் ஒலி';
+
+  @override
+  String get onboardingChoiceNone => 'அறிவிப்புகள் வேண்டாம்';
+
+  @override
+  String get onboardingChoiceNoneDesc =>
+      'எனக்கு நினைவூட்டல் வேண்டாம். பின்னர் அமைப்புகளில் இயக்குவேன்.';
 
   @override
   String get onboardingChoiceInfo => 'பிறகு அமைப்புகளில் இதை மாற்றலாம்';

@@ -29,6 +29,7 @@ class LanguageStep extends StatelessWidget {
             style: Theme.of(
               context,
             ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(

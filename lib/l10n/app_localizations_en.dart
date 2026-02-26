@@ -70,6 +70,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Play the Azaan sound as a full alarm for each prayer';
 
   @override
+  String get onboardingChoiceNone => 'No notifications';
+
+  @override
+  String get onboardingChoiceNoneDesc =>
+      'I don\'t want any reminders. I\'ll enable them later in Settings.';
+
+  @override
   String get onboardingChoiceInfo =>
       'You can configure this per prayer later in Settings';
 

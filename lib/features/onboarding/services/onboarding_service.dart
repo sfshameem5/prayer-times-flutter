@@ -21,6 +21,7 @@ class OnboardingService {
   static Future<void> completeOnboarding({
     required String selectedCity,
     required bool useAzaan,
+    required bool disableAllNotifications,
     required AppThemeMode themeMode,
     required bool notificationsEnabled,
     required String languageCode,
@@ -32,18 +33,26 @@ class OnboardingService {
     for (final prayer in PrayerNameEnum.values) {
       if (prayer == PrayerNameEnum.sunrise) {
         // Sunrise never gets azaan
-        modes[prayer] = PrayerNotificationMode.defaultSound;
-      } else {
-        modes[prayer] = useAzaan
-            ? PrayerNotificationMode.azaan
+        modes[prayer] = disableAllNotifications
+            ? PrayerNotificationMode.silent
             : PrayerNotificationMode.defaultSound;
+      } else {
+        modes[prayer] = disableAllNotifications
+            ? PrayerNotificationMode.silent
+            : (useAzaan
+                  ? PrayerNotificationMode.azaan
+                  : PrayerNotificationMode.defaultSound);
       }
     }
 
     // Save settings — alarmsEnabled must match the user's azaan choice
     final settings = SettingsModel(
-      notificationsEnabled: notificationsEnabled,
-      alarmsEnabled: useAzaan && notificationsEnabled,
+      notificationsEnabled: disableAllNotifications
+          ? false
+          : notificationsEnabled,
+      alarmsEnabled: disableAllNotifications
+          ? false
+          : (useAzaan && notificationsEnabled),
       prayerNotificationModes: modes,
       themeMode: themeMode,
       selectedCity: selectedCity,
@@ -53,7 +62,7 @@ class OnboardingService {
     await settingsService.saveSettings(settings);
     LocationService.setSelectedCity(selectedCity);
 
-    if (notificationsEnabled) {
+    if (!disableAllNotifications && notificationsEnabled) {
       // Initialize Workmanager for background scheduling (Android only)
       if (Platform.isAndroid) {
         await Workmanager().initialize(bg.callbackDispatcher);

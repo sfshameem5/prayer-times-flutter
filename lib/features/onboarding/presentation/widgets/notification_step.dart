@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/config/theme.dart';
 
-enum NotificationChoice { notifications, azaan }
+enum NotificationChoice { notifications, azaan, none }
 
 class NotificationStep extends StatelessWidget {
   final NotificationChoice selectedChoice;
@@ -68,6 +68,15 @@ class NotificationStep extends StatelessWidget {
                     description: strings.onboardingChoiceAzaanDesc,
                     isSelected: selectedChoice == NotificationChoice.azaan,
                     onTap: () => onChoiceSelected(NotificationChoice.azaan),
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 16),
+                  _ChoiceCard(
+                    icon: Icons.notifications_off_outlined,
+                    title: strings.onboardingChoiceNone,
+                    description: strings.onboardingChoiceNoneDesc,
+                    isSelected: selectedChoice == NotificationChoice.none,
+                    onTap: () => onChoiceSelected(NotificationChoice.none),
                     isDark: isDark,
                   ),
                 ],

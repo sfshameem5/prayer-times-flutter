@@ -70,6 +70,13 @@ class AppLocalizationsSi extends AppLocalizations {
       'එක් එක් නමස් සඳහා සම්පූර්ණ ඇලාම් ලෙස අදාන් ඕලි';
 
   @override
+  String get onboardingChoiceNone => 'දැනුම්දීම් නොවේ';
+
+  @override
+  String get onboardingChoiceNoneDesc =>
+      'මට මතක් කිරීම් අවශ්‍ය නැහැ. පසුව සිටුවම් තුළ සක්‍රීය කරගන්නම්.';
+
+  @override
   String get onboardingChoiceInfo => 'පසුව සිටුවම් තුළ මෙය වෙනස් කළ හැක';
 
   @override

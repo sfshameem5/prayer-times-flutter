@@ -214,6 +214,18 @@ abstract class AppLocalizations {
   /// **'Play the Azaan sound as a full alarm for each prayer'**
   String get onboardingChoiceAzaanDesc;
 
+  /// No description provided for @onboardingChoiceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get onboardingChoiceNone;
+
+  /// No description provided for @onboardingChoiceNoneDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'I don\'t want any reminders. I\'ll enable them later in Settings.'**
+  String get onboardingChoiceNoneDesc;
+
   /// No description provided for @onboardingChoiceInfo.
   ///
   /// In en, this message translates to:

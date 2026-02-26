@@ -20,6 +20,8 @@
   "onboardingChoiceNotificationsDesc": "එක් එක් නමස් සඳහා දැනුම්දීම් ලබා ගන්න",
   "onboardingChoiceAzaan": "ආගමික ඇඟවීම",
   "onboardingChoiceAzaanDesc": "එක් එක් නමස් සඳහා සම්පූර්ණ ඇලාම් ලෙස අදාන් ඕලි",
+  "onboardingChoiceNone": "දැනුම්දීම් නොවේ",
+  "onboardingChoiceNoneDesc": "මට මතක් කිරීම් අවශ්‍ය නැහැ. පසුව සිටුවම් තුළ සක්‍රීය කරගන්නම්.",
   "onboardingChoiceInfo": "පසුව සිටුවම් තුළ මෙය වෙනස් කළ හැක",
   "onboardingAllSet": "සියල්ලම සූදානම්!",
   "onboardingReady": "ඔබගේ නමස් වේලාවන් සූදානම්",

@@ -45,36 +45,40 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   void _nextPage() async {
     // When moving from notification step to completion step, run permission flow
-    if (_currentPage == 2 && Platform.isAndroid) {
-      final isAzaan = _notificationChoice == NotificationChoice.azaan;
-      final granted =
-          await PermissionService.requestFullNotificationPermissions(
+    if (_currentPage == 2) {
+      if (_notificationChoice == NotificationChoice.none) {
+        setState(() => _permissionsGranted = false);
+      } else if (Platform.isAndroid) {
+        final isAzaan = _notificationChoice == NotificationChoice.azaan;
+        final granted =
+            await PermissionService.requestFullNotificationPermissions(
+              isAzaanMode: isAzaan,
+            );
+
+        if (!granted) {
+          if (!mounted) return;
+          // Check if notification permission is permanently denied by the system
+          final isPermanent =
+              await PermissionService.isNotificationPermanentlyDenied();
+
+          if (!mounted) return;
+          final action = await PermissionWarningSheet.show(
+            context,
             isAzaanMode: isAzaan,
+            isPermanentlyDenied: isPermanent,
           );
 
-      if (!granted) {
-        if (!mounted) return;
-        // Check if notification permission is permanently denied by the system
-        final isPermanent =
-            await PermissionService.isNotificationPermanentlyDenied();
-
-        if (!mounted) return;
-        final action = await PermissionWarningSheet.show(
-          context,
-          isAzaanMode: isAzaan,
-          isPermanentlyDenied: isPermanent,
-        );
-
-        if (action == PermissionWarningAction.tryAgain ||
-            action == PermissionWarningAction.openSettings) {
-          // User either wants to retry or has returned from app settings
-          _nextPage();
+          if (action == PermissionWarningAction.tryAgain ||
+              action == PermissionWarningAction.openSettings) {
+            // User either wants to retry or has returned from app settings
+            _nextPage();
+            return;
+          }
+          // Dismissed or null — stay on current page, user can change choice or retry
           return;
+        } else {
+          setState(() => _permissionsGranted = true);
         }
-        // Dismissed or null — stay on current page, user can change choice or retry
-        return;
-      } else {
-        setState(() => _permissionsGranted = true);
       }
     }
 
@@ -104,6 +108,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       await OnboardingService.completeOnboarding(
         selectedCity: _selectedCity,
         useAzaan: _notificationChoice == NotificationChoice.azaan,
+        disableAllNotifications: _notificationChoice == NotificationChoice.none,
         themeMode: _selectedThemeMode,
         notificationsEnabled: _permissionsGranted,
         languageCode: _selectedLocale.languageCode,
@@ -166,7 +171,12 @@ class _OnboardingViewState extends State<OnboardingView> {
                   NotificationStep(
                     selectedChoice: _notificationChoice,
                     onChoiceSelected: (choice) {
-                      setState(() => _notificationChoice = choice);
+                      setState(() {
+                        _notificationChoice = choice;
+                        if (choice == NotificationChoice.none) {
+                          _permissionsGranted = false;
+                        }
+                      });
                     },
                   ),
                   CompletionStep(
