@@ -285,6 +285,14 @@ class AppLocalizationsSi extends AppLocalizations {
       'මෙය ප්‍රාර්ථනා වේලාවන් යෙදුමෙන් පරීක්ෂණ දැනුම්දීමකි';
 
   @override
+  String get offlineBanner =>
+      'අන්තර්ජාල සම්බන්ධතාවක් නැත. සුරක්ෂිත දත්ත පෙන්වයි.';
+
+  @override
+  String get prayerOfflineNoData =>
+      'අන්තර්ජාලයෙන් වෙන්වී ඇත. නමස් වේලාවන් ලබාගැනීමට සම්බන්ධ වන්න.';
+
+  @override
   String get testAlarmBody => 'මෙය ප්‍රාර්ථනා වේලාවන් යෙදුමෙන් පරීක්ෂණ ඇලාම්කි';
 
   @override
@@ -452,6 +460,14 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get calendarLoading => 'දිනදර්ශනය පූරණය වේ...';
+
+  @override
+  String get calendarOfflineError =>
+      'ඔබ අන්තර්ජාලයෙන් වෙන්වී ඇත. සම්බන්ධ වී නැවත උත්සාහ කරන්න.';
+
+  @override
+  String get calendarLoadFailedError =>
+      'නමස් වේලාවන් පූරණය කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.';
 
   @override
   String get testNotificationTitle => 'පරීක්ෂණ දැනුම්දීම';

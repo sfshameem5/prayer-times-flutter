@@ -26,7 +26,7 @@ class SettingsView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -53,6 +53,7 @@ dependencies:
   battery_optimization_helper: ^0.2.0
   auto_start_flutter: ^0.3.0
   sentry_flutter: ^9.11.0
+  connectivity_plus: ^5.0.2
   device_info_plus: ^12.3.0
   collection: ^1.18.0
   smooth_page_indicator: ^2.0.1

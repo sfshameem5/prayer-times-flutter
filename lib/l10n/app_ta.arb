@@ -145,7 +145,10 @@
   "calendarTabYearly": "ஆண்டு",
   "calendarNoData": "நாட்காட்டி தரவு இல்லை",
   "calendarLoading": "நாட்காட்டி ஏற்றுகிறது...",
+  "calendarOfflineError": "நீங்கள் இணையதளத்தில் இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.",
+  "calendarLoadFailedError": "தொழுகை நேரங்களை ஏற்ற முடியவில்லை. தயவு செய்து மீண்டும் முயற்சிக்கவும்.",
   "calendarNoPrayerTimes": "தொழுகை நேரங்கள் இல்லை",
+  "offlineBanner": "இணையதள இணைப்பு இல்லை. சேமிக்கப்பட்ட தரவு காட்டப்படுகிறது.",
 
   "testNotificationTitle": "சோதனை அறிவிப்பு",
   "testAlarmTitle": "சோதனை அலாரம்",

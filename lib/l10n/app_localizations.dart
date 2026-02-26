@@ -607,8 +607,20 @@ abstract class AppLocalizations {
   /// No description provided for @testNotificationBody.
   ///
   /// In en, this message translates to:
-  /// **'This is a test notification from Prayer Times'**
+  /// **'This is a test notification for your alarm!'**
   String get testNotificationBody;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Showing cached prayer times.'**
+  String get offlineBanner;
+
+  /// No description provided for @prayerOfflineNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Connect to load prayer times.'**
+  String get prayerOfflineNoData;
 
   /// No description provided for @testAlarmBody.
   ///
@@ -933,6 +945,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading calendar...'**
   String get calendarLoading;
+
+  /// No description provided for @calendarOfflineError.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Connect and retry.'**
+  String get calendarOfflineError;
+
+  /// No description provided for @calendarLoadFailedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load prayer times. Please try again.'**
+  String get calendarLoadFailedError;
 
   /// No description provided for @testNotificationTitle.
   ///

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prayer_times/common/services/connectivity_service.dart';
 import 'package:prayer_times/features/prayers/data/models/display_prayer_model.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_month_model.dart';
 import 'package:prayer_times/features/prayers/services/prayer_times_service.dart';
@@ -9,7 +10,7 @@ class CalendarViewModel extends ChangeNotifier {
   PrayerMonthModel? _monthData;
   int _selectedDay = DateTime.now().day;
   bool _isLoading = false;
-  String? _error;
+  String? _errorCode;
   late DateTime _monthDate;
 
   CalendarViewModel() {
@@ -18,7 +19,7 @@ class CalendarViewModel extends ChangeNotifier {
 
   Future<void> loadMonth() async {
     _isLoading = true;
-    _error = null;
+    _errorCode = null;
     notifyListeners();
 
     try {
@@ -28,8 +29,13 @@ class CalendarViewModel extends ChangeNotifier {
         now.millisecondsSinceEpoch,
       );
       _selectedDay = now.day;
+
+      if (_monthData == null) {
+        final isOnline = ConnectivityService.instance.isOnline;
+        _errorCode = isOnline ? 'load_failed' : 'offline';
+      }
     } catch (e) {
-      _error = 'Failed to load prayer times';
+      _errorCode = 'load_failed';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -44,7 +50,7 @@ class CalendarViewModel extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
-  String? get error => _error;
+  String? get errorCode => _errorCode;
 
   String monthYearLabel(String localeCode) {
     return DateFormat('MMMM yyyy', localeCode).format(_monthDate);

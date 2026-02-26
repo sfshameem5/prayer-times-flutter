@@ -282,7 +282,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationBody =>
-      'This is a test notification from Prayer Times';
+      'This is a test notification for your alarm!';
+
+  @override
+  String get offlineBanner => 'Offline. Showing cached prayer times.';
+
+  @override
+  String get prayerOfflineNoData => 'Offline. Connect to load prayer times.';
 
   @override
   String get testAlarmBody => 'This is a test alarm from Prayer Times';
@@ -452,6 +458,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarLoading => 'Loading calendar...';
+
+  @override
+  String get calendarOfflineError => 'You\'re offline. Connect and retry.';
+
+  @override
+  String get calendarLoadFailedError =>
+      'Failed to load prayer times. Please try again.';
 
   @override
   String get testNotificationTitle => 'Test Notification';

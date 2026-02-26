@@ -285,6 +285,13 @@ class AppLocalizationsTa extends AppLocalizations {
       'இது தொழுகை நேரங்களிலிருந்து ஒரு சோதனை அறிவிப்பு';
 
   @override
+  String get offlineBanner =>
+      'இணையதள இணைப்பு இல்லை. சேமிக்கப்பட்ட தரவு காட்டப்படுகிறது.';
+
+  @override
+  String get prayerOfflineNoData => 'Offline. Connect to load prayer times.';
+
+  @override
   String get testAlarmBody => 'இது தொழுகை நேரங்களிலிருந்து ஒரு சோதனை அலாரம்';
 
   @override
@@ -453,6 +460,14 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get calendarLoading => 'நாட்காட்டி ஏற்றுகிறது...';
+
+  @override
+  String get calendarOfflineError =>
+      'நீங்கள் இணையதளத்தில் இல்லை. இணைத்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get calendarLoadFailedError =>
+      'தொழுகை நேரங்களை ஏற்ற முடியவில்லை. தயவு செய்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get testNotificationTitle => 'சோதனை அறிவிப்பு';

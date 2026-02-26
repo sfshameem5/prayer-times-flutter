@@ -25,6 +25,10 @@ class CountdownTimer extends StatelessWidget {
         final nextPrayer = viewModel.nextPrayer(strings, localeCode);
         final isSunrise = viewModel.isSunrise;
 
+        if (viewModel.offlineNoData) {
+          return const SizedBox.shrink();
+        }
+
         return Container(
           margin: const EdgeInsets.only(top: 24),
           decoration: BoxDecoration(

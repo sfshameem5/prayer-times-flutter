@@ -144,7 +144,11 @@
   "calendarTabYearly": "වාර්ෂික",
   "calendarNoData": "දිනදර්ශන දත්ත නැත",
   "calendarLoading": "දිනදර්ශනය පූරණය වේ...",
+  "calendarOfflineError": "ඔබ අන්තර්ජාලයෙන් වෙන්වී ඇත. සම්බන්ධ වී නැවත උත්සාහ කරන්න.",
+  "calendarLoadFailedError": "නමස් වේලාවන් පූරණය කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.",
   "calendarNoPrayerTimes": "නමස් වේලාවන් නොමැත",
+  "offlineBanner": "අන්තර්ජාල සම්බන්ධතාවක් නැත. සුරක්ෂිත දත්ත පෙන්වයි.",
+  "prayerOfflineNoData": "අන්තර්ජාලයෙන් වෙන්වී ඇත. නමස් වේලාවන් ලබාගැනීමට සම්බන්ධ වන්න.",
 
   "testNotificationTitle": "පරීක්ෂණ දැනුම්දීම",
   "testAlarmTitle": "පරීක්ෂණ ඇලාම්",

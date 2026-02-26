@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
+import 'package:prayer_times/common/services/connectivity_service.dart';
 import 'package:prayer_times/common/services/locale_service.dart';
 import 'package:prayer_times/common/services/notification_service.dart';
 import 'package:prayer_times/common/services/theme_service.dart';
@@ -39,6 +40,7 @@ Future main() async {
   // Only initialize the minimum required before the first frame.
   // MMKV/Cache is needed to read onboarding state; everything else is deferred.
   await CacheManager.initialize();
+  await ConnectivityService.instance.initialize();
   _onboardingCompleted = OnboardingService.isOnboardingCompleted();
 
   runApp(

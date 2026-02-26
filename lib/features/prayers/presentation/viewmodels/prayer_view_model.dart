@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prayer_times/common/services/connectivity_service.dart';
 import 'package:prayer_times/l10n/app_localizations.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
@@ -15,8 +16,11 @@ class PrayerViewModel extends ChangeNotifier {
   List<PrayerModel> _prayersList = [];
   bool _isLoading = true;
   bool _isUpdating = false;
+  bool _isOnline = ConnectivityService.instance.isOnline;
+  bool _offlineNoData = false;
 
   Timer? _timer;
+  StreamSubscription<bool>? _connectivitySub;
   CountdownModel _countdown = CountdownModel(
     hours: "00",
     minutes: "00",
@@ -25,6 +29,18 @@ class PrayerViewModel extends ChangeNotifier {
 
   PrayerViewModel() {
     _init();
+    _connectivitySub = ConnectivityService.instance.onStatusChange.listen((
+      isOnline,
+    ) {
+      if (_isOnline != isOnline) {
+        _isOnline = isOnline;
+        if (isOnline) {
+          updatePrayers();
+        } else {
+          notifyListeners();
+        }
+      }
+    });
   }
 
   Future<void> _init() async {
@@ -36,11 +52,26 @@ class PrayerViewModel extends ChangeNotifier {
     if (_isUpdating) return;
     _isUpdating = true;
 
+    final previousPrayers = List<PrayerModel>.from(_prayersList);
+    final previousNext = _nextPrayer;
+
     _isLoading = _prayersList.isEmpty;
     if (_isLoading) notifyListeners();
 
     _nextPrayer = await PrayerTimesRepository.getNextPrayer();
     _prayersList = await PrayerTimesRepository.getPrayerTimesForToday();
+
+    final hadDataBefore = previousPrayers.isNotEmpty;
+    final gotData = _prayersList.isNotEmpty;
+    final offline = !_isOnline;
+
+    if (!gotData && offline && hadDataBefore) {
+      // Keep previous data when offline fetch fails.
+      _prayersList = previousPrayers;
+      _nextPrayer = previousNext;
+    }
+
+    _offlineNoData = !gotData && !hadDataBefore && offline;
 
     _isLoading = false;
     _isUpdating = false;
@@ -87,6 +118,8 @@ class PrayerViewModel extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
+  bool get isOnline => _isOnline;
+  bool get offlineNoData => _offlineNoData;
 
   bool get isSunrise =>
       _nextPrayer != null && _nextPrayer!.name == PrayerNameEnum.sunrise;
@@ -147,6 +180,7 @@ class PrayerViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _connectivitySub?.cancel();
     super.dispose();
   }
 }

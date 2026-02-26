@@ -40,15 +40,15 @@ class _CalendarViewState extends State<CalendarView> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (viewModel.error != null) {
+          if (viewModel.errorCode != null) {
+            final message = viewModel.errorCode == 'offline'
+                ? strings.calendarOfflineError
+                : strings.calendarLoadFailedError;
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    viewModel.error!,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
+                  Text(message, style: Theme.of(context).textTheme.bodyLarge),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: viewModel.loadMonth,

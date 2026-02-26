@@ -37,7 +37,7 @@ class PermissionsStep extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

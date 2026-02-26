@@ -5,6 +5,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:mmkv/mmkv.dart';
 import 'package:prayer_times/common/data/enums/cache_ttl.dart';
 import 'package:prayer_times/common/services/cache_manager.dart';
+import 'package:prayer_times/common/services/connectivity_service.dart';
 import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
@@ -56,6 +57,8 @@ class PrayerTimesService {
   }) async {
     final selectedCity = city ?? LocationService.getSelectedCity();
 
+    final isOnline = ConnectivityService.instance.isOnline;
+
     var url = Uri.https(_baseUrl, "/prayer/month", {
       "timestamp": timestamp.toString(),
       "city": selectedCity,
@@ -78,25 +81,40 @@ class PrayerTimesService {
 
     var year = DateFormat('y').format(date).toString();
 
-    final response = await http.get(url);
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to fetch prayer times: ${response.statusCode}');
+    if (!isOnline) {
+      await SentryService.logString(
+        'Prayer times offline: no cache for $currentKey',
+      );
+      return null;
     }
 
-    if (response.body.isNotEmpty) {
-      var receivedResponse = json.decode(response.body) as Map<String, dynamic>;
+    try {
+      final response = await http.get(url);
 
-      var monthData = PrayerMonthModel.fromAPI(receivedResponse, year);
-      var toEncode = PrayerMonthModel.toJSON(monthData);
+      if (response.statusCode != 200) {
+        await SentryService.logString(
+          'Failed to fetch prayer times: ${response.statusCode}',
+        );
+        return null;
+      }
 
-      CacheManager.saveStringItem(
-        currentKey,
-        json.encode(toEncode),
-        CacheTTL.ONE_WEEK,
-      );
+      if (response.body.isNotEmpty) {
+        var receivedResponse =
+            json.decode(response.body) as Map<String, dynamic>;
 
-      return monthData;
+        var monthData = PrayerMonthModel.fromAPI(receivedResponse, year);
+        var toEncode = PrayerMonthModel.toJSON(monthData);
+
+        CacheManager.saveStringItem(
+          currentKey,
+          json.encode(toEncode),
+          CacheTTL.ONE_WEEK,
+        );
+
+        return monthData;
+      }
+    } catch (e) {
+      await SentryService.logString('Failed to fetch prayer times: $e');
     }
 
     return null;
