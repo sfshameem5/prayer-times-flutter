@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  auto_start_flutter
   connectivity_plus
   mmkv_win32
   sentry_flutter

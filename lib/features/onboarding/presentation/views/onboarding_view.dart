@@ -172,6 +172,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       );
 
       // Persist locale immediately so the rest of the app updates
+      if (!mounted) return;
       await context.read<LocaleService>().setLocale(_selectedLocale);
 
       if (!mounted) return;

@@ -62,7 +62,7 @@ class NotificationService {
         InitializationSettings(android: initializationSettingsAndroid);
 
     var initialized = await _localNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
     );
 
     if (initialized == false) return;
@@ -112,11 +112,11 @@ class NotificationService {
     );
 
     await _localNotificationsPlugin.zonedSchedule(
-      data.id,
-      data.heading,
-      data.body,
-      scheduledDate,
-      notificationDetails,
+      id: data.id,
+      title: data.heading,
+      body: data.body,
+      scheduledDate: scheduledDate,
+      notificationDetails: notificationDetails,
       androidScheduleMode: AndroidScheduleMode.alarmClock,
       matchDateTimeComponents: data.matchDateTimeComponents,
     );
@@ -144,15 +144,15 @@ class NotificationService {
     );
 
     await _localNotificationsPlugin.show(
-      data.id,
-      data.heading,
-      data.body,
-      notificationDetails,
+      id: data.id,
+      title: data.heading,
+      body: data.body,
+      notificationDetails: notificationDetails,
     );
   }
 
   static Future cancelNotification(int id) async {
-    await _localNotificationsPlugin.cancel(id);
+    await _localNotificationsPlugin.cancel(id: id);
   }
 
   static Future cancelAllNotifications() async {

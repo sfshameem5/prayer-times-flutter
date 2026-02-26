@@ -10,15 +10,15 @@ class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
   final StreamController<bool> _controller = StreamController<bool>.broadcast();
 
-  StreamSubscription<ConnectivityResult>? _subscription;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
   bool _isOnline = true;
 
   Future<void> initialize() async {
     final initial = await _connectivity.checkConnectivity();
-    _isOnline = _mapToOnline(initial);
+    _isOnline = _mapListToOnline(initial);
 
-    _subscription ??= _connectivity.onConnectivityChanged.listen((result) {
-      final online = _mapToOnline(result);
+    _subscription ??= _connectivity.onConnectivityChanged.listen((results) {
+      final online = _mapListToOnline(results);
       if (online != _isOnline) {
         _isOnline = online;
         _controller.add(_isOnline);
@@ -32,6 +32,10 @@ class ConnectivityService {
 
   bool _mapToOnline(ConnectivityResult result) {
     return result != ConnectivityResult.none;
+  }
+
+  bool _mapListToOnline(List<ConnectivityResult> results) {
+    return results.any(_mapToOnline);
   }
 
   Future<void> dispose() async {

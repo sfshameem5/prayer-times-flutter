@@ -70,7 +70,7 @@ class OnboardingService {
           "prayer",
           "prayer-notifications",
           frequency: const Duration(days: 1),
-          existingWorkPolicy: ExistingWorkPolicy.keep,
+          existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
         );
       }
 
