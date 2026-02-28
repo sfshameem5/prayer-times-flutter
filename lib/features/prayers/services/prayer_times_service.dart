@@ -72,7 +72,15 @@ class PrayerTimesService {
     var currentKey = "$_prayerMonthKey $selectedCity $formattedKey";
     var alreadyAvailable = CacheManager.getStringItem(currentKey);
 
-    if (alreadyAvailable != null) {
+    // Due to time zone differences sometimes there can be clashes between current and next month
+    // Confirm that the cache has the right data
+    var monthIntegrityFormatter = DateFormat("MMMM-y");
+    var monthIntegrityString = monthIntegrityFormatter
+        .format(date)
+        .toLowerCase();
+
+    if (alreadyAvailable != null &&
+        alreadyAvailable.contains(monthIntegrityString)) {
       // Here it is a list of prayer models
       var jsonData = json.decode(alreadyAvailable) as Map<String, dynamic>;
       var monthData = PrayerMonthModel.fromJSON(jsonData);
