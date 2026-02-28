@@ -104,7 +104,8 @@ class StartupCoordinator {
     await Workmanager().registerPeriodicTask(
       "prayer",
       "prayer-notifications",
-      frequency: const Duration(days: 1),
+      // Refresh a few times per day to keep the next 5 days scheduled.
+      frequency: const Duration(hours: 3),
       existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
     );
 

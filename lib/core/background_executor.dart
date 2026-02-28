@@ -14,6 +14,7 @@ void callbackDispatcher() {
       await SentryService.logString("Fetching prayer times data");
 
       await PrayerTimesService.prefetchPrayerTimes();
+      await PrayerTimesService.scheduleFiveDayNotifications();
     }
 
     return Future.value(true);

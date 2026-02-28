@@ -8,6 +8,7 @@ import 'package:prayer_times/common/services/cache_manager.dart';
 import 'package:prayer_times/common/services/connectivity_service.dart';
 import 'package:prayer_times/common/services/location_service.dart';
 import 'package:prayer_times/common/services/sentry_service.dart';
+import 'package:prayer_times/features/prayers/data/respositories/prayer_times_repository.dart';
 import 'package:prayer_times/features/prayers/data/enums/prayer_name_enum.dart';
 import 'package:prayer_times/features/prayers/data/models/prayer_day_model.dart';
 import 'package:http/http.dart' as http;
@@ -171,6 +172,22 @@ class PrayerTimesService {
       if (key.contains(_prayerMonthKey) || key.contains(_prayerTodayKey)) {
         mmkv.removeValue(key);
       }
+    }
+  }
+
+  static Future<void> scheduleFiveDayNotifications() async {
+    try {
+      await SentryService.logString(
+        "WorkManager scheduling next 5 days of prayer notifications",
+      );
+
+      await PrayerTimesRepository.scheduleNotifications();
+
+      await SentryService.logString(
+        "WorkManager scheduling completed successfully",
+      );
+    } catch (error) {
+      await SentryService.logString("WorkManager scheduling failed: $error");
     }
   }
 }
